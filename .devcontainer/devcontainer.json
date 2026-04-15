@@ -1,0 +1,56 @@
+{
+  // Dev-Container für ein neues Groovy/Grails-Projekt auf Ubuntu 24.04.
+  "name": "Groovy-Grails-Ubuntu-24.04",
+  "build": {
+    // Ubuntu 24.04 als Basisschicht, damit das Team auf einem klar definierten Host-OS arbeitet.
+    "dockerfile": "Dockerfile",
+    "context": ".."
+  },
+  // VSCode spezifische Anpassungen
+  "customizations": {
+    "vscode": {
+      "settings": {
+        // Konsistente Shell- und Java-Umgebung im Container.
+        "terminal.integrated.defaultProfile.linux": "bash",
+        "java.configuration.runtimes": [
+          {
+            "name": "JavaSE-17",
+            "path": "/home/ubuntu/.sdkman/candidates/java/current",
+            "default": true
+          }
+        ]
+      },
+      "extensions": [
+        // "tomaszrup.groovy-spock-support", // Braucht JDK21, momentan nicht moeglich
+        "marlon407.code-groovy",
+        "GDOTecnologia.gfvscode",
+        "vscjava.vscode-java-pack",
+        "vmware.vscode-spring-boot"
+      ]
+    }
+  },
+  // Unter Linux sorgt das fuer konsistente Dateirechte im gemounteten Workspace.
+  "remoteUser": "ubuntu",
+  "updateRemoteUserUID": true,
+  // Passt den Workspace Ordner so an, dass er im Home des remoteUser liegt
+  "workspaceMount": "source=${localWorkspaceFolder},target=/home/ubuntu/algos2,type=bind",
+  "workspaceFolder": "/home/ubuntu/algos2",
+  "postCreateCommand": "java -version && groovy --version && grails --version || true",
+  "containerEnv": {
+    // Externe PostgreSQL-Verbindung wird absichtlich per Umgebungsvariablen gelöst.
+    // So bleibt die Konfiguration flexibel und es wird kein Datenbank-Container mitgeschleppt.
+    "DB_HOST": "${url_change_in_prod.example.com:DB_HOST}",
+    "DB_PORT": "${5432:DB_PORT}",
+    "DB_NAME": "${name_change_in_prod:DB_NAME}",
+    "DB_USER": "${un_change_in_prod:DB_USER}",
+    "DB_PASSWORD": "${pw_change_in_prod:DB_PASSWORD}"
+  },
+  // Gibt Port 8080 frei um auf die Grails App zugreifen zu können
+  "forwardPorts": [8080],
+  "portsAttributes": {
+    "8080": {
+      "label": "Tomcat / Grails App",
+      "onAutoForward": "notify"
+    }
+  }
+}

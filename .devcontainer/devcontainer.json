@@ -46,10 +46,18 @@
     "DB_PASSWORD": "${pw_change_in_prod:DB_PASSWORD}"
   },
   // Gibt Port 8080 frei um auf die Grails App zugreifen zu können
-  "forwardPorts": [8080],
+  "forwardPorts": [8080, 80, 443],
   "portsAttributes": {
     "8080": {
       "label": "Tomcat / Grails App",
+      "onAutoForward": "notify"
+    },
+    "80": {
+      "label": "Apache2 http",
+      "onAutoForward": "notify"
+    },
+    "443": {
+      "label": "Apache2 https",
       "onAutoForward": "notify"
     }
   }

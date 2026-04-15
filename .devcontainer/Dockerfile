@@ -24,7 +24,13 @@ RUN apt-get update \
        unzip \
        postgresql \
        zip \
+       sudo \
+       nano \
     && rm -rf /var/lib/apt/lists/*
+
+# Ermoeglicht passwordless sudo mit dem ubuntu Nutzer
+RUN echo "ubuntu ALL=(ALL) NOPASSWD:ALL" > /etc/sudoers.d/ubuntu && \
+    chmod 0440 /etc/sudoers.d/ubuntu
 
 # Setzt den user
 USER ${USERNAME}

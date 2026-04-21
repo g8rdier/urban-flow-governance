@@ -102,3 +102,6 @@ replay_pid*
 .ionide
 
 # End of https://www.toptal.com/developers/gitignore/api/grails,groovy,visualstudiocode,java
+
+# VS Code workspace file — open via "File → Open Folder" with devcontainers instead
+*.code-workspace

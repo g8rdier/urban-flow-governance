@@ -28,6 +28,9 @@ RUN apt-get update \
        nano \
     && rm -rf /var/lib/apt/lists/*
 
+# ubuntu:24.04 already includes the ubuntu user; create it only if absent
+RUN id -u ${USERNAME} >/dev/null 2>&1 || useradd -m -s /bin/bash ${USERNAME}
+
 # Ermoeglicht passwordless sudo mit dem ubuntu Nutzer
 RUN echo "ubuntu ALL=(ALL) NOPASSWD:ALL" > /etc/sudoers.d/ubuntu && \
     chmod 0440 /etc/sudoers.d/ubuntu

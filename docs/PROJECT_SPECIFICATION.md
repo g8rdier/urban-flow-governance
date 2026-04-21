@@ -118,13 +118,16 @@ User-Szenario: Marathon wird kurzfristig geplant
 
 Jede Sperrzone durchläuft Zustände:
 
-```
-[In Planung] 
-    → (Admin klickt „Aktivieren")
-[Aktiv/Gesperrt]
-    → (Zeitplan-Ende oder manuelles Deaktivieren)
-[Abgelaufen]
-    → (Archiviert)
+```mermaid
+stateDiagram-v2
+    [*] --> Geplant: Zone anlegen
+
+    Geplant --> Aktiv: Admin aktiviert / Zeitplan-Start
+    Aktiv --> Abgelaufen: Zeitplan-Ende
+    Aktiv --> Abgelaufen: Admin deaktiviert
+    Abgelaufen --> [*]: Archiviert
+
+    note right of Aktiv: Nur aktive Zonen\nbeeinflussen den Route-Check
 ```
 
 **Backend-Logik**: Nur Zonen im Status „Aktiv" beeinflussen Routenprüfung.

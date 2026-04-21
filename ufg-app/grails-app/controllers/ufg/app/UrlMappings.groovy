@@ -1,4 +1,4 @@
-package ufg.app
+package myapp
 
 class UrlMappings {
 

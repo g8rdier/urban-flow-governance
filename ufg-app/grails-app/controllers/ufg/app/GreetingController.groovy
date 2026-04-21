@@ -18,11 +18,15 @@ class GreetingController {
     }
 
     def admin() {
-        render "Admin area. You have ADMIN role."
+        render "Admin area. You have the ADMIN role."
     }
 
     def nutzer() {
-        render "Nutzer area. You have NUTZER role."
+        render "Nutzer area. You have the NUTZER role."
+    }
+
+    def both() {
+        render "Both area. You either have the NUTZER or ADMIN role."
     }
 
 }

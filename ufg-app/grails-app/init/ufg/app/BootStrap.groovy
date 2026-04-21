@@ -4,7 +4,7 @@ class BootStrap {
 
     def init = {
         if (!User.findByUsername("testuser")) {
-            new User(username: "testuser", password: "testpass", role: "USER").save(failOnError: true)
+            new User(username: "testuser", password: "testpass", role: "NUTZER").save(failOnError: true)
         }
 
         if (!User.findByUsername("admin")) {

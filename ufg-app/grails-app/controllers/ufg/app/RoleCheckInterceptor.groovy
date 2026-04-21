@@ -6,9 +6,10 @@ class RoleCheckInterceptor {
     // die Rolle als Value.
     // So kann man neue Rollen bzw. die neue Pfade einfach hinzufügen ohne etwas
     // an der Logik zu aendern.
-    private static final Map<String, String> REQUIRED_ROLE_BY_ENDPOINT = [
-        "greeting:admin": "ADMIN",
-        "greeting:nutzer": "NUTZER"
+    private static final Map<String, List<String>> REQUIRED_ROLE_BY_ENDPOINT = [
+        "greeting:admin": ["ADMIN"],
+        "greeting:nutzer": ["NUTZER"],
+        "greeting:both": ["ADMIN", "NUTZER"]
     ]
 
     RoleCheckInterceptor() {
@@ -17,9 +18,9 @@ class RoleCheckInterceptor {
 
     boolean before() {
         String endpointKey = "${controllerName}:${actionName}"
-        String requiredRole = REQUIRED_ROLE_BY_ENDPOINT[endpointKey]
+        List<String> requiredRoles = REQUIRED_ROLE_BY_ENDPOINT[endpointKey]
 
-        if (!requiredRole) {
+        if (!requiredRoles) {
             return true
         }
 
@@ -36,8 +37,8 @@ class RoleCheckInterceptor {
             return false
         }
 
-        if (user.role != requiredRole) {
-            render status: 403, text: "Role ${requiredRole} required"
+        if (!requiredRoles.contains(user.role)) {
+            render status: 403, text: "Role ${requiredRoles.join(' or ')} required"
             return false
         }
 

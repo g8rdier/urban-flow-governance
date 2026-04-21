@@ -1,3 +1,29 @@
+# Entity-Relationship-Diagramm: Datenbankstruktur
+
+```mermaid
+erDiagram
+    USER {
+        Long id PK
+        String username
+        String password
+    }
+
+    ROLE {
+        Long id PK
+        String name
+    }
+
+    USER_ROLE {
+        Long user_id FK
+        Long role_id FK
+    }
+
+    USER ||--o{ USER_ROLE : "hat"
+    ROLE ||--o{ USER_ROLE : "zugewiesen an"
+```
+
+> Hinweis: `ROLE.name` entspricht den bisherigen Werten `NUTZER` und `ADMIN`, ist aber erweiterbar (z.B. `MODERATOR`, `AUDITOR`).
+
 # Login/Logout Zustandsdiagramm
 
 ```mermaid

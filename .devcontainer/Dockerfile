@@ -26,7 +26,6 @@ RUN apt-get update \
        zip \
        sudo \
        nano \
-       openjdk-21-jdk \
     && rm -rf /var/lib/apt/lists/*
 
 # Ermoeglicht passwordless sudo mit dem ubuntu Nutzer
@@ -36,14 +35,22 @@ RUN echo "ubuntu ALL=(ALL) NOPASSWD:ALL" > /etc/sudoers.d/ubuntu && \
 # Setzt den user
 USER ${USERNAME}
 
-# Grails wird direkt vom GitHub-Repository installiert
-# Nutzt eine stabile, bekannte Version statt dynamisches Fetching
-ARG GRAILS_VERSION=6.1.1
-RUN cd /home/${USERNAME} \
-    && curl -L "https://github.com/grails/grails-core/releases/download/v${GRAILS_VERSION}/grails-${GRAILS_VERSION}.zip" -o grails.zip \
-    && unzip -q grails.zip \
-    && rm grails.zip \
-    && ln -s grails-${GRAILS_VERSION} grails
+# Standard Versionen die installiert werden sollen
+ARG JAVA_VERSION=17.0.18-tem
+ARG GRAILS_VERSION=7.0.10
+ARG GROOVY_VERSION=4.0.31
+ARG TOMCAT_VERSION=9.0.116
 
-ENV PATH="/home/${USERNAME}/grails/bin:${PATH}"
-ENV JAVA_HOME="/usr/lib/jvm/java-21-openjdk-arm64"
+# Startet eine "login" shell. Den folgenden Kommandos stehen also die
+# Umgebungsvariablen zur Verfuegung
+SHELL ["/bin/bash", "-lc"]
+
+# Installiert alle benoetigten Pakete mit SDKMAN
+RUN curl -s "https://get.sdkman.io" | bash \
+    && source "$SDKMAN_DIR/bin/sdkman-init.sh" \
+    && sdk install java "$JAVA_VERSION" \
+    && sdk install groovy "$GROOVY_VERSION" \
+    && sdk install grails "$GRAILS_VERSION" \
+    && sdk install tomcat "$TOMCAT_VERSION" \
+    && sdk flush archives \
+    && sdk flush temp

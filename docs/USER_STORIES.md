@@ -3,7 +3,7 @@
 ## Feature 1: Zone Management
 
 ### US-1.1: Sperrzone erstellen
-Als Stadtverwaltungs-Admin  
+Als Admin  
 Möchte ich eine neue Sperrzone auf der Karte zeichnen und speichern  
 Damit ich kurzfristig Bereiche sperren kann (z.B. bei Marathon oder Baustelle)
 
@@ -201,6 +201,83 @@ Damit ich Verantwortlichkeit nachverfolgen kann
 
 ---
 
+## Feature 7: Authentifizierung
+
+### US-7.1: Login als Admin/Nutzer
+Als Admin / Nutzer  
+Möchte ich mich mit Benutzername/E-Mail und Passwort anmelden  
+Damit ich auf die für mich relevanten Funktionen zugreifen kann
+
+**Akzeptanzkriterien:**
+- Login-Formular mit Feldern für Benutzername/E-Mail und Passwort
+- Erfolgreicher Login führt zur Anwendung
+- Fehlgeschlagener Login zeigt verständliche Fehlermeldung
+- Rechte werden nach Rolle (Admin/Nutzer) angewendet
+
+---
+
+### US-7.2: Logout als Admin/Nutzer
+Als Admin / Nutzer  
+Möchte ich mich aktiv abmelden können  
+Damit meine Sitzung sicher beendet wird
+
+**Akzeptanzkriterien:**
+- Sichtbarer Logout-Button in der Oberfläche
+- Logout beendet die aktuelle Sitzung
+- Nach Logout ist ein Zugriff auf geschützte Seiten ohne erneuten Login nicht möglich
+
+---
+
+### US-7.3: Session Timeout als Admin/Nutzer
+Als Admin / Nutzer  
+Möchte ich, dass meine Session nach einer vorgegebene Zeit automatisch ausgeloggt wird  
+Damit meine Sitzung auch ohne aktiven logout sicher beendet wird
+
+**Akzeptanzkriterien:**
+- Automatischer Timeout der Session nach 10 Minuten
+- Logout beendet die aktuelle Sitzung
+- Nach Logout ist ein Zugriff auf geschützte Seiten ohne erneuten Login nicht möglich
+
+---
+
+## Feature 8: Nutzerverwaltung
+
+### US-8.1: Nutzer erstellen
+Als Admin  
+Möchte ich neue Nutzerkonten anlegen  
+Damit neue Mitarbeitende das System nutzen können
+
+**Akzeptanzkriterien:**
+- Admin kann Name, E-Mail und initiale Rolle erfassen
+- System verhindert doppelte E-Mail-Adressen
+- Neuer Nutzer wird gespeichert und ist loginfähig
+
+---
+
+### US-8.2: Nutzer löschen
+Als Admin  
+Möchte ich bestehende Nutzerkonten löschen können  
+Damit nicht mehr benötigte Zugänge entfernt werden
+
+**Akzeptanzkriterien:**
+- Admin kann einen Nutzer auswählen und löschen
+- Löschvorgang verlangt eine Bestätigung
+- Gelöschter Nutzer kann sich nicht mehr anmelden
+
+---
+
+### US-8.3: Admin-Rolle zuordnen
+Als Admin  
+Möchte ich einem Nutzer die Admin-Rolle zuweisen oder entziehen  
+Damit ich Berechtigungen zentral verwalten kann
+
+**Akzeptanzkriterien:**
+- Admin kann Rolle eines Nutzers ändern (Nutzer/Admin)
+- Rollenänderung wird sofort wirksam
+- Rollenänderung wird nachvollziehbar gespeichert
+
+---
+
 ## Priorisierung für MVP (Minimum Viable Product)
 
 ### **Must-Have (Sprint 1–2)**
@@ -209,6 +286,7 @@ Damit ich Verantwortlichkeit nachverfolgen kann
 - US-2.2: Warnung bei Konflikt
 - US-3.1: Zonen auf Karte anzeigen
 - US-3.3: Route-Konflikt visualisieren
+- US-7.1: Login als Admin/Nutzer
 
 ### **Should-Have (Sprint 3–4)**
 - US-1.2: Zone bearbeiten
@@ -216,6 +294,10 @@ Damit ich Verantwortlichkeit nachverfolgen kann
 - US-3.2: Zone-Details anzeigen
 - US-4.1: Stadtteil suchen
 - US-5.1: Aktive Zonen-Übersicht
+- US-7.2: Logout als Admin/Nutzer
+- US-7.3: Session Timeout als Admin/Nutzer
+- US-8.1: Nutzer erstellen
+- US-8.3: Admin-Rolle zuordnen
 
 ### **Nice-to-Have (Sprint 5+)**
 - US-1.3: Zone löschen
@@ -223,6 +305,7 @@ Damit ich Verantwortlichkeit nachverfolgen kann
 - US-4.2: Zielort suchen
 - US-5.2: Benachrichtigungen
 - US-6.1: Audit-Log
+- US-8.2: Nutzer löschen
 
 ---
 
@@ -245,19 +328,25 @@ Damit ich Verantwortlichkeit nachverfolgen kann
 | US-5.1 | Aktive Zonen anzeigen | ✓ | ✓ | Should-Have |
 | US-5.2 | Benachrichtigung bei Zone-Aktivierung | ✓ | | Nice-to-Have |
 | US-6.1 | Zone-Verlauf ansehen | ✓ | | Nice-to-Have |
+| US-7.1 | Login als Admin/Nutzer | ✓ | ✓ | Must-Have |
+| US-7.2 | Logout als Admin/Nutzer | ✓ | ✓ | Should-Have |
+| US-7.3 | Session Timeout als Admin/Nutzer | ✓ | ✓ | Should-Have |
+| US-8.1 | Nutzer erstellen | ✓ | | Should-Have |
+| US-8.2 | Nutzer löschen | ✓ | | Nice-to-Have |
+| US-8.3 | Admin-Rolle zuordnen | ✓ | | Should-Have |
 
 ### Zusammenfassung nach Rolle
 
 **Admin (Stadtverwaltung)**
-- 8 Stories
+- 14 Stories
 - Fokus: Zonenverwaltung, Statusverwaltung, Auditierung
-- Priorisierung: 1 Must-Have, 3 Should-Have, 4 Nice-to-Have
+- Priorisierung: 2 Must-Have, 6 Should-Have, 5 Nice-to-Have
 
 **Nutzer/Fahrer (Taxi, Lieferfahrer)**
-- 7 Stories
+- 10 Stories
 - Fokus: Route berechnen, Warnungen, Visualisierung
-- Priorisierung: 3 Must-Have, 2 Should-Have, 2 Nice-to-Have
+- Priorisierung: 4 Must-Have, 3 Should-Have, 2 Nice-to-Have
 
 **Gemeinsam (Admin + Nutzer)**
-- 4 Stories
+- 7 Stories
 - Fokus: Visualisierung, Suche

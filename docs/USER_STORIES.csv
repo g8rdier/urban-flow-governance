@@ -14,3 +14,8 @@ US-4.2,Startpunkt/Ziel suchen,Nein,Ja,Nice-to-Have,Suchfunktion
 US-5.1,Aktive Zonen anzeigen,Ja,Ja,Should-Have,Echtzeit-Status
 US-5.2,Benachrichtigung bei Zone-Aktivierung,Ja,Nein,Nice-to-Have,Echtzeit-Status
 US-6.1,Zone-Verlauf ansehen,Ja,Nein,Nice-to-Have,Audit & Logging
+US-7.1,Login als Admin/Nutzer,Ja,Ja,Must-Have,Authentifizierung
+US-7.2,Logout als Admin/Nutzer,Ja,Ja,Should-Have,Authentifizierung
+US-8.1,Nutzer erstellen,Ja,Nein,Should-Have,Nutzerverwaltung
+US-8.2,Nutzer löschen,Ja,Nein,Nice-to-Have,Nutzerverwaltung
+US-8.3,Admin-Rolle zuordnen,Ja,Nein,Should-Have,Nutzerverwaltung

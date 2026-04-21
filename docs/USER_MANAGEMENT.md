@@ -20,9 +20,25 @@ erDiagram
 
     USER ||--o{ USER_ROLE : "hat"
     ROLE ||--o{ USER_ROLE : "zugewiesen an"
+    USER ||--o{ RESTRICTED_ZONE : "erstellt"
+
+    RESTRICTED_ZONE {
+        Long id PK
+        String name
+        String description
+        String reason
+        Geometry geometry
+        Timestamp startTime
+        Timestamp endTime
+        String status
+        Timestamp createdAt
+        Timestamp updatedAt
+        Long createdBy FK
+    }
 ```
 
 > Hinweis: `ROLE.name` entspricht den bisherigen Werten `NUTZER` und `ADMIN`, ist aber erweiterbar (z.B. `MODERATOR`, `AUDITOR`).
+> `RESTRICTED_ZONE.status` kann `PLANNED`, `ACTIVE` oder `EXPIRED` sein. `geometry` wird als PostGIS-Polygon (`GEOMETRY(Polygon, 4326)`) gespeichert.
 
 # Login/Logout Zustandsdiagramm
 

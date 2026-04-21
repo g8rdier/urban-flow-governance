@@ -9,7 +9,7 @@ Eine Sperrzone wird durch folgende Eigenschaften definiert:
 ```groovy
 // grails-app/domain/RestrictedZone.groovy
 
-import com.vividsolutions.jts.geom.Polygon
+import org.locationtech.jts.geom.Polygon
 
 class RestrictedZone {
     String name
@@ -50,8 +50,8 @@ class RestrictedZone {
 ### Als Java/Groovy-Objekt
 
 ```groovy
-import com.vividsolutions.jts.geom.GeometryFactory
-import com.vividsolutions.jts.geom.Coordinate
+import org.locationtech.jts.geom.GeometryFactory
+import org.locationtech.jts.geom.Coordinate
 import java.time.LocalDateTime
 
 def geometryFactory = new GeometryFactory()

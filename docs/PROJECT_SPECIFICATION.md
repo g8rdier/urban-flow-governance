@@ -69,7 +69,7 @@ PostGIS-Funktionen:
 
 **Development**:
 - Docker-basierter Dev Container (Ubuntu 24.04)
-- Java 21, Grails, lokale PostgreSQL-Verbindung
+- Java 17, Grails, lokale PostgreSQL-Verbindung
 
 Production (Agilogik-VM):
 - Ubuntu 24.04 Server

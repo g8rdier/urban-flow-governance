@@ -1,0 +1,16 @@
+ID,Titel,Admin,Nutzer/Fahrer,Priority,Feature
+US-1.1,Sperrzone erstellen,Ja,Nein,Must-Have,Zone Management
+US-1.2,Sperrzone bearbeiten,Ja,Nein,Should-Have,Zone Management
+US-1.3,Sperrzone löschen,Ja,Nein,Nice-to-Have,Zone Management
+US-1.4,Zone-Status verwalten,Ja,Nein,Should-Have,Zone Management
+US-2.1,Route berechnen,Nein,Ja,Must-Have,Routenprüfung
+US-2.2,Warnung bei Sperrzone-Konflikt,Nein,Ja,Must-Have,Routenprüfung
+US-2.3,Alternative Route anfordert,Nein,Ja,Nice-to-Have,Routenprüfung
+US-3.1,Sperrzonen auf Karte anzeigen,Ja,Ja,Must-Have,Visualisierung
+US-3.2,Zone-Details beim Klick anzeigen,Ja,Ja,Should-Have,Visualisierung
+US-3.3,Route-Konflikt visuell hervorheben,Nein,Ja,Must-Have,Visualisierung
+US-4.1,Stadtteil/Straße suchen,Ja,Ja,Should-Have,Suchfunktion
+US-4.2,Startpunkt/Ziel suchen,Nein,Ja,Nice-to-Have,Suchfunktion
+US-5.1,Aktive Zonen anzeigen,Ja,Ja,Should-Have,Echtzeit-Status
+US-5.2,Benachrichtigung bei Zone-Aktivierung,Ja,Nein,Nice-to-Have,Echtzeit-Status
+US-6.1,Zone-Verlauf ansehen,Ja,Nein,Nice-to-Have,Audit & Logging

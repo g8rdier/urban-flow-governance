@@ -223,3 +223,41 @@ Damit ich Verantwortlichkeit nachverfolgen kann
 - US-4.2: Zielort suchen
 - US-5.2: Benachrichtigungen
 - US-6.1: Audit-Log
+
+---
+
+## User Stories nach Rollen klassifiziert
+
+| ID | Titel | Admin | Nutzer/Fahrer | Priority |
+|---|---|---|---|---|
+| US-1.1 | Sperrzone erstellen | ✓ | | Must-Have |
+| US-1.2 | Sperrzone bearbeiten | ✓ | | Should-Have |
+| US-1.3 | Sperrzone löschen | ✓ | | Nice-to-Have |
+| US-1.4 | Zone-Status verwalten | ✓ | | Should-Have |
+| US-2.1 | Route berechnen | | ✓ | Must-Have |
+| US-2.2 | Warnung bei Sperrzone-Konflikt | | ✓ | Must-Have |
+| US-2.3 | Alternative Route anfordert | | ✓ | Nice-to-Have |
+| US-3.1 | Sperrzonen auf Karte anzeigen | ✓ | ✓ | Must-Have |
+| US-3.2 | Zone-Details beim Klick anzeigen | ✓ | ✓ | Should-Have |
+| US-3.3 | Route-Konflikt visuell hervorheben | | ✓ | Must-Have |
+| US-4.1 | Stadtteil/Straße suchen | ✓ | ✓ | Should-Have |
+| US-4.2 | Startpunkt/Ziel suchen | | ✓ | Nice-to-Have |
+| US-5.1 | Aktive Zonen anzeigen | ✓ | ✓ | Should-Have |
+| US-5.2 | Benachrichtigung bei Zone-Aktivierung | ✓ | | Nice-to-Have |
+| US-6.1 | Zone-Verlauf ansehen | ✓ | | Nice-to-Have |
+
+### Zusammenfassung nach Rolle
+
+**Admin (Stadtverwaltung)**
+- 8 Stories
+- Fokus: Zonenverwaltung, Statusverwaltung, Auditierung
+- Priorisierung: 1 Must-Have, 3 Should-Have, 4 Nice-to-Have
+
+**Nutzer/Fahrer (Taxi, Lieferfahrer)**
+- 7 Stories
+- Fokus: Route berechnen, Warnungen, Visualisierung
+- Priorisierung: 3 Must-Have, 2 Should-Have, 2 Nice-to-Have
+
+**Gemeinsam (Admin + Nutzer)**
+- 4 Stories
+- Fokus: Visualisierung, Suche

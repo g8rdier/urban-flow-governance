@@ -1,24 +1,16 @@
 package ufg.app
 
-class RoleCheckInterceptor {
+import grails.util.Holders
+import ufg.app.security.RequiredRoles
 
-    // Dieses Mapping nutzt den controllerName:actionName als Key und
-    // die Rolle als Value.
-    // So kann man neue Rollen bzw. die neue Pfade einfach hinzufügen ohne etwas
-    // an der Logik zu aendern.
-    private static final Map<String, List<String>> REQUIRED_ROLE_BY_ENDPOINT = [
-        "greeting:admin": ["ADMIN"],
-        "greeting:nutzer": ["NUTZER"],
-        "greeting:both": ["ADMIN", "NUTZER"]
-    ]
+class RoleCheckInterceptor {
 
     RoleCheckInterceptor() {
         matchAll()
     }
 
     boolean before() {
-        String endpointKey = "${controllerName}:${actionName}"
-        List<String> requiredRoles = REQUIRED_ROLE_BY_ENDPOINT[endpointKey]
+        List<String> requiredRoles = resolveRequiredRoles(controllerName, actionName)
 
         if (!requiredRoles) {
             return true
@@ -43,5 +35,21 @@ class RoleCheckInterceptor {
         }
 
         true
+    }
+
+    private List<String> resolveRequiredRoles(String currentControllerName, String currentActionName) {
+        def controllerArtefact = Holders.grailsApplication?.getArtefactByLogicalPropertyName("Controller", currentControllerName)
+        Class controllerClass = controllerArtefact?.clazz
+        if (!controllerClass) {
+            return null
+        }
+
+        def actionMethod = controllerClass.declaredMethods.find { it.name == currentActionName }
+        if (!actionMethod) {
+            return null
+        }
+
+        RequiredRoles annotation = actionMethod.getAnnotation(RequiredRoles)
+        annotation ? annotation.value().toList() : null
     }
 }

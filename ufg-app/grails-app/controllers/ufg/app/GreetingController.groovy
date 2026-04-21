@@ -1,4 +1,4 @@
-package myapp
+package ufg.app
 
 class GreetingController {
 

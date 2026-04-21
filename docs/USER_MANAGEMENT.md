@@ -196,3 +196,140 @@ components:
 			in: cookie
 			name: JSESSIONID
 ```
+
+## Sequenzdiagramm: Admin User-CRUD
+
+```mermaid
+sequenceDiagram
+	autonumber
+	participant A as Admin (Client)
+	participant RCI as RoleCheckInterceptor
+	participant UMC as UserManagerController
+	participant DB as User (Datenbank)
+
+	note over A,DB: Nutzer erstellen
+
+	A->>UMC: POST /userManager/create (username, password, role)
+	UMC->>RCI: before()
+	alt Nicht eingeloggt oder ungueltige Session
+		RCI-->>A: 401
+	else Rolle != ADMIN
+		RCI-->>A: 403 Role ADMIN required
+	else Autorisiert
+		RCI-->>UMC: erlaubt
+		UMC->>DB: new User(...).save()
+		alt Validierungsfehler
+			DB-->>UMC: Fehler
+			UMC-->>A: 400 Fehlermeldung
+		else Erfolg
+			DB-->>UMC: User gespeichert
+			UMC-->>A: 201 User created
+		end
+	end
+
+	note over A,DB: Nutzer aktualisieren
+
+	A->>UMC: PUT /userManager/update?id=<id> (username?, password?, role?)
+	UMC->>RCI: before()
+	alt Nicht eingeloggt oder ungueltige Session
+		RCI-->>A: 401
+	else Rolle != ADMIN
+		RCI-->>A: 403 Role ADMIN required
+	else Autorisiert
+		RCI-->>UMC: erlaubt
+		UMC->>DB: User.get(id)
+		alt User nicht gefunden
+			DB-->>UMC: null
+			UMC-->>A: 404 User not found
+		else User gefunden
+			UMC->>DB: user.save()
+			alt Validierungsfehler
+				DB-->>UMC: Fehler
+				UMC-->>A: 400 Fehlermeldung
+			else Erfolg
+				DB-->>UMC: User aktualisiert
+				UMC-->>A: 200 User updated
+			end
+		end
+	end
+
+	note over A,DB: Nutzer loeschen
+
+	A->>UMC: DELETE /userManager/delete?id=<id>
+	UMC->>RCI: before()
+	alt Nicht eingeloggt oder ungueltige Session
+		RCI-->>A: 401
+	else Rolle != ADMIN
+		RCI-->>A: 403 Role ADMIN required
+	else Autorisiert
+		RCI-->>UMC: erlaubt
+		UMC->>DB: User.get(id)
+		alt User nicht gefunden
+			DB-->>UMC: null
+			UMC-->>A: 404 User not found
+		else User gefunden
+			UMC->>DB: user.delete()
+			DB-->>UMC: geloescht
+			UMC-->>A: 200 User deleted
+		end
+	end
+```
+
+## Sequenzdiagramm: Admin-UI Seitenablaeufe
+
+```mermaid
+sequenceDiagram
+	autonumber
+	participant A as Admin (Browser)
+	participant UI as Admin-Seite (Frontend)
+	participant UMC as UserManagerController
+
+	note over A,UMC: Userliste anzeigen
+
+	A->>UI: Navigiert zu /admin
+	UI->>UMC: GET /userManager/list
+	UMC-->>UI: Liste aller User
+	UI-->>A: Tabelle mit Nutzern (Username, Rolle, Aktionen)
+
+	note over A,UMC: Neuen Nutzer anlegen
+
+	A->>UI: Klickt "Nutzer erstellen"
+	UI-->>A: Formular (Username, Passwort, Rolle)
+	A->>UI: Formular abschicken
+	UI->>UMC: POST /userManager/create
+	alt Erfolg
+		UMC-->>UI: 201 User created
+		UI-->>A: Erfolgsmeldung, Userliste aktualisiert
+	else Fehler
+		UMC-->>UI: 400/401/403
+		UI-->>A: Fehlermeldung anzeigen
+	end
+
+	note over A,UMC: Nutzer bearbeiten
+
+	A->>UI: Klickt "Bearbeiten" bei einem Nutzer
+	UI-->>A: Formular vorausgefuellt (Username, Rolle)
+	A->>UI: Aenderungen bestaetigen
+	UI->>UMC: PUT /userManager/update?id=<id>
+	alt Erfolg
+		UMC-->>UI: 200 User updated
+		UI-->>A: Erfolgsmeldung, Userliste aktualisiert
+	else Fehler
+		UMC-->>UI: 400/401/403/404
+		UI-->>A: Fehlermeldung anzeigen
+	end
+
+	note over A,UMC: Nutzer loeschen
+
+	A->>UI: Klickt "Loeschen" bei einem Nutzer
+	UI-->>A: Bestaetigung anfordern
+	A->>UI: Bestaetigt
+	UI->>UMC: DELETE /userManager/delete?id=<id>
+	alt Erfolg
+		UMC-->>UI: 200 User deleted
+		UI-->>A: Erfolgsmeldung, Nutzer aus Liste entfernt
+	else Fehler
+		UMC-->>UI: 401/403/404
+		UI-->>A: Fehlermeldung anzeigen
+	end
+```

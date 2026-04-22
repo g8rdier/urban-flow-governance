@@ -6,20 +6,17 @@ erDiagram
         Long id PK
         String username
         String password
+		String role
     }
 
-    ROLE {
-        Long id PK
-        String name
+	AUTH_TOKEN {
+		Long id PK
+		String token
+		Timestamp createdAt
+		Long user_id FK
     }
 
-    USER_ROLE {
-        Long user_id FK
-        Long role_id FK
-    }
-
-    USER ||--o{ USER_ROLE : "hat"
-    ROLE ||--o{ USER_ROLE : "zugewiesen an"
+	USER ||--o{ AUTH_TOKEN : "hat"
     USER ||--o{ RESTRICTED_ZONE : "erstellt"
 
     RESTRICTED_ZONE {
@@ -37,7 +34,7 @@ erDiagram
     }
 ```
 
-> Hinweis: `ROLE.name` entspricht den bisherigen Werten `NUTZER` und `ADMIN`, ist aber erweiterbar (z.B. `MODERATOR`, `AUDITOR`).
+> Hinweis: `USER.role` verwendet aktuell die Werte `NUTZER` und `ADMIN`.
 > `RESTRICTED_ZONE.status` kann `PLANNED`, `ACTIVE` oder `EXPIRED` sein. `geometry` wird als PostGIS-Polygon (`GEOMETRY(Polygon, 4326)`) gespeichert.
 
 # Login/Logout Zustandsdiagramm
@@ -47,10 +44,12 @@ stateDiagram-v2
 	[*] --> Nicht_angemeldet
 
 	Nicht_angemeldet --> Anmeldedaten_pruefen: Login starten
-	Anmeldedaten_pruefen --> Angemeldet: Gueltige Zugangsdaten
+	Anmeldedaten_pruefen --> Token_gueltig: Gueltige Zugangsdaten
 	Anmeldedaten_pruefen --> Nicht_angemeldet: Ungueltige Zugangsdaten
 
-	Angemeldet --> Nicht_angemeldet: Logout
+	Token_gueltig --> Token_abgelaufen: > 60 Minuten seit Token-Erstellung
+	Token_gueltig --> Nicht_angemeldet: Logout
+	Token_abgelaufen --> Nicht_angemeldet: Token aus DB loeschen, neu anmelden
 	Nicht_angemeldet --> [*]
 ```
 
@@ -62,17 +61,17 @@ sequenceDiagram
 		participant C as Client
 		participant UMC as UserManagerController
 		participant U as User
+		participant ATS as AuthToken
 		participant RCI as RoleCheckInterceptor
 		participant AC as Admin Action (create/update/delete)
 
-		C->>UMC: POST /userManager/login (username, password)
+		C->>UMC: POST /api/session (username, password)
 		UMC->>U: findByUsernameAndPassword(...)
 
 		alt Login erfolgreich
 				U-->>UMC: User gefunden
-				UMC->>UMC: session.userId setzen
-				UMC->>UMC: session.sessionKey setzen
-				UMC-->>C: 302 Redirect /greeting/index
+				UMC->>ATS: UUID Token speichern (createdAt)
+				UMC-->>C: 200 { token, token_type, expires_in_minutes }
 		else Login fehlgeschlagen
 				U-->>UMC: kein User
 				UMC-->>C: 401 Invalid credentials
@@ -86,11 +85,13 @@ sequenceDiagram
 				RCI-->>AC: erlaubt
 				AC-->>C: 2xx
 		else Annotation vorhanden (z.B. ADMIN)
-				alt session.userId fehlt
+				alt Authorization Header fehlt/ungueltig
 						RCI-->>C: 401 Login required
-				else User zur Session nicht vorhanden
-						RCI->>RCI: session.invalidate()
-						RCI-->>C: 401 Invalid session
+				else Token nicht gefunden
+						RCI-->>C: 401 Invalid token
+				else Token abgelaufen
+						RCI->>ATS: Token loeschen
+						RCI-->>C: 401 Session expired
 				else Rolle passt nicht
 						RCI-->>C: 403 Role ADMIN required
 				else Rolle passt
@@ -106,6 +107,32 @@ sequenceDiagram
 
 Die vollständige Spezifikation liegt ausgelagert in [USER_MANAGEMENT.openapi.yaml](USER_MANAGEMENT.openapi.yaml). Wenn dein Doku-Renderer Includes unterstützt, kann diese Datei hier direkt eingebunden werden; ansonsten bleibt sie als separate, versionierte Quelle erhalten.
 
+## Curl-Beispiele
+
+```bash
+# 1) Login und Token erhalten
+curl -s -X POST "http://localhost:8080/api/session" \
+	-d "username=admin&password=adminpass"
+
+# 2) Logout mit Bearer-Token
+curl -X DELETE "http://localhost:8080/api/session" \
+	-H "Authorization: Bearer <TOKEN>"
+
+# 3) User erstellen (ADMIN)
+curl -X POST "http://localhost:8080/api/users" \
+	-H "Authorization: Bearer <TOKEN>" \
+	-d "username=max&password=secret&role=NUTZER"
+
+# 4) User aktualisieren (ADMIN)
+curl -X PUT "http://localhost:8080/api/users/1" \
+	-H "Authorization: Bearer <TOKEN>" \
+	-d "username=max2&role=ADMIN"
+
+# 5) User loeschen (ADMIN)
+curl -X DELETE "http://localhost:8080/api/users/1" \
+	-H "Authorization: Bearer <TOKEN>"
+```
+
 ## Sequenzdiagramm: Admin User-CRUD
 
 ```mermaid
@@ -118,9 +145,9 @@ sequenceDiagram
 
 	note over A,DB: Nutzer erstellen
 
-	A->>UMC: POST /userManager/create (username, password, role)
+	A->>UMC: POST /api/users (username, password, role)
 	UMC->>RCI: before()
-	alt Nicht eingeloggt oder ungueltige Session
+	alt Kein/ungueltiger/abgelaufener Token
 		RCI-->>A: 401
 	else Rolle != ADMIN
 		RCI-->>A: 403 Role ADMIN required
@@ -138,9 +165,9 @@ sequenceDiagram
 
 	note over A,DB: Nutzer aktualisieren
 
-	A->>UMC: PUT /userManager/update?id=<id> (username?, password?, role?)
+	A->>UMC: PUT /api/users/{id} (username?, password?, role?)
 	UMC->>RCI: before()
-	alt Nicht eingeloggt oder ungueltige Session
+	alt Kein/ungueltiger/abgelaufener Token
 		RCI-->>A: 401
 	else Rolle != ADMIN
 		RCI-->>A: 403 Role ADMIN required
@@ -164,9 +191,9 @@ sequenceDiagram
 
 	note over A,DB: Nutzer loeschen
 
-	A->>UMC: DELETE /userManager/delete?id=<id>
+	A->>UMC: DELETE /api/users/{id}
 	UMC->>RCI: before()
-	alt Nicht eingeloggt oder ungueltige Session
+	alt Kein/ungueltiger/abgelaufener Token
 		RCI-->>A: 401
 	else Rolle != ADMIN
 		RCI-->>A: 403 Role ADMIN required
@@ -196,7 +223,7 @@ sequenceDiagram
 	note over A,UMC: Userliste anzeigen
 
 	A->>UI: Navigiert zu /admin
-	UI->>UMC: GET /userManager/list
+	UI->>UMC: GET /api/users (mit Bearer-Token)
 	UMC-->>UI: Liste aller User
 	UI-->>A: Tabelle mit Nutzern (Username, Rolle, Aktionen)
 
@@ -205,7 +232,7 @@ sequenceDiagram
 	A->>UI: Klickt "Nutzer erstellen"
 	UI-->>A: Formular (Username, Passwort, Rolle)
 	A->>UI: Formular abschicken
-	UI->>UMC: POST /userManager/create
+	UI->>UMC: POST /api/users
 	alt Erfolg
 		UMC-->>UI: 201 User created
 		UI-->>A: Erfolgsmeldung, Userliste aktualisiert
@@ -219,7 +246,7 @@ sequenceDiagram
 	A->>UI: Klickt "Bearbeiten" bei einem Nutzer
 	UI-->>A: Formular vorausgefuellt (Username, Rolle)
 	A->>UI: Aenderungen bestaetigen
-	UI->>UMC: PUT /userManager/update?id=<id>
+	UI->>UMC: PUT /api/users/{id}
 	alt Erfolg
 		UMC-->>UI: 200 User updated
 		UI-->>A: Erfolgsmeldung, Userliste aktualisiert
@@ -233,7 +260,7 @@ sequenceDiagram
 	A->>UI: Klickt "Loeschen" bei einem Nutzer
 	UI-->>A: Bestaetigung anfordern
 	A->>UI: Bestaetigt
-	UI->>UMC: DELETE /userManager/delete?id=<id>
+	UI->>UMC: DELETE /api/users/{id}
 	alt Erfolg
 		UMC-->>UI: 200 User deleted
 		UI-->>A: Erfolgsmeldung, Nutzer aus Liste entfernt

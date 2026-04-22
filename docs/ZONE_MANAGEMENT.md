@@ -12,26 +12,28 @@ sequenceDiagram
     participant DB as PostgreSQL (PostGIS)
 
     U->>FE: Start und Ziel eingeben
-    FE->>BE: GET /route?from=<start>&to=<ziel>
-    BE->>OSRM: GET /route/v1/driving/<start>;<ziel>
+    FE->>BE: GET /route?from=A&to=B
+    
+    BE->>OSRM: Routenberechnung anfordern
     OSRM-->>BE: Route als Koordinatenliste
-
-    BE->>DB: SELECT aktive Sperrzonen (status = 'ACTIVE')
+    
+    BE->>DB: SELECT aktive Sperrzonen
     DB-->>BE: Liste aktiver Zonen
-
-    loop Jeder Routenpunkt
-        BE->>BE: ST_Contains(zone.geometry, punkt)?
-        alt Kollision erkannt
-            BE->>BE: alert = true, betroffene Zone merken
+    
+    Note over BE: Prüfe jeden Punkt gegen Zonen
+    loop für jeden Punkt der Route
+        rect rgb(200, 150, 255)
+        BE->>BE: ST_Contains(zone.polygon, punkt)?
+        BE->>BE: Falls ja: alert=true
         end
     end
-
-    alt Keine Kollision
-        BE-->>FE: 200 { route, status: "OK" }
-        FE-->>U: Route gruen anzeigen
-    else Kollision
-        BE-->>FE: 200 { route, status: "WARNING", zones: [...] }
-        FE-->>U: Route rot markieren, Warnung anzeigen
+    
+    alt alert = false (Keine Kollision)
+        BE-->>FE: 200 OK {status: "OK"}
+        FE-->>U: ✓ Route grün anzeigen
+    else alert = true (Kollision!)
+        BE-->>FE: 200 {status: "WARNING", zones: [...]}
+        FE-->>U: ⚠️ Route rot + Warnung
     end
 ```
 

@@ -6,11 +6,11 @@ import ufg.app.security.RequiredRoles
 class UserManagerController {
 
     static allowedMethods = [
-        login: "POST",
-        logout: "POST",
-        create: "POST",
-        update: "PUT",
-        delete: "DELETE"
+        login: "GET",
+        logout: "GET",
+        create: "GET",
+        update: "GET",
+        delete: "GET"
     ]
 
     def login(String username, String password) {

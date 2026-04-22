@@ -48,12 +48,25 @@ ARG TOMCAT_VERSION=9.0.116
 # Umgebungsvariablen zur Verfuegung
 SHELL ["/bin/bash", "-lc"]
 
-# Installiert alle benoetigten Pakete mit SDKMAN
-RUN curl -s "https://get.sdkman.io" | bash \
-    && source "$SDKMAN_DIR/bin/sdkman-init.sh" \
-    && sdk install java "$JAVA_VERSION" \
-    && sdk install groovy "$GROOVY_VERSION" \
-    && sdk install grails "$GRAILS_VERSION" \
-    && sdk install tomcat "$TOMCAT_VERSION" \
-    && sdk flush archives \
-    && sdk flush temp
+# Installiert SDKMAN
+RUN curl -s "https://get.sdkman.io" | bash
+
+# Installiert Java mit SDKMAN
+RUN source "$SDKMAN_DIR/bin/sdkman-init.sh" && sdk install java "$JAVA_VERSION"
+
+# Installiert Groovy mit SDKMAN
+RUN source "$SDKMAN_DIR/bin/sdkman-init.sh" && sdk install groovy "$GROOVY_VERSION"
+
+# Installiert Grails direkt von Apache GitHub (nicht in SDKMAN für ARM verfuegbar)
+RUN curl -fL "https://github.com/apache/grails-core/releases/download/v${GRAILS_VERSION}/grails-${GRAILS_VERSION}.zip" \
+        -o /tmp/grails.zip \
+    && unzip -q /tmp/grails.zip -d /tmp \
+    && mkdir -p ${SDKMAN_DIR}/candidates/grails \
+    && mv /tmp/grails-${GRAILS_VERSION} ${SDKMAN_DIR}/candidates/grails/current \
+    && rm /tmp/grails.zip
+
+# Installiert Tomcat mit SDKMAN
+RUN source "$SDKMAN_DIR/bin/sdkman-init.sh" && sdk install tomcat "$TOMCAT_VERSION"
+
+# Cleanup
+RUN source "$SDKMAN_DIR/bin/sdkman-init.sh" && sdk flush archives && sdk flush temp

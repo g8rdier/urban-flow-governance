@@ -5,8 +5,10 @@
 ### 1. Tomcat starten
 
 ```bash
-cd /opt/tomcat
-# oder je nach Installation:
+# Dev
+~/.sdkman/candidates/tomcat/9.0.116/bin/startup.sh
+
+# Prod
 /opt/tomcat/bin/startup.sh
 ```
 
@@ -14,6 +16,10 @@ Web-Interface: **http://localhost:8080**
 
 Tomcat stoppen:
 ```bash
+# Dev
+~/.sdkman/candidates/tomcat/9.0.116/bin/shutdown.sh
+
+# Prod
 /opt/tomcat/bin/shutdown.sh
 ```
 
@@ -41,11 +47,12 @@ ufg-app/build/libs/ufg-app-0.1.war
 
 1. WAR-Datei kopieren:
    ```bash
-   cp ufg-app/build/libs/ufg-app-0.1.war /opt/tomcat/webapps/
+   # Dev
+   cp build/libs/ufg-app-0.1-plain.war ~/.sdkman/candidates/tomcat/9.0.116/webapps/
    ```
 
 2. Tomcat startet automatisch und entpackt die WAR
-3. Zugriff: **http://localhost:8080/ufg-app-0.1**
+3. Zugriff: **http://localhost:8080/ufg-app-0.1-plain**
 
 ### Option B: Manager GUI (wenn verfügbar)
 

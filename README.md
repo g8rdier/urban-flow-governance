@@ -2,6 +2,16 @@
 
 Webbasierte Governance-Anwendung zur Verwaltung und Visualisierung von urbanen Verkehrs- und Geodaten. Gebaut mit Grails/Groovy auf Java 17, mit GIS-Integration via Leaflet, Nominatim und OSRM.
 
+## Produktiumgebung
+
+### DB Management
+iu.servicecluster.de/phppgadmin/  
+iu:iu
+
+### Tomcat Manager
+iu-tomcat.servicecluster.de/manager/html  
+tomcat:tomcat
+
 ## Entwicklungsumgebung (Dev Container)
 
 Die Dev-Container-Konfiguration ist bewusst schlank gehalten:

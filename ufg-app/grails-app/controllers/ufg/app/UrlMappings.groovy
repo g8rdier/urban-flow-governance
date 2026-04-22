@@ -3,11 +3,38 @@ package ufg.app
 class UrlMappings {
 
     static mappings = {
-        "/$controller/$action?/$id?(.$format)?"{
-            constraints {
-                // apply constraints here
+        group "/api", {
+            "/session"(controller: "userManager") {
+                action = [POST: "login", DELETE: "logout"]
+            }
+
+            "/users"(controller: "userManager") {
+                action = [POST: "create"]
+            }
+
+            "/users/$id"(controller: "userManager") {
+                action = [PUT: "update", PATCH: "update", DELETE: "delete"]
             }
         }
+
+        group "/greeting", {
+            "/"(controller: "greeting") {
+                action = "index"
+            }
+
+            "/admin"(controller: "greeting") {
+                action = "admin"
+            }
+
+            "/nutzer"(controller: "greeting") {
+                action = "nutzer"
+            }
+
+            "/both"(controller: "greeting") {
+                action = "both"
+            }
+        }
+
 
         group "/api", {
             "/zones"(controller: "restrictedZone") {

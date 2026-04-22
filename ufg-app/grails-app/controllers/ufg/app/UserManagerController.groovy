@@ -1,95 +1,86 @@
 package ufg.app
 
 import java.time.LocalDateTime
+import grails.converters.JSON
 import ufg.app.security.RequiredRoles
 
 class UserManagerController {
 
+    UserManagerService userManagerService
+
+    // Wird bereits in UrlMappings abgefangen,
+    // sorgt hier aber fuer korrekte 405 Antworten
     static allowedMethods = [
-        login: "GET",
-        logout: "GET",
-        create: "GET",
-        update: "GET",
-        delete: "GET"
+        login: "POST",
+        logout: "DELETE",
+        create: "POST",
+        update: ["PUT", "PATCH"],
+        delete: "DELETE"
     ]
 
+    // curl -X POST "http://localhost:8080/api/session" -d "username=admin&password=secret"
     def login(String username, String password) {
         if (!username || !password) {
-            render status: 400, text: "Provide username and password"
+            render status: 400, contentType: 'application/json', text: (ApiResponse.failure('Provide username and password') as JSON)
             return
         }
 
-        def user = User.findByUsernameAndPassword(username, password)
-        if (!user) {
-            render status: 401, text: "Invalid credentials"
+        Map result = userManagerService.login(username, password)
+        if (!result.success) {
+            render status: result.status, contentType: 'application/json', text: (result.response as JSON)
             return
         }
 
+        def user = result.user
         session.userId = user.id
         session.sessionKey = ["username": user.username, "role": user.role, "creation_time": LocalDateTime.now()]
-        redirect controller: "greeting", action: "index"
+        render status: result.status, contentType: 'application/json', text: (result.response as JSON)
     }
 
+    // curl -X DELETE "http://localhost:8080/api/session"
     def logout() {
         session.userId = null
         session.sessionKey = null
-        redirect controller: "greeting", action: "index"
+        render status: 200, contentType: 'application/json', text: (ApiResponse.success('Logout successful') as JSON)
     }
 
-    // POST /userManager/create
+    // POST /api/users
+    // curl -X POST "http://localhost:8080/api/users" -d "username=max&password=secret&role=NUTZER"
     @RequiredRoles(["ADMIN"])
     def create(String username, String password, String role) {
-        String requestedRole = role ?: "NUTZER"
-
-        User user = new User(username: username, password: password, role: requestedRole)
-        if (!user.save(flush: true)) {
-            render status: 400, text: user.errors.allErrors.collect { it.defaultMessage }.join(", ")
+        Map result = userManagerService.createUser(username, password, role)
+        if (!result.success) {
+            render status: result.status, contentType: 'application/json', text: (result.response as JSON)
             return
         }
 
-        render status: 201, text: "User ${user.username} created"
+        render status: result.status, contentType: 'application/json', text: (result.response as JSON)
     }
 
-    // PUT /userManager/update?id=<id>
+    // PUT/PATCH /api/users/{id}
+    // curl -X PUT "http://localhost:8080/api/users/1" -d "username=max2&role=ADMIN"
     @RequiredRoles(["ADMIN"])
     def update(Long id, String username, String password, String role) {
-        User user = User.get(id)
-        if (!user) {
-            render status: 404, text: "User not found"
+        Map result = userManagerService.updateUser(id, username, password, role)
+        if (!result.success) {
+            render status: result.status, contentType: 'application/json', text: (result.response as JSON)
             return
         }
 
-        if (username) {
-            user.username = username
-        }
-
-        if (password) {
-            user.password = password
-        }
-
-        if (role) {
-            user.role = role
-        }
-
-        if (!user.save(flush: true)) {
-            render status: 400, text: user.errors.allErrors.collect { it.defaultMessage }.join(", ")
-            return
-        }
-
-        render status: 200, text: "User ${user.username} updated"
+        render status: result.status, contentType: 'application/json', text: (result.response as JSON)
     }
 
-    // DELETE /userManager/delete?id=<id>
+    // DELETE /api/users/{id}
+    // curl -X DELETE "http://localhost:8080/api/users/1"
     @RequiredRoles(["ADMIN"])
     def delete(Long id) {
-        User user = User.get(id)
-        if (!user) {
-            render status: 404, text: "User not found"
+        Map result = userManagerService.deleteUser(id)
+        if (!result.success) {
+            render status: result.status, contentType: 'application/json', text: (result.response as JSON)
             return
         }
 
-        user.delete(flush: true)
-        render status: 200, text: "User deleted"
+        render status: result.status, contentType: 'application/json', text: (result.response as JSON)
     }
 
 }

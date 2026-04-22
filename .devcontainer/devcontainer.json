@@ -32,19 +32,26 @@
   // Unter Linux sorgt das fuer konsistente Dateirechte im gemounteten Workspace.
   "remoteUser": "ubuntu",
   "updateRemoteUserUID": true,
-  // Passt den Workspace Ordner so an, dass er im Home des remoteUser liegt
-  "workspaceMount": "source=${localWorkspaceFolder},target=/home/ubuntu/ufg,type=bind",
-  "workspaceFolder": "/home/ubuntu/ufg",
+  // VS Code mounts the local folder to /workspaces/<folder-name> by default.
+  // Ein Symlink ~/ufg -> /workspaces/urban-flow-governance wird per onCreateCommand gesetzt (s. u.).
+  "workspaceFolder": "/workspaces/urban-flow-governance",
+  // Legt den Symlink ~/ufg an – einmalig nach Container-Erstellung (cross-platform sicher).
+  "onCreateCommand": "ln -sf /workspaces/urban-flow-governance /home/ubuntu/ufg",
   "postCreateCommand": "java -version && groovy --version && grails --version || true",
   "containerEnv": {
     // Externe PostgreSQL-Verbindung wird absichtlich per Umgebungsvariablen gelöst.
     // So bleibt die Konfiguration flexibel und es wird kein Datenbank-Container mitgeschleppt.
-    "DB_HOST": "${url_change_in_prod.example.com:DB_HOST}",
-    "DB_PORT": "${5432:DB_PORT}",
-    "DB_NAME": "${name_change_in_prod:DB_NAME}",
-    "DB_USER": "${un_change_in_prod:DB_USER}",
-    "DB_PASSWORD": "${pw_change_in_prod:DB_PASSWORD}"
+    // Werte werden aus der lokalen Host-Umgebung gelesen (z.B. ~/.bashrc oder .env).
+    // Fallback-Werte für die lokale Entwicklung sind inline gesetzt.
+    "DB_HOST": "${localEnv:DB_HOST:localhost}",
+    "DB_PORT": "${localEnv:DB_PORT:5432}",
+    "DB_NAME": "${localEnv:DB_NAME:ufg_dev}",
+    "DB_USER": "${localEnv:DB_USER:ufg_user}",
+    "DB_PASSWORD": "${localEnv:DB_PASSWORD:change_me}"
   },
+  // Fedora/RHEL SELinux würde den Bind-Mount blockieren (user_home_t → container domain).
+  // label:disable schaltet die SELinux-Label-Prüfung für diesen Container aus.
+  "runArgs": ["--security-opt", "label=disable"],
   // Gibt Port 8080 frei um auf die Grails App zugreifen zu können
   "forwardPorts": [8080, 80, 443],
   "portsAttributes": {

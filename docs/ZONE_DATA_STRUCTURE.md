@@ -161,6 +161,69 @@ if (collision) {
 }
 ```
 
+## Frontend-Anfragen (JavaScript/Fetch API)
+
+### Zone erstellen (POST)
+
+```javascript
+// Frontend sendet neue Zone zum Backend
+const newZone = {
+  name: "München Marathon 2026",
+  description: "Stadtmarathon mit Streckensperrung",
+  reason: "Marathon",
+  geometry: {
+    type: "Polygon",
+    coordinates: [
+      [[11.55, 48.135], [11.62, 48.135], [11.62, 48.155], [11.55, 48.155], [11.55, 48.135]]
+    ]
+  },
+  startTime: "2026-06-15T14:00:00Z",
+  endTime: "2026-06-15T18:00:00Z",
+  status: "PLANNED"
+};
+
+fetch('/api/zones', {
+  method: 'POST',
+  headers: { 'Content-Type': 'application/json' },
+  body: JSON.stringify(newZone)
+})
+.then(res => res.json())
+.then(createdZone => {
+  console.log("Zone erstellt:", createdZone.id);
+  showZoneOnMap(createdZone);
+});
+```
+
+### Alle Zonen abrufen (GET)
+
+```javascript
+// Frontend lädt alle Zonen
+fetch('/api/zones')
+  .then(res => res.json())
+  .then(zones => {
+    // zones ist Array von Zonen
+    zones.forEach(zone => showZoneOnMap(zone));
+  });
+```
+
+### Route prüfen (GET)
+
+```javascript
+// Frontend sendet Route zur Prüfung
+fetch('/api/route?from=48.14,11.58&to=48.16,11.70')
+  .then(res => res.json())
+  .then(result => {
+    if (result.status === "OK") {
+      showRouteAsGreen(result.route);
+    } else {
+      showRouteAsRed(result.route);
+      showWarning(`Route schneidet Zone: ${result.zones[0].name}`);
+    }
+  });
+```
+
+---
+
 ## GeoJSON für Frontend (Leaflet)
 
 ```javascript

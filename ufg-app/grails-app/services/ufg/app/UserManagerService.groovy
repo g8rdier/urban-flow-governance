@@ -1,9 +1,12 @@
 package ufg.app
 
 import grails.gorm.transactions.Transactional
+import java.util.UUID
 
 @Transactional
 class UserManagerService {
+
+    static final long TOKEN_TTL_MINUTES = resolveTokenTtlMinutes()
 
     Map login(String username, String password) {
         def user = User.findByUsernameAndPassword(username, password)
@@ -12,6 +15,49 @@ class UserManagerService {
         }
 
         success(200, 'Login successful', [user: user])
+    }
+
+    String createTokenForUser(User user) {
+        // Beschraenkt den Zugriff auf eine einzige Session
+        AuthToken.executeUpdate('delete AuthToken t where t.user = :user', [user: user])
+
+        AuthToken authToken = new AuthToken(
+            token: UUID.randomUUID().toString(),
+            createdAt: new Date(),
+            user: user
+        )
+        authToken.save(failOnError: true, flush: true)
+        authToken.token
+    }
+
+    Map validateToken(String tokenValue) {
+        if (!tokenValue) {
+            return [valid: false, message: 'Login required']
+        }
+
+        AuthToken authToken = AuthToken.findByToken(tokenValue)
+        if (!authToken) {
+            return [valid: false, message: 'Invalid token']
+        }
+
+        if (!authToken.user) {
+            authToken.delete(flush: true)
+            return [valid: false, message: 'Invalid token']
+        }
+
+        if (minutesSince(authToken.createdAt) > TOKEN_TTL_MINUTES) {
+            authToken.delete(flush: true)
+            return [valid: false, message: 'Session expired. Please login again.']
+        }
+
+        [valid: true, user: authToken.user]
+    }
+
+    void deleteToken(String tokenValue) {
+        AuthToken authToken = AuthToken.findByToken(tokenValue)
+        if (authToken) {
+            authToken.delete(flush: true)
+        }
     }
 
     Map createUser(String username, String password, String role) {
@@ -66,5 +112,24 @@ class UserManagerService {
 
     private Map failure(int status, String msg) {
         [success: false, status: status, response: ApiResponse.failure(msg)]
+    }
+
+    private long minutesSince(Date date) {
+        long diffMillis = System.currentTimeMillis() - date.time
+        (long) (diffMillis / 60000L)
+    }
+
+    private static long resolveTokenTtlMinutes() {
+        String raw = System.getenv('TOKEN_TTL_MINUTES')
+        if (!raw) {
+            return 60L
+        }
+
+        try {
+            long parsed = raw as Long
+            parsed > 0L ? parsed : 60L
+        } catch (Exception ignored) {
+            60L
+        }
     }
 }

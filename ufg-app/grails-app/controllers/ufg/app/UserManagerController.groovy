@@ -1,6 +1,5 @@
 package ufg.app
 
-import java.time.LocalDateTime
 import grails.converters.JSON
 import ufg.app.security.RequiredRoles
 
@@ -18,7 +17,7 @@ class UserManagerController {
         delete: "DELETE"
     ]
 
-    // curl -X POST "http://localhost:8080/api/session" -d "username=admin&password=secret"
+    // curl -X POST "http://localhost:8080/api/session" -d "username=admin&password=adminpass"
     def login(String username, String password) {
         if (!username || !password) {
             render status: 400, contentType: 'application/json', text: (ApiResponse.failure('Provide username and password') as JSON)
@@ -32,20 +31,30 @@ class UserManagerController {
         }
 
         def user = result.user
-        session.userId = user.id
-        session.sessionKey = ["username": user.username, "role": user.role, "creation_time": LocalDateTime.now()]
-        render status: result.status, contentType: 'application/json', text: (result.response as JSON)
+        String token = userManagerService.createTokenForUser(user)
+        render status: 200, contentType: 'application/json', text: (ApiResponse.success('Login successful', [
+            token: token,
+            token_type: 'Bearer',
+            expires_in_minutes: UserManagerService.TOKEN_TTL_MINUTES
+        ]) as JSON)
     }
 
-    // curl -X DELETE "http://localhost:8080/api/session"
+    // curl -X DELETE "http://localhost:8080/api/session" -H "Authorization: Bearer <TOKEN>"
     def logout() {
-        session.userId = null
-        session.sessionKey = null
+        String authorization = request.getHeader('Authorization')
+        String token = BearerTokenUtil.extractBearerToken(authorization)
+
+        if (!token) {
+            render status: 401, contentType: 'application/json', text: (ApiResponse.failure('Login required') as JSON)
+            return
+        }
+
+        userManagerService.deleteToken(token)
         render status: 200, contentType: 'application/json', text: (ApiResponse.success('Logout successful') as JSON)
     }
 
     // POST /api/users
-    // curl -X POST "http://localhost:8080/api/users" -d "username=max&password=secret&role=NUTZER"
+    // curl -X POST "http://localhost:8080/api/users" -H "Authorization: Bearer <TOKEN>" -d "username=max&password=secret&role=NUTZER"
     @RequiredRoles(["ADMIN"])
     def create(String username, String password, String role) {
         Map result = userManagerService.createUser(username, password, role)
@@ -58,7 +67,7 @@ class UserManagerController {
     }
 
     // PUT/PATCH /api/users/{id}
-    // curl -X PUT "http://localhost:8080/api/users/1" -d "username=max2&role=ADMIN"
+    // curl -X PUT "http://localhost:8080/api/users/1" -H "Authorization: Bearer <TOKEN>" -d "username=max2&role=ADMIN"
     @RequiredRoles(["ADMIN"])
     def update(Long id, String username, String password, String role) {
         Map result = userManagerService.updateUser(id, username, password, role)
@@ -71,7 +80,7 @@ class UserManagerController {
     }
 
     // DELETE /api/users/{id}
-    // curl -X DELETE "http://localhost:8080/api/users/1"
+    // curl -X DELETE "http://localhost:8080/api/users/1" -H "Authorization: Bearer <TOKEN>"
     @RequiredRoles(["ADMIN"])
     def delete(Long id) {
         Map result = userManagerService.deleteUser(id)

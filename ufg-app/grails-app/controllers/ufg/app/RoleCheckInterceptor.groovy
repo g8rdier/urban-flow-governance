@@ -6,6 +6,8 @@ import ufg.app.security.RequiredRoles
 
 class RoleCheckInterceptor {
 
+    UserManagerService userManagerService
+
     RoleCheckInterceptor() {
         matchAll()
     }
@@ -17,18 +19,21 @@ class RoleCheckInterceptor {
             return true
         }
 
-        Long userId = session.userId as Long
-        if (!userId) {
+        String authorization = request.getHeader('Authorization')
+        String token = BearerTokenUtil.extractBearerToken(authorization)
+
+        if (!token) {
             render status: 401, contentType: 'application/json', text: (ApiResponse.failure('Login required') as JSON)
             return false
         }
 
-        def user = User.get(userId)
-        if (!user) {
-            session.invalidate()
-            render status: 401, contentType: 'application/json', text: (ApiResponse.failure('Invalid session') as JSON)
+        Map tokenCheck = userManagerService.validateToken(token)
+        if (!tokenCheck.valid) {
+            render status: 401, contentType: 'application/json', text: (ApiResponse.failure(tokenCheck.message as String) as JSON)
             return false
         }
+
+        User user = tokenCheck.user as User
 
         if (!requiredRoles.contains(user.role)) {
             render status: 403, contentType: 'application/json', text: (ApiResponse.failure("Role ${requiredRoles.join(' or ')} required") as JSON)
@@ -53,4 +58,5 @@ class RoleCheckInterceptor {
         RequiredRoles annotation = actionMethod.getAnnotation(RequiredRoles)
         annotation ? annotation.value().toList() : null
     }
+
 }

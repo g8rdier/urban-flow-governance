@@ -22,6 +22,7 @@
       },
       "extensions": [
         // "tomaszrup.groovy-spock-support", // Braucht JDK21, momentan nicht moeglich
+        "bierner.markdown-mermaid",
         "marlon407.code-groovy",
         "GDOTecnologia.gfvscode",
         "vscjava.vscode-java-pack",

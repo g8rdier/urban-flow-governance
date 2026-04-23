@@ -12,8 +12,7 @@ class RouteController {
     def check() {
         def json = request.JSON
         if (!json?.route) {
-            response.status = 400
-            render([error: "Field 'route' required (array of [lat, lng] pairs)"] as JSON)
+            render status: 400, contentType: 'application/json', text: (ApiResponse.failure("Field 'route' required (array of [lat, lng] pairs)") as JSON)
             return
         }
 
@@ -22,11 +21,11 @@ class RouteController {
         }
 
         if (route.size() < 2) {
-            response.status = 400
-            render([error: "Route must contain at least two coordinates"] as JSON)
+            render status: 400, contentType: 'application/json', text: (ApiResponse.failure("Route must contain at least two coordinates") as JSON)
             return
         }
 
-        render routeCheckService.checkRoute(route) as JSON
+        Map result = routeCheckService.checkRoute(route)
+        render contentType: 'application/json', text: (ApiResponse.success('', result) as JSON)
     }
 }

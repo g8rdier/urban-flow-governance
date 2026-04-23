@@ -4,6 +4,7 @@ import grails.converters.JSON
 import org.locationtech.jts.geom.Coordinate
 import org.locationtech.jts.geom.GeometryFactory
 import org.locationtech.jts.io.WKTWriter
+import ufg.app.security.RequiredRoles
 
 class RestrictedZoneController {
 
@@ -18,63 +19,80 @@ class RestrictedZoneController {
     private final GeometryFactory geometryFactory = new GeometryFactory()
 
     def index() {
-        render restrictedZoneService.listAll().collect { toMap(it) } as JSON
+        List<Map> zones = restrictedZoneService.listAll().collect { toMap(it) }
+        render contentType: 'application/json', text: (ApiResponse.success('', [zones: zones]) as JSON)
     }
 
     def show(Long id) {
         RestrictedZone zone = restrictedZoneService.get(id)
-        if (!zone) { render status: 404; return }
-        render toMap(zone) as JSON
+        if (!zone) {
+            render status: 404, contentType: 'application/json', text: (ApiResponse.failure("Zone ${id} not found") as JSON)
+            return
+        }
+        render contentType: 'application/json', text: (ApiResponse.success('', [zone: toMap(zone)]) as JSON)
     }
 
+    @RequiredRoles(["ADMIN"])
     def save() {
         try {
             Map params = parseZonePayload(request.JSON)
             RestrictedZone zone = restrictedZoneService.create(params)
-            response.status = 201
-            render toMap(zone) as JSON
+            render status: 201, contentType: 'application/json', text: (ApiResponse.success("Zone ${zone.name} created", [zone: toMap(zone)]) as JSON)
         } catch (IllegalArgumentException e) {
-            response.status = 400
-            render([error: e.message] as JSON)
+            render status: 400, contentType: 'application/json', text: (ApiResponse.failure(e.message) as JSON)
         }
     }
 
+    @RequiredRoles(["ADMIN"])
     def update(Long id) {
         try {
             Map params = parseZonePayload(request.JSON)
             RestrictedZone zone = restrictedZoneService.update(id, params)
-            if (!zone) { render status: 404; return }
-            render toMap(zone) as JSON
+            if (!zone) {
+                render status: 404, contentType: 'application/json', text: (ApiResponse.failure("Zone ${id} not found") as JSON)
+                return
+            }
+            render contentType: 'application/json', text: (ApiResponse.success("Zone ${zone.name} updated", [zone: toMap(zone)]) as JSON)
         } catch (IllegalArgumentException e) {
-            response.status = 400
-            render([error: e.message] as JSON)
+            render status: 400, contentType: 'application/json', text: (ApiResponse.failure(e.message) as JSON)
         }
     }
 
+    @RequiredRoles(["ADMIN"])
     def delete(Long id) {
         boolean ok = restrictedZoneService.delete(id)
-        render status: ok ? 204 : 404
+        if (!ok) {
+            render status: 404, contentType: 'application/json', text: (ApiResponse.failure("Zone ${id} not found") as JSON)
+            return
+        }
+        render status: 200, contentType: 'application/json', text: (ApiResponse.success('Zone deleted') as JSON)
     }
 
+    @RequiredRoles(["ADMIN"])
     def activate(Long id) {
         try {
             RestrictedZone zone = restrictedZoneService.activate(id)
-            if (!zone) { render status: 404; return }
-            render toMap(zone) as JSON
+            if (!zone) {
+                render status: 404, contentType: 'application/json', text: (ApiResponse.failure("Zone ${id} not found") as JSON)
+                return
+            }
+            render contentType: 'application/json', text: (ApiResponse.success("Zone ${zone.name} activated", [zone: toMap(zone)]) as JSON)
         } catch (IllegalStateException e) {
-            response.status = 409
-            render([error: e.message] as JSON)
+            render status: 409, contentType: 'application/json', text: (ApiResponse.failure(e.message) as JSON)
         }
     }
 
+    @RequiredRoles(["ADMIN"])
     def deactivate(Long id) {
         try {
             RestrictedZone zone = restrictedZoneService.deactivate(id)
-            if (!zone) { render status: 404; return }
-            render toMap(zone) as JSON
+            if (!zone) {
+                render status: 404, contentType: 'application/json', text: (ApiResponse.failure("Zone ${id} not found") as JSON)
+                return
+            }
+            render contentType: 'application/json', text: (ApiResponse.success("Zone ${zone.name} deactivated", [zone: toMap(zone)]) as JSON)
         } catch (IllegalStateException e) {
-            response.status = 409
-            render([error: e.message] as JSON)
+            render status: 409, contentType: 'application/json', text: (ApiResponse.failure(e.message) as JSON)
         }
     }
 

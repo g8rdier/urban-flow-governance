@@ -7,10 +7,20 @@ import java.util.UUID
 class UserManagerService {
 
     static final long TOKEN_TTL_MINUTES = resolveTokenTtlMinutes()
+    PasswordHashService passwordHashService
 
     Map login(String username, String password) {
-        def user = User.findByUsernameAndPassword(username, password)
-        if (!user) {
+        User user = User.findByUsername(username)
+        if (!user || !user.credential) {
+            return failure(401, 'Invalid credentials')
+        }
+
+        boolean valid = passwordHashService.verifyPassword(
+            password,
+            user.credential.salt,
+            user.credential.passwordHash
+        )
+        if (!valid) {
             return failure(401, 'Invalid credentials')
         }
 
@@ -63,10 +73,24 @@ class UserManagerService {
     Map createUser(String username, String password, String role) {
         String requestedRole = role ?: 'NUTZER'
 
-        User user = new User(username: username, password: password, role: requestedRole)
+        User user = new User(username: username, role: requestedRole)
         if (!user.save(flush: true)) {
             return failure(400, user.errors.allErrors.collect { it.defaultMessage }.join(', '))
         }
+
+        String salt = passwordHashService.generateSalt()
+        String passwordHash = passwordHashService.hashPassword(password, salt)
+        UserCredential credential = new UserCredential(
+            user: user,
+            salt: salt,
+            passwordHash: passwordHash
+        )
+        if (!credential.save(flush: true)) {
+            transactionStatus.setRollbackOnly()
+            return failure(400, credential.errors.allErrors.collect { it.defaultMessage }.join(', '))
+        }
+
+        user.credential = credential
 
         success(201, "User ${user.username} created")
     }
@@ -82,7 +106,16 @@ class UserManagerService {
         }
 
         if (password) {
-            user.password = password
+            UserCredential credential = user.credential ?: new UserCredential(user: user)
+            String salt = passwordHashService.generateSalt()
+            credential.salt = salt
+            credential.passwordHash = passwordHashService.hashPassword(password, salt)
+
+            if (!credential.save(flush: true)) {
+                return failure(400, credential.errors.allErrors.collect { it.defaultMessage }.join(', '))
+            }
+
+            user.credential = credential
         }
 
         if (role) {
@@ -100,6 +133,11 @@ class UserManagerService {
         User user = User.get(id)
         if (!user) {
             return failure(404, 'User not found')
+        }
+
+        UserCredential credential = user.credential
+        if (credential) {
+            credential.delete(flush: true)
         }
 
         user.delete(flush: true)

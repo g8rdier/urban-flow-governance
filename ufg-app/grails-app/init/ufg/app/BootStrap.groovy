@@ -2,13 +2,27 @@ package ufg.app
 
 class BootStrap {
 
+    PasswordHashService passwordHashService
+
     def init = {
         if (!User.findByUsername("testuser")) {
-            new User(username: "testuser", password: "testpass", role: "NUTZER").save(failOnError: true)
+            User user = new User(username: "testuser", role: "NUTZER").save(failOnError: true)
+            String salt = passwordHashService.generateSalt()
+            new UserCredential(
+                user: user,
+                salt: salt,
+                passwordHash: passwordHashService.hashPassword("testpass", salt)
+            ).save(failOnError: true)
         }
 
         if (!User.findByUsername("admin")) {
-            new User(username: "admin", password: "adminpass", role: "ADMIN").save(failOnError: true)
+            User user = new User(username: "admin", role: "ADMIN").save(failOnError: true)
+            String salt = passwordHashService.generateSalt()
+            new UserCredential(
+                user: user,
+                salt: salt,
+                passwordHash: passwordHashService.hashPassword("adminpass", salt)
+            ).save(failOnError: true)
         }
     }
 

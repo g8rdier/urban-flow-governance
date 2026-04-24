@@ -3,13 +3,14 @@ package ufg.app
 class User {
 
     String username
-    String password
     String role = "NUTZER"
+
+    static hasOne = [credential: UserCredential]
 
     static constraints = {
         username blank: false, unique: true
-        password blank: false
         role blank: false, inList: ["NUTZER", "ADMIN"]
+        credential nullable: true
     }
 
     static mapping = {

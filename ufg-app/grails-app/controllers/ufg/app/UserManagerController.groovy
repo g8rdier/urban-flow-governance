@@ -39,6 +39,20 @@ class UserManagerController {
         ]) as JSON)
     }
 
+    // curl -X GET "http://localhost:8080/api/session" -H "Authorization: Bearer <TOKEN>"
+    def getUserinfo() {
+        String authorization = request.getHeader('Authorization')
+        String token = BearerTokenUtil.extractBearerToken(authorization)
+
+        if (!token) {
+            render status: 401, contentType: 'application/json', text: (ApiResponse.failure('Login required') as JSON)
+            return
+        }
+
+        def user = userManagerService.getUserByToken(token)
+        render status: 200, contentType: 'application/json', text: (ApiResponse.success('Logout successful', user) as JSON)
+    }
+
     // curl -X DELETE "http://localhost:8080/api/session" -H "Authorization: Bearer <TOKEN>"
     def logout() {
         String authorization = request.getHeader('Authorization')

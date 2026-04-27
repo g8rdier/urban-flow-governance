@@ -63,9 +63,19 @@ class UserManagerService {
         [valid: true, user: authToken.user]
     }
 
-    User getUserByToken(String tokenValue) {
+    Map getUserByToken(String tokenValue) {
         Map result = validateToken(tokenValue)
-        result.valid ? result.user : null
+        if (!result.valid || !result.user) {
+            return null
+        }
+
+        // Verhindert die Ausgabe des 'credential' Feldes
+        User user = result.user
+        [
+            id: user.id,
+            username: user.username,
+            role: user.role
+        ]
     }
 
     void deleteToken(String tokenValue) {

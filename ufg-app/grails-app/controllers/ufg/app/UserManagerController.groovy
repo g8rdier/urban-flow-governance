@@ -17,7 +17,7 @@ class UserManagerController {
         delete: "DELETE"
     ]
 
-    // curl -X POST "http://localhost:8080/api/session" -d "username=admin&password=adminpass"
+    // curl.exe -X POST "http://localhost:8080/api/session" -d "username=admin&password=adminpass"
     def login(String username, String password) {
         if (!username || !password) {
             render status: 400, contentType: 'application/json', text: (ApiResponse.failure('Provide username and password') as JSON)
@@ -39,7 +39,7 @@ class UserManagerController {
         ]) as JSON)
     }
 
-    // curl -X GET "http://localhost:8080/api/session" -H "Authorization: Bearer <TOKEN>"
+    // curl.exe -X GET "http://localhost:8080/api/session" -H "Authorization: Bearer <TOKEN>"
     def getUserinfo() {
         String authorization = request.getHeader('Authorization')
         String token = BearerTokenUtil.extractBearerToken(authorization)
@@ -58,7 +58,7 @@ class UserManagerController {
         render status: 200, contentType: 'application/json', text: (ApiResponse.success('User info loaded', [user: user]) as JSON)
     }
 
-    // curl -X DELETE "http://localhost:8080/api/session" -H "Authorization: Bearer <TOKEN>"
+    // curl.exe -X DELETE "http://localhost:8080/api/session" -H "Authorization: Bearer <TOKEN>"
     def logout() {
         String authorization = request.getHeader('Authorization')
         String token = BearerTokenUtil.extractBearerToken(authorization)
@@ -79,7 +79,7 @@ class UserManagerController {
     }
 
     // POST /api/users
-    // curl -X POST "http://localhost:8080/api/users" -H "Authorization: Bearer <TOKEN>" -d "username=max&password=secret&role=NUTZER"
+    // curl.exe -X POST "http://localhost:8080/api/users" -H "Authorization: Bearer <TOKEN>" -d "username=max&password=secret&role=NUTZER"
     @RequiredRoles(["ADMIN"])
     def create(String username, String password, String role) {
         Map result = userManagerService.createUser(username, password, role)
@@ -92,7 +92,7 @@ class UserManagerController {
     }
 
     // PUT/PATCH /api/users/{id}
-    // curl -X PUT "http://localhost:8080/api/users/1" -H "Authorization: Bearer <TOKEN>" -d "username=max2&role=ADMIN"
+    // curl.exe -X PUT "http://localhost:8080/api/users/1" -H "Authorization: Bearer <TOKEN>" -d "username=max2&role=ADMIN"
     @RequiredRoles(["ADMIN"])
     def update(Long id, String username, String password, String role) {
         Map result = userManagerService.updateUser(id, username, password, role)
@@ -105,7 +105,7 @@ class UserManagerController {
     }
 
     // DELETE /api/users/{id}
-    // curl -X DELETE "http://localhost:8080/api/users/1" -H "Authorization: Bearer <TOKEN>"
+    // curl.exe -X DELETE "http://localhost:8080/api/users/1" -H "Authorization: Bearer <TOKEN>"
     @RequiredRoles(["ADMIN"])
     def delete(Long id) {
         Map result = userManagerService.deleteUser(id)

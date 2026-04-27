@@ -7,6 +7,31 @@ servers:
   - url: /
 paths:
   /api/session:
+    get:
+      summary: Aktuelle Session-Userinfo abrufen
+      security:
+        - bearerAuth: []
+      responses:
+        '200':
+          description: User info erfolgreich geladen
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiResponseUserInfo'
+              example:
+                status: success
+                msg: User info loaded
+                data:
+                  user:
+                    id: 1
+                    username: admin
+                    role: ADMIN
+        '401':
+          description: Login required oder Invalid token
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiResponse'
     post:
       summary: Benutzer anmelden
       description: Liefert bei erfolgreichem Login ein Bearer-Token zur Nutzung im Authorization-Header.
@@ -300,3 +325,24 @@ components:
                 expires_in_minutes:
                   type: integer
                   minimum: 1
+    ApiResponseUserInfo:
+      allOf:
+        - $ref: '#/components/schemas/ApiResponse'
+        - type: object
+          properties:
+            data:
+              type: object
+              required: [user]
+              properties:
+                user:
+                  type: object
+                  required: [id, username, role]
+                  properties:
+                    id:
+                      type: integer
+                      format: int64
+                    username:
+                      type: string
+                    role:
+                      type: string
+                      enum: [ADMIN, NUTZER]

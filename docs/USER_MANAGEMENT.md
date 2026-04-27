@@ -47,7 +47,7 @@ stateDiagram-v2
 	Anmeldedaten_pruefen --> Token_gueltig: Gueltige Zugangsdaten
 	Anmeldedaten_pruefen --> Nicht_angemeldet: Ungueltige Zugangsdaten
 
-	Token_gueltig --> Token_abgelaufen: > 60 Minuten seit Token-Erstellung
+	Token_gueltig --> Token_abgelaufen: > TOKEN_TTL_MINUTES seit Token-Erstellung
 	Token_gueltig --> Nicht_angemeldet: Logout
 	Token_abgelaufen --> Nicht_angemeldet: Token aus DB loeschen, neu anmelden
 	Nicht_angemeldet --> [*]
@@ -114,21 +114,25 @@ Die vollständige Spezifikation liegt ausgelagert in [USER_MANAGEMENT.openapi.ya
 curl -s -X POST "http://localhost:8080/api/session" \
 	-d "username=admin&password=adminpass"
 
-# 2) Logout mit Bearer-Token
+# 2) Session-Userinfo mit Bearer-Token abrufen
+curl -X GET "http://localhost:8080/api/session" \
+	-H "Authorization: Bearer <TOKEN>"
+
+# 3) Logout mit Bearer-Token
 curl -X DELETE "http://localhost:8080/api/session" \
 	-H "Authorization: Bearer <TOKEN>"
 
-# 3) User erstellen (ADMIN)
+# 4) User erstellen (ADMIN)
 curl -X POST "http://localhost:8080/api/users" \
 	-H "Authorization: Bearer <TOKEN>" \
 	-d "username=max&password=secret&role=NUTZER"
 
-# 4) User aktualisieren (ADMIN)
+# 5) User aktualisieren (ADMIN)
 curl -X PUT "http://localhost:8080/api/users/1" \
 	-H "Authorization: Bearer <TOKEN>" \
 	-d "username=max2&role=ADMIN"
 
-# 5) User loeschen (ADMIN)
+# 6) User loeschen (ADMIN)
 curl -X DELETE "http://localhost:8080/api/users/1" \
 	-H "Authorization: Bearer <TOKEN>"
 ```
@@ -220,12 +224,17 @@ sequenceDiagram
 	participant UI as Admin-Seite (Frontend)
 	participant UMC as UserManagerController
 
-	note over A,UMC: Userliste anzeigen
+	note over A,UMC: Session pruefen
 
 	A->>UI: Navigiert zu /admin
-	UI->>UMC: GET /api/users (mit Bearer-Token)
-	UMC-->>UI: Liste aller User
-	UI-->>A: Tabelle mit Nutzern (Username, Rolle, Aktionen)
+	UI->>UMC: GET /api/session (mit Bearer-Token)
+	alt Token gueltig
+		UMC-->>UI: 200 User info loaded
+		UI-->>A: Admin-Bereich bleibt sichtbar
+	else Kein/ungueltiger Token
+		UMC-->>UI: 401 Login required / Invalid token
+		UI-->>A: Weiterleitung zu Login
+	end
 
 	note over A,UMC: Neuen Nutzer anlegen
 

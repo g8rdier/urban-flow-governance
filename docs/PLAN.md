@@ -23,18 +23,18 @@ Arbeitsboard auf Basis der User Stories aus [USER_STORIES.md](USER_STORIES.md) u
 - US-1.4 Zone-Status verwalten | Bearbeiter: Gregor Kobilarov | Kommentare: Status-Enum + activate/deactivate fertig, RouteCheck nutzt nur ACTIVE; zeitgesteuerte Übergänge + UI fehlen
 - US-5.1 Aktive Zonen anzeigen | Bearbeiter: Gregor Kobilarov | Kommentare: Service.listActive vorhanden und getestet; REST-Endpoint + Sidebar/Panel fehlen
 
-- US-8.2 Nutzer loeschen | Bearbeiter: Tim Lanzendoerfer | Kommentare: Es fehlen noch tests
-- US-7.1 Login als Admin/Nutzer | Bearbeiter: Tim Lanzendoerfer | Kommentare: Es fehlen noch tests
-- US-7.2 Logout als Admin/Nutzer | Bearbeiter: Tim Lanzendoerfer | Kommentare: Es fehlen noch tests
-- US-7.3 Session Timeout als Admin/Nutzer | Bearbeiter: Tim Lanzendoerfer | Kommentare: Es fehlen noch tests
-- US-8.1 Nutzer erstellen | Bearbeiter: Tim Lanzendoerfer | Kommentare: Es fehlen noch tests
-- US-8.3 Admin-Rolle zuordnen | Bearbeiter: Tim Lanzendoerfer | Kommentare: Es fehlen noch tests
-
 ## Review
 
 - US-1.2 Sperrzone bearbeiten | Bearbeiter: Gregor Kobilarov | Kommentare: update-Endpoint + Integrationstest grün; Frontend-Integration ausstehend
 - US-1.3 Sperrzone loeschen | Bearbeiter: Gregor Kobilarov | Kommentare: delete-Endpoint + Integrationstest grün; Bestätigungsdialog im Frontend offen
 - US-2.2 Warnung bei Sperrzone-Konflikt | Bearbeiter: Gregor Kobilarov | Kommentare: RouteCheckService liefert OK/WARNING mit Zone + Zeitraum, nur ACTIVE; UI-Darstellung offen
+
+- US-7.1 Login als Admin/Nutzer | Bearbeiter: Tim Lanzendoerfer | Kommentare: Ready für Review. Frontend-Integration ausstehend
+- US-7.2 Logout als Admin/Nutzer | Bearbeiter: Tim Lanzendoerfer | Kommentare: Ready für Review. Frontend-Integration ausstehend
+- US-7.3 Session Timeout als Admin/Nutzer | Bearbeiter: Tim Lanzendoerfer | Kommentare: Ready für Review. Frontend-Integration ausstehend
+- US-8.1 Nutzer erstellen | Bearbeiter: Tim Lanzendoerfer | Kommentare: Ready für Review. Frontend-Integration ausstehend
+- US-8.2 Nutzer loeschen | Bearbeiter: Tim Lanzendoerfer | Kommentare: Ready für Review. Frontend-Integration ausstehend
+- US-8.3 Admin-Rolle zuordnen | Bearbeiter: Tim Lanzendoerfer | Kommentare: Ready für Review. Frontend-Integration ausstehend
 
 ## Erledigt
 

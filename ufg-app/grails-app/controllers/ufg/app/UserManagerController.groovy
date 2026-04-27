@@ -50,7 +50,12 @@ class UserManagerController {
         }
 
         def user = userManagerService.getUserByToken(token)
-        render status: 200, contentType: 'application/json', text: (ApiResponse.success('Logout successful', user) as JSON)
+        if (!user) {
+            render status: 401, contentType: 'application/json', text: (ApiResponse.failure('Invalid token') as JSON)
+            return
+        }
+
+        render status: 200, contentType: 'application/json', text: (ApiResponse.success('User info loaded', [user: user]) as JSON)
     }
 
     // curl -X DELETE "http://localhost:8080/api/session" -H "Authorization: Bearer <TOKEN>"
@@ -60,6 +65,12 @@ class UserManagerController {
 
         if (!token) {
             render status: 401, contentType: 'application/json', text: (ApiResponse.failure('Login required') as JSON)
+            return
+        }
+
+        def user = userManagerService.getUserByToken(token)
+        if (!user) {
+            render status: 401, contentType: 'application/json', text: (ApiResponse.failure('Invalid token') as JSON)
             return
         }
 

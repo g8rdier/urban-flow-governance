@@ -63,6 +63,11 @@ class UserManagerService {
         [valid: true, user: authToken.user]
     }
 
+    User getUserByToken(String tokenValue) {
+        Map result = validateToken(tokenValue)
+        result.valid ? result.user : null
+    }
+
     void deleteToken(String tokenValue) {
         AuthToken authToken = AuthToken.findByToken(tokenValue)
         if (authToken) {

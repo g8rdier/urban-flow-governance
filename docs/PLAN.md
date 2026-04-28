@@ -8,45 +8,69 @@ Arbeitsboard auf Basis der User Stories aus [USER_STORIES.md](USER_STORIES.md) u
 - **Gregor Kobilarov** — Backend: Zonenverwaltung, Routenprüfung, OpenAPI
 - **Tim Lanzendoerfer** — Backend: Authentifizierung, User Management | Datenbank
 
-## Backlog
+## Board
 
-- US-2.3 Alternative Route anfordern | Bearbeiter: offen | Kommentare: -
-- US-4.2 Startpunkt/Ziel suchen | Bearbeiter: offen | Kommentare: -
-- US-5.2 Benachrichtigung bei Zone-Aktivierung | Bearbeiter: offen | Kommentare: -
-- US-6.1 Zone-Verlauf ansehen | Bearbeiter: offen | Kommentare: -
+> Erfordert Mermaid ≥ 11.4 (VS Code Mermaid Preview Extension o.ä.).
 
-## To Do
+```mermaid
+---
+config:
+  kanban:
+    ticketBaseUrl: ''
+---
+kanban
+  Backlog
+    b1[US-2.3 Alternative Route anfordern]
+    b2[US-4.2 Startpunkt/Ziel suchen]
+    b3[US-5.2 Benachrichtigung bei Zone-Aktivierung]
+    b4[US-6.1 Zone-Verlauf ansehen]
 
-- US-2.1 Route berechnen | Bearbeiter: Elizat Mairambek kyzy | Kommentare: Prototyp in `.devcontainer/frontend/`; Grails-Integration ausstehend
-- US-3.3 Route-Konflikt visuell hervorheben | Bearbeiter: offen | Kommentare: -
-- US-3.2 Zone-Details beim Klick anzeigen | Bearbeiter: offen | Kommentare: -
-- US-4.1 Stadtteil/Straße suchen | Bearbeiter: Elizat Mairambek kyzy | Kommentare: Geocoding via Nominatim im Prototyp vorhanden; Grails-Integration ausstehend
-- GET /api/zones/active Endpoint | Bearbeiter: offen | Kommentare: Service.listActive() vorhanden, Controller-Action fehlt noch
-- Auth auf GET /api/zones + GET /api/zones/{id} | Bearbeiter: Gregor Kobilarov | Kommentare: Aktuell öffentlich (entwicklungshalber); vor Abgabe @RequiredRoles(["ADMIN", "NUTZER"]) setzen
+  ToDo[To Do]
+    t1["US-2.1 Route berechnen (Elizat)"]
+    t2[US-3.3 Route-Konflikt visuell hervorheben]
+    t3[US-3.2 Zone-Details beim Klick anzeigen]
+    t4["US-4.1 Stadtteil/Straße suchen (Elizat)"]
+    t5["GET /api/zones/active Endpoint"]
+    t6["Auth auf GET /api/zones + /{id} (Gregor)"]
 
-## In Bearbeitung
+  InProgress[In Bearbeitung]
+    p1["US-1.1 Sperrzone erstellen (Gregor)"]
+    p2["US-1.4 Zone-Status verwalten (Gregor)"]
+    p3["US-3.1 Sperrzonen auf Karte anzeigen (Elizat)"]
+    p4["US-5.1 Aktive Zonen anzeigen (Gregor)"]
 
-- US-1.1 Sperrzone erstellen | Bearbeiter: Gregor Kobilarov | Kommentare: Backend/API + Tests fertig (save, PLANNED-Status); Polygon-Zeichnen + Admin-UI offen
-- US-1.4 Zone-Status verwalten | Bearbeiter: Gregor Kobilarov | Kommentare: Status-Enum + activate/deactivate fertig, RouteCheck nutzt nur ACTIVE; zeitgesteuerte Übergänge + UI fehlen
-- US-3.1 Sperrzonen auf Karte anzeigen | Bearbeiter: Elizat Mairambek kyzy | Kommentare: Prototyp in `.devcontainer/frontend/` mit Leaflet + Mock-Daten; API-Anbindung + Grails-Integration ausstehend
-- US-5.1 Aktive Zonen anzeigen | Bearbeiter: Gregor Kobilarov | Kommentare: Service.listActive vorhanden und getestet; REST-Endpoint + Sidebar/Panel fehlen
+  Review
+    r1["US-1.2 Sperrzone bearbeiten (Gregor)"]
+    r2["US-1.3 Sperrzone loeschen (Gregor)"]
+    r3["US-2.2 Warnung bei Sperrzone-Konflikt (Gregor)"]
+    r4["US-7.1 Login als Admin/Nutzer (Tim)"]
+    r5["US-7.2 Logout als Admin/Nutzer (Tim)"]
+    r6["US-7.3 Session Timeout (Tim)"]
+    r7["US-8.1 Nutzer erstellen (Tim)"]
+    r8["US-8.2 Nutzer loeschen (Tim)"]
+    r9["US-8.3 Admin-Rolle zuordnen (Tim)"]
 
-## Review
+  Erledigt
+    d1["OpenAPI + Swagger UI (Gregor)"]
+```
 
-- US-1.2 Sperrzone bearbeiten | Bearbeiter: Gregor Kobilarov | Kommentare: update-Endpoint + Integrationstest grün; Frontend-Integration ausstehend
-- US-1.3 Sperrzone loeschen | Bearbeiter: Gregor Kobilarov | Kommentare: delete-Endpoint + Integrationstest grün; Bestätigungsdialog im Frontend offen
-- US-2.2 Warnung bei Sperrzone-Konflikt | Bearbeiter: Gregor Kobilarov | Kommentare: RouteCheckService liefert OK/WARNING mit Zone + Zeitraum, nur ACTIVE; UI-Darstellung offen
+## Kommentare
 
-- US-7.1 Login als Admin/Nutzer | Bearbeiter: Tim Lanzendoerfer | Kommentare: Ready für Review. Frontend-Integration ausstehend
-- US-7.2 Logout als Admin/Nutzer | Bearbeiter: Tim Lanzendoerfer | Kommentare: Ready für Review. Frontend-Integration ausstehend
-- US-7.3 Session Timeout als Admin/Nutzer | Bearbeiter: Tim Lanzendoerfer | Kommentare: Ready für Review. Frontend-Integration ausstehend
-- US-8.1 Nutzer erstellen | Bearbeiter: Tim Lanzendoerfer | Kommentare: Ready für Review. Frontend-Integration ausstehend
-- US-8.2 Nutzer loeschen | Bearbeiter: Tim Lanzendoerfer | Kommentare: Ready für Review. Frontend-Integration ausstehend
-- US-8.3 Admin-Rolle zuordnen | Bearbeiter: Tim Lanzendoerfer | Kommentare: Ready für Review. Frontend-Integration ausstehend
-
-## Erledigt
-
-- OpenAPI-Spezifikation + Swagger UI | Bearbeiter: Gregor Kobilarov | Kommentare: Eingebettet in Grails-App, erreichbar unter /openapi.yaml und /swagger-ui; läuft im Devcontainer
+| ID | Kommentar |
+|----|-----------|
+| US-2.1 | Prototyp in `.devcontainer/frontend/`; Grails-Integration ausstehend |
+| US-4.1 | Geocoding via Nominatim im Prototyp vorhanden; Grails-Integration ausstehend |
+| US-1.1 | Backend/API + Tests fertig (save, PLANNED-Status); Polygon-Zeichnen + Admin-UI offen |
+| US-1.4 | Status-Enum + activate/deactivate fertig; zeitgesteuerte Übergänge + UI fehlen |
+| US-3.1 | Prototyp mit Leaflet + Mock-Daten; API-Anbindung + Grails-Integration ausstehend |
+| US-5.1 | Service.listActive vorhanden und getestet; REST-Endpoint + Sidebar/Panel fehlen |
+| GET /api/zones/active | Service.listActive() vorhanden, Controller-Action fehlt noch |
+| Auth /api/zones | Aktuell öffentlich (entwicklungshalber); vor Abgabe @RequiredRoles setzen |
+| US-1.2 | update-Endpoint + Integrationstest grün; Frontend-Integration ausstehend |
+| US-1.3 | delete-Endpoint + Integrationstest grün; Bestätigungsdialog im Frontend offen |
+| US-2.2 | RouteCheckService liefert OK/WARNING mit Zone + Zeitraum; UI-Darstellung offen |
+| US-7.1–7.3 | Ready für Review. Frontend-Integration ausstehend |
+| US-8.1–8.3 | Ready für Review. Frontend-Integration ausstehend |
 
 ## Hinweise
 

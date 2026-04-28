@@ -73,6 +73,13 @@ java {
 tasks.withType(Test) {
     useJUnitPlatform()
 }
+
+task copyOpenApi(type: Copy) {
+    from file('../openapi.yaml')
+    into 'src/main/resources/public'
+}
+
+processResources.dependsOn copyOpenApi
 assets {
     minifyJs = project.hasProperty('minify')
     minifyCss = project.hasProperty('minify')

@@ -2,25 +2,33 @@
 
 Arbeitsboard auf Basis der User Stories aus [USER_STORIES.md](USER_STORIES.md) und [USER_STORIES.csv](USER_STORIES.csv).
 
+## Zuständigkeiten
+
+- **Gregor Kobilarov** — Backend: Zonenverwaltung, Routenprüfung, OpenAPI
+- **Tim Lanzendoerfer** — Backend: Authentifizierung, User Management
+- **Elizat Mairambek kyzy** — Frontend (Hauptverantwortlich)
+
 ## Backlog
 
-- US-2.3 Alternative Route anfordert | Bearbeiter: offen | Kommentare: -
+- US-2.3 Alternative Route anfordern | Bearbeiter: offen | Kommentare: -
 - US-4.2 Startpunkt/Ziel suchen | Bearbeiter: offen | Kommentare: -
 - US-5.2 Benachrichtigung bei Zone-Aktivierung | Bearbeiter: offen | Kommentare: -
 - US-6.1 Zone-Verlauf ansehen | Bearbeiter: offen | Kommentare: -
 
 ## To Do
 
-- US-2.1 Route berechnen | Bearbeiter: offen | Kommentare: -
-- US-3.1 Sperrzonen auf Karte anzeigen | Bearbeiter: offen | Kommentare: -
+- US-2.1 Route berechnen | Bearbeiter: Elizat Mairambek kyzy | Kommentare: Prototyp in `.devcontainer/frontend/`; Grails-Integration ausstehend
 - US-3.3 Route-Konflikt visuell hervorheben | Bearbeiter: offen | Kommentare: -
 - US-3.2 Zone-Details beim Klick anzeigen | Bearbeiter: offen | Kommentare: -
-- US-4.1 Stadtteil/Straße suchen | Bearbeiter: offen | Kommentare: -
+- US-4.1 Stadtteil/Straße suchen | Bearbeiter: Elizat Mairambek kyzy | Kommentare: Geocoding via Nominatim im Prototyp vorhanden; Grails-Integration ausstehend
+- GET /api/zones/active Endpoint | Bearbeiter: offen | Kommentare: Service.listActive() vorhanden, Controller-Action fehlt noch
+- Auth auf GET /api/zones + GET /api/zones/{id} | Bearbeiter: Gregor Kobilarov | Kommentare: Aktuell öffentlich (entwicklungshalber); vor Abgabe @RequiredRoles(["ADMIN", "NUTZER"]) setzen
 
 ## In Bearbeitung
 
 - US-1.1 Sperrzone erstellen | Bearbeiter: Gregor Kobilarov | Kommentare: Backend/API + Tests fertig (save, PLANNED-Status); Polygon-Zeichnen + Admin-UI offen
 - US-1.4 Zone-Status verwalten | Bearbeiter: Gregor Kobilarov | Kommentare: Status-Enum + activate/deactivate fertig, RouteCheck nutzt nur ACTIVE; zeitgesteuerte Übergänge + UI fehlen
+- US-3.1 Sperrzonen auf Karte anzeigen | Bearbeiter: Elizat Mairambek kyzy | Kommentare: Prototyp in `.devcontainer/frontend/` mit Leaflet + Mock-Daten; API-Anbindung + Grails-Integration ausstehend
 - US-5.1 Aktive Zonen anzeigen | Bearbeiter: Gregor Kobilarov | Kommentare: Service.listActive vorhanden und getestet; REST-Endpoint + Sidebar/Panel fehlen
 
 ## Review
@@ -38,7 +46,7 @@ Arbeitsboard auf Basis der User Stories aus [USER_STORIES.md](USER_STORIES.md) u
 
 ## Erledigt
 
-- Keine Eintraege | Bearbeiter: - | Kommentare: -
+- OpenAPI-Spezifikation + Swagger UI | Bearbeiter: Gregor Kobilarov | Kommentare: Eingebettet in Grails-App, erreichbar unter /openapi.yaml und /swagger-ui; läuft im Devcontainer
 
 ## Hinweise
 

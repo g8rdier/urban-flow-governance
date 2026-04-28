@@ -40,6 +40,7 @@ class UserManagerController {
     }
 
     // curl.exe -X GET "http://localhost:8080/api/session" -H "Authorization: Bearer <TOKEN>"
+    @RequiredRoles(["ADMIN", "NUTZER"])
     def getUserinfo() {
         String authorization = request.getHeader('Authorization')
         String token = BearerTokenUtil.extractBearerToken(authorization)
@@ -59,6 +60,7 @@ class UserManagerController {
     }
 
     // curl.exe -X DELETE "http://localhost:8080/api/session" -H "Authorization: Bearer <TOKEN>"
+    @RequiredRoles(["ADMIN", "NUTZER"])
     def logout() {
         String authorization = request.getHeader('Authorization')
         String token = BearerTokenUtil.extractBearerToken(authorization)

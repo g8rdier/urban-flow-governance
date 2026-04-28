@@ -55,6 +55,11 @@ class UrlMappings {
             }
         }
 
+        "/openapi.yaml"(controller: "swagger", action: "spec")
+        "/swagger-ui"(controller: "swagger", action: "ui")
+        "/swagger-ui/"(controller: "swagger", action: "ui")
+        "/swagger-ui/index.html"(controller: "swagger", action: "ui")
+
         "/"(view:"/index")
         "500"(view:'/error')
         "404"(view:'/notFound')

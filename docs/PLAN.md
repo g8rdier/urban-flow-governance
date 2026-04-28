@@ -4,9 +4,9 @@ Arbeitsboard auf Basis der User Stories aus [USER_STORIES.md](USER_STORIES.md) u
 
 ## Zuständigkeiten
 
-- **Elizat Mairambek kyzy** — Frontend: Einarbeitung in Technologien, Planung und Umsetzung
-- **Gregor Kobilarov** — Backend: Zonenverwaltung, Routenprüfung, OpenAPI; Frontend-Unterstützung
-- **Tim Lanzendoerfer** — Backend: Authentifizierung, User Management; Datenbankanbindung
+- **Elizat Mairambek kyzy** — Frontend, Karte, Geocoding, Routing
+- **Gregor Kobilarov** — Backend, GIS, API, Frontend
+- **Tim Lanzendoerfer** — Backend, Auth, User Management, Infrastruktur, Datenbank
 
 ## Board
 

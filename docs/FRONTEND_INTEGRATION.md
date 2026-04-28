@@ -78,4 +78,9 @@ const { data } = await checkRes.json();
 
 ## Adresssuche
 
-Für die Suche nach Adressen und Stadtteilen (US-4.1, US-4.2) wird Nominatim genutzt. Alternativ kann Start/Ziel direkt per Klick auf die Karte gesetzt werden — dann entfällt Nominatim.
+Für die Suche nach Adressen und Stadtteilen (US-4.1, US-4.2) werden beide Eingabewege unterstützt — analog zu Google Maps:
+
+- **Texteingabe** → Geocoding via Nominatim (`/search?q=...&format=json`)
+- **Klick auf die Karte** → Leaflet liefert `lat/lng` direkt über das Click-Event
+
+Beide Wege liefern am Ende Koordinaten, die identisch weiterverarbeitet werden (OSRM → Routenprüfung).

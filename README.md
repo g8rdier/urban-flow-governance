@@ -4,13 +4,13 @@ Webbasierte Anwendung zur Verwaltung und Visualisierung von Sperrzonen sowie zur
 
 ## Doku
 
-- [Projekt-Spezifikation](docs/PROJECT_SPECIFICATION.md)
-- [User Stories](docs/USER_STORIES.md)
-- [Kanban-Board / Todo-Liste](docs/PLAN.md)
-- [Zonenmodell](docs/ZONE_DATA_STRUCTURE.md)
-- [Zonen-Management](docs/ZONE_MANAGEMENT.md)
-- [Nutzerverwaltung](docs/USER_MANAGEMENT.md)
-- [Tomcat-Deployment](docs/TOMCAT_DEPLOYMENT.md)
+- [Projekt-Spezifikation](docs/project/PROJECT_SPECIFICATION.md)
+- [User Stories](docs/project/USER_STORIES.md)
+- [Kanban-Board / Todo-Liste](docs/project/PLAN.md)
+- [Zonenmodell](docs/architecture/ZONE_DATA_STRUCTURE.md)
+- [Zonen-Management](docs/domain/ZONE_MANAGEMENT.md)
+- [Nutzerverwaltung](docs/domain/USER_MANAGEMENT.md)
+- [Tomcat-Deployment](docs/ops/TOMCAT_DEPLOYMENT.md)
 
 ## Kurzstart
 

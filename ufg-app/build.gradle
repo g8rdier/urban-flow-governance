@@ -74,7 +74,7 @@ tasks.withType(Test) {
     useJUnitPlatform()
 }
 assets {
-    minifyJs = true
-    minifyCss = true
+    minifyJs = project.hasProperty('minify')
+    minifyCss = project.hasProperty('minify')
     skipNonDigests = true
 }

@@ -1,113 +1,46 @@
-# Tomcat Deployment - KISS Anleitung
+# Tomcat Deployment
 
-## 🚀 Schnellstart
+## WAR-Datei erstellen
 
-### 1. Tomcat starten
+```bash
+cd ufg-app
+./gradlew war
+```
+
+Ausgabe: `ufg-app/build/libs/ufg-app-0.1.war`
+
+## WAR deployen
+
+**Manuell:**
+```bash
+cp build/libs/ufg-app-0.1.war /opt/tomcat/webapps/
+```
+
+**Über Manager GUI:** `http://localhost:8080/manager/html`
+
+## Tomcat steuern
 
 ```bash
 # Dev
 ~/.sdkman/candidates/tomcat/9.0.116/bin/startup.sh
-
-# Prod
-/opt/tomcat/bin/startup.sh
-```
-
-Web-Interface: **http://localhost:8080**
-
-Tomcat stoppen:
-```bash
-# Dev
 ~/.sdkman/candidates/tomcat/9.0.116/bin/shutdown.sh
 
 # Prod
+/opt/tomcat/bin/startup.sh
 /opt/tomcat/bin/shutdown.sh
 ```
 
----
+## Logs
 
-## 📦 Schritt 1: WAR-Datei erstellen
-
-Im `ufg-app/` Verzeichnis:
-
-```bash
-cd ufg-app
-./gradlew war
-```
-
-Die WAR-Datei befindet sich danach hier:
-```
-ufg-app/build/libs/ufg-app-0.1.war
-```
-
----
-
-## 📤 Schritt 2: WAR auf Tomcat deployen
-
-### Option A: Manuell per Dateimanager
-
-1. WAR-Datei kopieren:
-   ```bash
-   # Dev
-   cp build/libs/ufg-app-0.1-plain.war ~/.sdkman/candidates/tomcat/9.0.116/webapps/
-   ```
-
-2. Tomcat startet automatisch und entpackt die WAR
-3. Zugriff: **http://localhost:8080/ufg-app-0.1-plain**
-
-### Option B: Manager GUI (wenn verfügbar)
-
-1. Öffne **http://localhost:8080/manager/html**
-2. Login mit Tomcat-Benutzerdaten
-3. Datei hochladen und deployen
-
----
-
-## ⚙️ Nützliche Kommandos
-
-**WAR erstellen und sofort deployen:**
-```bash
-cd ufg-app
-./gradlew war && cp build/libs/ufg-app-0.1.war /opt/tomcat/webapps/
-```
-
-**Tomcat-Logs prüfen:**
 ```bash
 tail -f /opt/tomcat/logs/catalina.out
 ```
 
-**WAR entfernen:**
-```bash
-rm /opt/tomcat/webapps/ufg-app-0.1.war
-# Tomcat entpackte Verzeichnis wird auch gelöscht
-```
-
----
-
-## 🔧 Dev-Container spezifisch
-
-Im Dev-Container sind Tomcat und Gradle bereits installiert:
-
-```bash
-# In den Container gehen
-docker exec -it <container-name> bash
-
-# Dann:
-cd /workspace/ufg-app
-./gradlew war
-cp build/libs/ufg-app-0.1.war /opt/tomcat/webapps/
-
-# Starten falls nicht laufen:
-/opt/tomcat/bin/startup.sh
-```
-
----
-
-## ✅ Troubleshooting
+## Troubleshooting
 
 | Problem | Lösung |
 |---------|--------|
-| **404 beim Zugriff** | WAR im korrekten `/webapps/` Ordner? |
-| **Tomcat läuft nicht** | Port 8080 schon belegt? `sudo lsof -i :8080` |
-| **Permissions-Fehler** | `chmod +x /opt/tomcat/bin/*.sh` |
-| **Alte Version lädt** | Browser-Cache leeren (Ctrl+Shift+Delete) |
-
+| 404 beim Zugriff | WAR im korrekten `/webapps/` Ordner? |
+| Tomcat läuft nicht | Port 8080 belegt? `sudo lsof -i :8080` |
+| Permissions-Fehler | `chmod +x /opt/tomcat/bin/*.sh` |
+| Alte Version lädt | Browser-Cache leeren (`Ctrl+Shift+Delete`) |

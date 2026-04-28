@@ -101,12 +101,6 @@ sequenceDiagram
 		end
 ```
 
-## API-Skizze (OpenAPI-Style)
-
-<!-- include: USER_MANAGEMENT.openapi.yaml -->
-
-Die vollständige Spezifikation liegt ausgelagert in [USER_MANAGEMENT.openapi.yaml](USER_MANAGEMENT.openapi.yaml). Wenn dein Doku-Renderer Includes unterstützt, kann diese Datei hier direkt eingebunden werden; ansonsten bleibt sie als separate, versionierte Quelle erhalten.
-
 ## Curl-Beispiele
 
 ```bash

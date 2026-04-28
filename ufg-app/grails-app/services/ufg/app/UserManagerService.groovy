@@ -41,40 +41,43 @@ class UserManagerService {
     }
 
     Map validateToken(String tokenValue) {
-        if (!tokenValue) {
-            return [valid: false, message: 'Login required']
-        }
-
-        AuthToken authToken = AuthToken.findByToken(tokenValue)
+        AuthToken authToken = findValidAuthToken(tokenValue)
         if (!authToken) {
-            return [valid: false, message: 'Invalid token']
-        }
-
-        if (!authToken.user) {
-            authToken.delete(flush: true)
-            return [valid: false, message: 'Invalid token']
-        }
-
-        if (minutesSince(authToken.createdAt) > TOKEN_TTL_MINUTES) {
-            authToken.delete(flush: true)
-            return [valid: false, message: 'Session expired. Please login again.']
+            return [valid: false, message: tokenValue ? 'Invalid token' : 'Login required']
         }
 
         [valid: true, user: authToken.user]
     }
 
     Map getUserByToken(String tokenValue) {
-        Map result = validateToken(tokenValue)
-        if (!result.valid || !result.user) {
+        AuthToken authToken = findValidAuthToken(tokenValue)
+        if (!authToken || !authToken.user) {
             return null
         }
 
         // Verhindert die Ausgabe des 'credential' Feldes
-        User user = result.user
+        User user = authToken.user
         [
             id: user.id,
             username: user.username,
             role: user.role
+        ]
+    }
+
+    Map getSessionInfo(String tokenValue) {
+        AuthToken authToken = findValidAuthToken(tokenValue)
+        if (!authToken || !authToken.user) {
+            return null
+        }
+
+        User user = authToken.user
+        [
+            user: [
+                id: user.id,
+                username: user.username,
+                role: user.role
+            ],
+            remaining_ttl_minutes: remainingTokenTtlMinutes(authToken.createdAt)
         ]
     }
 
@@ -170,6 +173,34 @@ class UserManagerService {
     private long minutesSince(Date date) {
         long diffMillis = System.currentTimeMillis() - date.time
         (long) (diffMillis / 60000L)
+    }
+
+    private long remainingTokenTtlMinutes(Date createdAt) {
+        long remaining = TOKEN_TTL_MINUTES - minutesSince(createdAt)
+        Math.max(0L, remaining)
+    }
+
+    private AuthToken findValidAuthToken(String tokenValue) {
+        if (!tokenValue) {
+            return null
+        }
+
+        AuthToken authToken = AuthToken.findByToken(tokenValue)
+        if (!authToken) {
+            return null
+        }
+
+        if (!authToken.user) {
+            authToken.delete(flush: true)
+            return null
+        }
+
+        if (minutesSince(authToken.createdAt) > TOKEN_TTL_MINUTES) {
+            authToken.delete(flush: true)
+            return null
+        }
+
+        authToken
     }
 
     private static long resolveTokenTtlMinutes() {

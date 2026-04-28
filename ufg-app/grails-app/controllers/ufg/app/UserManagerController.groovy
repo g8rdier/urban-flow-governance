@@ -41,7 +41,7 @@ class UserManagerController {
 
     // curl.exe -X GET "http://localhost:8080/api/session" -H "Authorization: Bearer <TOKEN>"
     @RequiredRoles(["ADMIN", "NUTZER"])
-    def getUserinfo() {
+    def getSessioninfo() {
         String authorization = request.getHeader('Authorization')
         String token = BearerTokenUtil.extractBearerToken(authorization)
 
@@ -50,13 +50,13 @@ class UserManagerController {
             return
         }
 
-        def user = userManagerService.getUserByToken(token)
-        if (!user) {
+        Map sessionInfo = userManagerService.getSessionInfo(token)
+        if (!sessionInfo) {
             render status: 401, contentType: 'application/json', text: (ApiResponse.failure('Invalid token') as JSON)
             return
         }
 
-        render status: 200, contentType: 'application/json', text: (ApiResponse.success('User info loaded', [user: user]) as JSON)
+        render status: 200, contentType: 'application/json', text: (ApiResponse.success('User info loaded', sessionInfo) as JSON)
     }
 
     // curl.exe -X DELETE "http://localhost:8080/api/session" -H "Authorization: Bearer <TOKEN>"

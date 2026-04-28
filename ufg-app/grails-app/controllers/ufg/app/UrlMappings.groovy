@@ -5,7 +5,7 @@ class UrlMappings {
     static mappings = {
         group "/api", {
             "/session"(controller: "userManager") {
-                action = [GET: "getUserinfo", POST: "login", DELETE: "logout"]
+                action = [GET: "getSessioninfo", POST: "login", DELETE: "logout"]
             }
 
             "/users"(controller: "userManager") {

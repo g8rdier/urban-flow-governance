@@ -4,9 +4,9 @@ Arbeitsboard auf Basis der User Stories aus [USER_STORIES.md](USER_STORIES.md) u
 
 ## Zuständigkeiten
 
-- **Gregor Kobilarov** — Backend: Zonenverwaltung, Routenprüfung, OpenAPI
-- **Tim Lanzendoerfer** — Backend: Authentifizierung, User Management
 - **Elizat Mairambek kyzy** — Frontend (Hauptverantwortlich)
+- **Gregor Kobilarov** — Backend: Zonenverwaltung, Routenprüfung, OpenAPI
+- **Tim Lanzendoerfer** — Backend: Authentifizierung, User Management, Datenbank
 
 ## Backlog
 

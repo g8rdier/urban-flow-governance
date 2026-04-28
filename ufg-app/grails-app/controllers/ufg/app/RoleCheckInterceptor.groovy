@@ -50,7 +50,13 @@ class RoleCheckInterceptor {
             return null
         }
 
-        def actionMethod = controllerClass.declaredMethods.find { it.name == currentActionName }
+        def actionMethod = null
+        for (def method : controllerClass.declaredMethods) {
+            if (method.name == currentActionName) {
+                actionMethod = method
+                break
+            }
+        }
         if (!actionMethod) {
             return null
         }

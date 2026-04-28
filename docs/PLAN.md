@@ -4,9 +4,9 @@ Arbeitsboard auf Basis der User Stories aus [USER_STORIES.md](USER_STORIES.md) u
 
 ## Zuständigkeiten
 
-- **Elizat Mairambek kyzy** — Frontend (Hauptverantwortlich)
-- **Gregor Kobilarov** — Backend: Zonenverwaltung, Routenprüfung, OpenAPI
-- **Tim Lanzendoerfer** — Backend: Authentifizierung, User Management | Datenbank
+- **Elizat Mairambek kyzy** — Frontend: Einarbeitung in Technologien, Planung und Umsetzung
+- **Gregor Kobilarov** — Backend: Zonenverwaltung, Routenprüfung, OpenAPI; Frontend-Unterstützung
+- **Tim Lanzendoerfer** — Backend: Authentifizierung, User Management; Datenbankanbindung
 
 ## Board
 
@@ -31,7 +31,7 @@ kanban
     t3[US-3.2 Zone-Details beim Klick anzeigen]
     t4["US-4.1 Stadtteil/Straße suchen (Elizat)"]
     t5["GET /api/zones/active Endpoint"]
-    t6["Auth auf GET /api/zones + /{id} (Gregor)"]
+    t6["Auth-Scope alle Endpoints (Gregor)"]
 
   InProgress[In Bearbeitung]
     p1["US-1.1 Sperrzone erstellen (Gregor)"]
@@ -65,7 +65,7 @@ kanban
 | US-3.1 | Prototyp mit Leaflet + Mock-Daten; API-Anbindung + Grails-Integration ausstehend |
 | US-5.1 | Service.listActive vorhanden und getestet; REST-Endpoint + Sidebar/Panel fehlen |
 | GET /api/zones/active | Service.listActive() vorhanden, Controller-Action fehlt noch |
-| Auth /api/zones | Aktuell öffentlich (entwicklungshalber); vor Abgabe @RequiredRoles setzen |
+| Auth-Scope | Alle Endpoints erhalten @RequiredRoles. GET /api/zones, GET /api/zones/{id}, GET /api/zones/active, POST /api/route/check → ADMIN + NUTZER; schreibende Zone-Endpoints + User-Management → ADMIN |
 | US-1.2 | update-Endpoint + Integrationstest grün; Frontend-Integration ausstehend |
 | US-1.3 | delete-Endpoint + Integrationstest grün; Bestätigungsdialog im Frontend offen |
 | US-2.2 | RouteCheckService liefert OK/WARNING mit Zone + Zeitraum; UI-Darstellung offen |

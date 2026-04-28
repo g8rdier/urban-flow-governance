@@ -10,15 +10,15 @@ Grails 6 (Groovy / Spring Boot), H2-Datenbank, JTS für Geometrie-Operationen.
 graph TD
     Client["Client (Frontend / API)"]
 
+    subgraph Interceptor
+        RI["RoleCheckInterceptor<br/>@RequiredRoles"]
+    end
+
     subgraph Controllers
         UC[UserManagerController]
         ZC[RestrictedZoneController]
         RC[RouteController]
         SC[SwaggerController]
-    end
-
-    subgraph Interceptor
-        RI[RoleCheckInterceptor\n@RequiredRoles]
     end
 
     subgraph Services
@@ -30,7 +30,7 @@ graph TD
 
     subgraph Domain
         U[User]
-        UC2[UserCredential]
+        UCRED[UserCredential]
         AT[AuthToken]
         RZ[RestrictedZone]
     end
@@ -38,18 +38,20 @@ graph TD
     DB[(H2 Database)]
 
     Client -->|HTTP Request| RI
-    RI -->|Token & Rolle OK| Controllers
+    RI -->|Token & Rolle OK| UC
+    RI -->|Token & Rolle OK| ZC
+    RI -->|Token & Rolle OK| RC
     UC --> UMS
     ZC --> RZS
     RC --> RCS
     UMS --> PHS
     UMS --> U
-    UMS --> UC2
+    UMS --> UCRED
     UMS --> AT
     RZS --> RZ
     RCS --> RZ
     U --> DB
-    UC2 --> DB
+    UCRED --> DB
     AT --> DB
     RZ --> DB
 ```

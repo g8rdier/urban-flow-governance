@@ -37,8 +37,9 @@
   // Ein Symlink ~/ufg -> /workspaces/urban-flow-governance wird per onCreateCommand gesetzt (s. u.).
   "workspaceFolder": "/workspaces/urban-flow-governance",
   // Legt den Symlink ~/ufg an – einmalig nach Container-Erstellung (cross-platform sicher).
-  "onCreateCommand": "ln -sf /workspaces/urban-flow-governance /home/ubuntu/ufg && sudo /etc/init.d/postgresql start",
+  "onCreateCommand": "ln -sf /workspaces/urban-flow-governance /home/ubuntu/ufg",
   "postCreateCommand": "java -version && groovy --version && grails --version || true",
+  "postStartCommand": "sudo service postgresql start",
   "containerEnv": {
     // PostgreSQL wird im Container vorkonfiguriert mit den folgenden Credentials.
     "DB_HOST": "localhost",

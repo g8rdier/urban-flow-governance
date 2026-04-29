@@ -131,7 +131,9 @@ class UserManagerController {
             return
         }
 
-        render status: result.status, contentType: 'application/json', text: (result.response as JSON)
+        render status: result.status, contentType: 'application/json', text: (
+            ApiResponse.success(result.response.msg as String, [users: result.users]) as JSON
+        )
     }
 
 }

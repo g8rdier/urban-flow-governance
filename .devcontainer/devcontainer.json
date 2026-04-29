@@ -37,18 +37,15 @@
   // Ein Symlink ~/ufg -> /workspaces/urban-flow-governance wird per onCreateCommand gesetzt (s. u.).
   "workspaceFolder": "/workspaces/urban-flow-governance",
   // Legt den Symlink ~/ufg an – einmalig nach Container-Erstellung (cross-platform sicher).
-  "onCreateCommand": "ln -sf /workspaces/urban-flow-governance /home/ubuntu/ufg",
+  "onCreateCommand": "ln -sf /workspaces/urban-flow-governance /home/ubuntu/ufg && sudo /etc/init.d/postgresql start",
   "postCreateCommand": "java -version && groovy --version && grails --version || true",
   "containerEnv": {
-    // Externe PostgreSQL-Verbindung wird absichtlich per Umgebungsvariablen gelöst.
-    // So bleibt die Konfiguration flexibel und es wird kein Datenbank-Container mitgeschleppt.
-    // Werte werden aus der lokalen Host-Umgebung gelesen (z.B. ~/.bashrc oder .env).
-    // Fallback-Werte für die lokale Entwicklung sind inline gesetzt.
-    "DB_HOST": "${localEnv:DB_HOST:localhost}",
-    "DB_PORT": "${localEnv:DB_PORT:5432}",
-    "DB_NAME": "${localEnv:DB_NAME:ufg_dev}",
-    "DB_USER": "${localEnv:DB_USER:ufg_user}",
-    "DB_PASSWORD": "${localEnv:DB_PASSWORD:change_me}"
+    // PostgreSQL wird im Container vorkonfiguriert mit den folgenden Credentials.
+    "DB_HOST": "localhost",
+    "DB_PORT": "5432",
+    "DB_NAME": "elgreti",
+    "DB_USER": "elgreti",
+    "DB_PASSWORD": "elgreti"
   },
   // Fedora/RHEL SELinux würde den Bind-Mount blockieren (user_home_t → container domain).
   // label:disable schaltet die SELinux-Label-Prüfung für diesen Container aus.

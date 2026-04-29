@@ -35,6 +35,17 @@ RUN id -u ${USERNAME} >/dev/null 2>&1 || useradd -m -s /bin/bash ${USERNAME}
 RUN echo "ubuntu ALL=(ALL) NOPASSWD:ALL" > /etc/sudoers.d/ubuntu && \
     chmod 0440 /etc/sudoers.d/ubuntu
 
+# PostgreSQL Initialisierung: Erstellt das Datenverzeichnis und konfiguriert den Zugriff
+RUN mkdir -p /var/run/postgresql && \
+    chown -R postgres:postgres /var/run/postgresql
+
+# Initialisiert PostgreSQL Cluster und erstellt Benutzer/Datenbank
+RUN sudo /etc/init.d/postgresql start && \
+    sleep 2 && \
+    sudo -u postgres psql -c "CREATE USER elgreti WITH PASSWORD 'elgreti';" && \
+    sudo -u postgres createdb -O elgreti elgreti && \
+    sudo /etc/init.d/postgresql stop
+
 # Setzt den user
 USER ${USERNAME}
 

@@ -4,7 +4,8 @@ class BootStrap {
 
     PasswordHashService passwordHashService
 
-    def init = {
+    def init = { servletContext ->
+    User.withTransaction {
         if (!User.findByUsername("testuser")) {
             User user = new User(username: "testuser", role: "NUTZER").save(failOnError: true)
             String salt = passwordHashService.generateSalt()
@@ -12,9 +13,8 @@ class BootStrap {
                 user: user,
                 salt: salt,
                 passwordHash: passwordHashService.hashPassword("testpass", salt)
-            ).save(failOnError: true)
+            ).save(flush: true, failOnError: true)
         }
-
         if (!User.findByUsername("admin")) {
             User user = new User(username: "admin", role: "ADMIN").save(failOnError: true)
             String salt = passwordHashService.generateSalt()
@@ -22,9 +22,10 @@ class BootStrap {
                 user: user,
                 salt: salt,
                 passwordHash: passwordHashService.hashPassword("adminpass", salt)
-            ).save(failOnError: true)
+            ).save(flush: true, failOnError: true)
         }
     }
+}
 
     def destroy = {
     }

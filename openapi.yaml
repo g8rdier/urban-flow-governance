@@ -195,8 +195,7 @@ paths:
     post:
       summary: Neuen User anlegen
       tags: [Benutzerverwaltung]
-      security:
-        - bearerAuth: []
+      security: []
       requestBody:
         required: true
         content:

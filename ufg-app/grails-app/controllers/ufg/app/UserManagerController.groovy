@@ -14,7 +14,8 @@ class UserManagerController {
         logout: "DELETE",
         create: "POST",
         update: ["PUT", "PATCH"],
-        delete: "DELETE"
+        delete: "DELETE",
+        list: "GET"
     ]
 
     // curl.exe -X POST "http://localhost:8080/api/session" -d "username=admin&password=adminpass"
@@ -116,6 +117,17 @@ class UserManagerController {
     @RequiredRoles(["ADMIN"])
     def delete(Long id) {
         Map result = userManagerService.deleteUser(id)
+        if (!result.success) {
+            render status: result.status, contentType: 'application/json', text: (result.response as JSON)
+            return
+        }
+
+        render status: result.status, contentType: 'application/json', text: (result.response as JSON)
+    }
+
+    @RequiredRoles(["ADMIN"])
+    def list() {
+        Map result = userManagerService.listUsers()
         if (!result.success) {
             render status: result.status, contentType: 'application/json', text: (result.response as JSON)
             return

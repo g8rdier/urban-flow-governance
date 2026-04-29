@@ -32,6 +32,17 @@ components:
           type: object
           additionalProperties: true
 
+    User:
+      type: object
+      properties:
+        id:
+          type: integer
+        username:
+          type: string
+        role:
+          type: string
+          enum: [ADMIN, NUTZER]
+
     Zone:
       type: object
       properties:
@@ -216,6 +227,30 @@ paths:
           description: User erfolgreich angelegt
         '400':
           description: Ungültige Eingabe
+        '403':
+          description: Keine ADMIN-Berechtigung
+    get:
+      summary: Alle Nutzer abrufen
+      tags: [Benutzerverwaltung]
+      security:
+        - bearerAuth: []
+      responses:
+        '200':
+          description: Liste aller Nutzer
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/ApiResponse'
+                  - type: object
+                    properties:
+                      data:
+                        type: object
+                        properties:
+                          users:
+                            type: array
+                            items:
+                              $ref: '#/components/schemas/User'
         '403':
           description: Keine ADMIN-Berechtigung
 

@@ -191,6 +191,19 @@ class UserManagerService {
         success(200, 'User deleted')
     }
 
+    Map listUsers() {
+        List<User> users = User.list()
+        List<Map> sanitized = users.collect { u ->
+            [
+                id: u.id,
+                username: u.username,
+                role: u.role
+            ]
+        }
+
+        success(200, 'Users loaded', [users: sanitized])
+    }
+
     private Map success(int status, String msg, Map extra = [:]) {
         [success: true, status: status, response: ApiResponse.success(msg)] + extra
     }

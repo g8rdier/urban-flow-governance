@@ -117,4 +117,23 @@ class UserManagerServiceSpec extends Specification implements ServiceUnitTest<Us
         result.status == 200
         User.get(target.id).role == "ADMIN"
     }
+
+    void "deleteUser deletes user credential and auth token"() {
+        given:
+        User user = new User(username: "bob", role: "NUTZER").save(failOnError: true)
+        UserCredential credential = new UserCredential(user: user, salt: "salt-1", passwordHash: "hash-1").save(failOnError: true)
+        user.credential = credential
+        user.save(failOnError: true)
+        new AuthToken(token: "token-bob", createdAt: new Date(), user: user).save(failOnError: true)
+
+        when:
+        Map result = service.deleteUser(user.id)
+
+        then:
+        result.success
+        result.status == 200
+        User.get(user.id) == null
+        UserCredential.get(credential.id) == null
+        AuthToken.findByToken("token-bob") == null
+    }
 }

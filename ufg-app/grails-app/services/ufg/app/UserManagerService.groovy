@@ -177,6 +177,11 @@ class UserManagerService {
             return failure(404, 'User not found')
         }
 
+        AuthToken authToken = AuthToken.findByUser(user)
+        if (authToken) {
+            authToken.delete(flush: true)
+        }
+
         UserCredential credential = user.credential
         if (credential) {
             credential.delete(flush: true)

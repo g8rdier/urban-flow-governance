@@ -73,23 +73,19 @@ class UserManagerServiceSpec extends Specification implements ServiceUnitTest<Us
         then:
         AuthToken.findByToken("expired-token") == null
         !result.valid
-        result.message == "Session expired. Please login again."
+        result.message == "Invalid token"
     }
 
     void "getUserByToken returns safe user data only"() {
         given:
-        User user = new User(username: "alice", role: "ADMIN")
-        user.metaClass.getId = { -> 42L }
-
-        service.metaClass.validateToken = { String token ->
-            [valid: true, user: user]
-        }
+        User user = new User(username: "alice", role: "ADMIN").save(failOnError: true)
+        new AuthToken(token: "valid-token", createdAt: new Date(), user: user).save(failOnError: true)
 
         when:
         Map result = service.getUserByToken("valid-token")
 
         then:
-        result == [id: 42L, username: "alice", role: "ADMIN"]
+        result == [id: user.id, username: "alice", role: "ADMIN"]
         !result.containsKey("credential")
     }
 

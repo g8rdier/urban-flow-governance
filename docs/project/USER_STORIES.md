@@ -243,13 +243,15 @@ Damit meine Sitzung auch ohne aktiven logout sicher beendet wird
 ## Feature 8: Nutzerverwaltung
 
 ### US-8.1: Nutzer erstellen
-Als Admin  
+Als Admin/Nutzer  
 Möchte ich neue Nutzerkonten anlegen  
 Damit neue Mitarbeitende das System nutzen können
 
 **Akzeptanzkriterien:**
-- Admin kann Name, E-Mail und initiale Rolle erfassen
-- System verhindert doppelte E-Mail-Adressen
+- Account muss mit username, password & Rolle anlegbar sein
+- Nutzer ohne Account kann sich registrieren
+- Nur Admin kann ADMIN Rolle vergeben
+- System verhindert doppelte Nutzernamen
 - Neuer Nutzer wird gespeichert und ist loginfähig
 
 ---
@@ -275,6 +277,17 @@ Damit ich Berechtigungen zentral verwalten kann
 - Admin kann Rolle eines Nutzers ändern (Nutzer/Admin)
 - Rollenänderung wird sofort wirksam
 - Rollenänderung wird nachvollziehbar gespeichert
+
+---
+
+### US-8.4: Nutzerliste ausgeben
+Als Admin  
+Möchte ich eine Liste aller Nutzer abrufen können  
+Damit ich eine alle Informationen habe
+
+**Akzeptanzkriterien:**
+- Admin bekommt eine JSON Liste mit allen Nutzern
+- Password darf NICHT ausgegeben werden
 
 ---
 

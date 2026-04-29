@@ -81,10 +81,12 @@ class UserManagerController {
     }
 
     // POST /api/users
-    // curl.exe -X POST "http://localhost:8080/api/users" -H "Authorization: Bearer <TOKEN>" -d "username=max&password=secret&role=NUTZER"
-    @RequiredRoles(["ADMIN"])
+    // curl.exe -X POST "http://localhost:8080/api/users" -d "username=max&password=secret&role=NUTZER"
     def create(String username, String password, String role) {
-        Map result = userManagerService.createUser(username, password, role)
+        String authorization = request.getHeader('Authorization')
+        String token = BearerTokenUtil.extractBearerToken(authorization)
+
+        Map result = userManagerService.createUser(username, password, role, token)
         if (!result.success) {
             render status: result.status, contentType: 'application/json', text: (result.response as JSON)
             return
@@ -95,9 +97,12 @@ class UserManagerController {
 
     // PUT/PATCH /api/users/{id}
     // curl.exe -X PUT "http://localhost:8080/api/users/1" -H "Authorization: Bearer <TOKEN>" -d "username=max2&role=ADMIN"
-    @RequiredRoles(["ADMIN"])
+    @RequiredRoles(["ADMIN", "NUTZER"])
     def update(Long id, String username, String password, String role) {
-        Map result = userManagerService.updateUser(id, username, password, role)
+        String authorization = request.getHeader('Authorization')
+        String token = BearerTokenUtil.extractBearerToken(authorization)
+
+        Map result = userManagerService.updateUser(id, username, password, role, token)
         if (!result.success) {
             render status: result.status, contentType: 'application/json', text: (result.response as JSON)
             return

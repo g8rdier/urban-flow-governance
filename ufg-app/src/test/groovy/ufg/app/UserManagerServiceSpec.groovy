@@ -92,4 +92,33 @@ class UserManagerServiceSpec extends Specification implements ServiceUnitTest<Us
         result == [id: 42L, username: "alice", role: "ADMIN"]
         !result.containsKey("credential")
     }
+
+    void "updateUser forbids non admins from assigning ADMIN role"() {
+        given:
+        User user = new User(username: "max", role: "NUTZER").save(failOnError: true)
+        service.metaClass.validateToken = { String token -> [valid: true, user: user] }
+
+        when:
+        Map result = service.updateUser(user.id, "max2", null, "ADMIN", "token-1")
+
+        then:
+        !result.success
+        result.status == 403
+        result.response.msg == "Role ADMIN required"
+    }
+
+    void "updateUser allows admins to assign ADMIN role"() {
+        given:
+        User admin = new User(username: "admin", role: "ADMIN").save(failOnError: true)
+        User target = new User(username: "max", role: "NUTZER").save(failOnError: true)
+        service.metaClass.validateToken = { String token -> [valid: true, user: admin] }
+
+        when:
+        Map result = service.updateUser(target.id, "max2", null, "ADMIN", "token-2")
+
+        then:
+        result.success
+        result.status == 200
+        User.get(target.id).role == "ADMIN"
+    }
 }

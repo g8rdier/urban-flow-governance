@@ -88,8 +88,18 @@ class UserManagerService {
         }
     }
 
-    Map createUser(String username, String password, String role) {
+    Map createUser(String username, String password, String role, String tokenValue = null) {
         String requestedRole = role ?: 'NUTZER'
+
+        Map tokenCheck = tokenValue ? validateToken(tokenValue) : [valid: true, user: null]
+        if (!tokenCheck.valid) {
+            return failure(401, tokenCheck.message as String)
+        }
+
+        User currentUser = tokenCheck.user as User
+        if (requestedRole == 'ADMIN' && currentUser?.role != 'ADMIN') {
+            return failure(403, 'Role ADMIN required')
+        }
 
         User user = new User(username: username, role: requestedRole)
         if (!user.save(flush: true)) {
@@ -113,10 +123,24 @@ class UserManagerService {
         success(201, "User ${user.username} created")
     }
 
-    Map updateUser(Long id, String username, String password, String role) {
+    Map updateUser(Long id, String username, String password, String role, String tokenValue) {
+        Map tokenCheck = validateToken(tokenValue)
+        if (!tokenCheck.valid) {
+            return failure(401, tokenCheck.message as String)
+        }
+
+        User currentUser = tokenCheck.user as User
         User user = User.get(id)
         if (!user) {
             return failure(404, 'User not found')
+        }
+
+        if (currentUser.role != 'ADMIN' && currentUser.id != user.id) {
+            return failure(403, 'You can only update your own account')
+        }
+
+        if (role == 'ADMIN' && currentUser.role != 'ADMIN') {
+            return failure(403, 'Role ADMIN required')
         }
 
         if (username) {

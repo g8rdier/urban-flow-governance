@@ -81,7 +81,6 @@ class UserManagerController {
         render status: 200, contentType: 'application/json', text: (ApiResponse.success('Logout successful') as JSON)
     }
 
-    // POST /api/users
     // curl.exe -X POST "http://localhost:8080/api/users" -d "username=max&password=secret&role=NUTZER"
     def create(String username, String password, String role) {
         String authorization = request.getHeader('Authorization')
@@ -96,7 +95,6 @@ class UserManagerController {
         render status: result.status, contentType: 'application/json', text: (result.response as JSON)
     }
 
-    // PUT/PATCH /api/users/{id}
     // curl.exe -X PUT "http://localhost:8080/api/users/1" -H "Authorization: Bearer <TOKEN>" -d "username=max2&role=ADMIN"
     @RequiredRoles(["ADMIN", "NUTZER"])
     def update(Long id, String username, String password, String role) {
@@ -112,7 +110,6 @@ class UserManagerController {
         render status: result.status, contentType: 'application/json', text: (result.response as JSON)
     }
 
-    // DELETE /api/users/{id}
     // curl.exe -X DELETE "http://localhost:8080/api/users/1" -H "Authorization: Bearer <TOKEN>"
     @RequiredRoles(["ADMIN"])
     def delete(Long id) {
@@ -125,6 +122,7 @@ class UserManagerController {
         render status: result.status, contentType: 'application/json', text: (result.response as JSON)
     }
 
+    // curl.exe "http://localhost:8080/api/users" -H "Authorization: Bearer <TOKEN>"
     @RequiredRoles(["ADMIN"])
     def list() {
         Map result = userManagerService.listUsers()

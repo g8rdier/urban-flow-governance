@@ -9,7 +9,7 @@ class UrlMappings {
             }
 
             "/users"(controller: "userManager") {
-                action = [POST: "create"]
+                action = [POST: "create", GET: "list"]
             }
 
             "/users/$id"(controller: "userManager") {

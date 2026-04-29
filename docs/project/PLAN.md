@@ -32,12 +32,15 @@ kanban
     t4["US-4.1 Stadtteil/Straße suchen (Elizat)"]
     t5["GET /api/zones/active Endpoint"]
     t6["Auth-Scope alle Endpoints (Gregor)"]
+    t7["Datenbank Schema erstellen Prod (Tim)"]
+    t8["Deploy to Prod (Tim)"]
 
   InProgress[In Bearbeitung]
     p1["US-1.1 Sperrzone erstellen (Gregor)"]
     p2["US-1.4 Zone-Status verwalten (Gregor)"]
     p3["US-3.1 Sperrzonen auf Karte anzeigen (Elizat)"]
     p4["US-5.1 Aktive Zonen anzeigen (Gregor)"]
+    p5["PostgreSQL in Dev einbinden (Tim)"]
 
   Review
     r1["US-1.2 Sperrzone bearbeiten (Gregor)"]

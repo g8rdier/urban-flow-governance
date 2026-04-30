@@ -18,16 +18,19 @@ class RestrictedZoneController {
 
     private final GeometryFactory geometryFactory = new GeometryFactory()
 
+    @RequiredRoles(["ADMIN", "NUTZER"])
     def index() {
         List<Map> zones = restrictedZoneService.listAll().collect { toMap(it) }
         render contentType: 'application/json', text: (ApiResponse.success('', [zones: zones]) as JSON)
     }
 
+    @RequiredRoles(["ADMIN", "NUTZER"])
     def active() {
         List<Map> zones = restrictedZoneService.listActive().collect { toMap(it) }
         render contentType: 'application/json', text: (ApiResponse.success('', [zones: zones]) as JSON)
     }
 
+    @RequiredRoles(["ADMIN", "NUTZER"])
     def show(Long id) {
         RestrictedZone zone = restrictedZoneService.get(id)
         if (!zone) {

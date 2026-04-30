@@ -1,3 +1,12 @@
+## Frontend Verantwortlichkeiten
+
+Das Frontend übernimmt:
+
+- Darstellung der Karte (Leaflet)
+- Anzeige von Sperrzonen
+- Anzeige von Routen
+- Visualisierung von Konflikten
+- Kommunikation mit Backend APIs
 # Frontend Integration
 
 ## Serving
@@ -84,3 +93,5 @@ Für die Suche nach Adressen und Stadtteilen (US-4.1, US-4.2) werden beide Einga
 - **Klick auf die Karte** → Leaflet liefert `lat/lng` direkt über das Click-Event
 
 Beide Wege liefern am Ende Koordinaten, die identisch weiterverarbeitet werden (OSRM → Routenprüfung).
+
+

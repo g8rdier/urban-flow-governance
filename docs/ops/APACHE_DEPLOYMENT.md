@@ -16,6 +16,7 @@ ProxyPreserveHost On
 ProxyPass /api http://localhost:8080/api
 ProxyPassReverse /api http://localhost:8080/api
 ```
+http://localhost
 
 ## Apache steuern
 

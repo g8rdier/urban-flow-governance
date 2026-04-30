@@ -20,6 +20,10 @@ class UrlMappings {
                 action = [GET: "index", POST: "save"]
             }
 
+            "/zones/active"(controller: "restrictedZone") {
+                action = [GET: "active"]
+            }
+
             "/zones/$id"(controller: "restrictedZone") {
                 action = [GET: "show", PUT: "update", DELETE: "delete"]
             }

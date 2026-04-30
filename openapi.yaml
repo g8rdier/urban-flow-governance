@@ -411,6 +411,29 @@ paths:
         '403':
           description: Keine ADMIN-Berechtigung
 
+  /api/zones/active:
+    get:
+      summary: Alle aktiven Sperrzonen abrufen
+      security: []
+      tags: [Sperrzonen]
+      responses:
+        '200':
+          description: Liste aller aktiven Zonen
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/ApiResponse'
+                  - type: object
+                    properties:
+                      data:
+                        type: object
+                        properties:
+                          zones:
+                            type: array
+                            items:
+                              $ref: '#/components/schemas/Zone'
+
   /api/zones/{id}:
     get:
       summary: Einzelne Sperrzone abrufen

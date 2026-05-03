@@ -1,4 +1,3 @@
-import { zones } from './data/mock.js';
 
 // Karte erstellen
 const map = L.map('map').setView([52.52, 13.40], 13);
@@ -8,10 +7,39 @@ L.tileLayer('https://gis.servicecluster.de/de_tiles/{z}/{x}/{y}.png', {
   maxZoom: 20
 }).addTo(map);
 
-// Zonen anzeigen
-window.drawZones = function () {
-  zones.forEach(zone => {
-    L.polygon(zone.polygon, { color: 'orange' }).addTo(map);
+// Login Seite
+window.login = async function () {
+  const res = await fetch("/api/session", {
+    method: "POST",
+    body: new URLSearchParams({
+      username: "admin",
+      password: "adminpass"
+    })
+  });
+
+  const result = await res.json();
+
+  localStorage.setItem("token", result.data.token);
+  alert("Login erfolgreich!");
+};
+
+// Zonen laden
+
+window.loadZones = async function () {
+  console.log("Lade Zonen...");
+
+  const res = await fetch("/api/zones");
+  const result = await res.json();
+
+  console.log(result);
+
+  result.data.zones.forEach(zone => {
+    // GeoJSON → Leaflet Format
+    const coords = zone.geometry.coordinates[0].map(([lng, lat]) => [lat, lng]);
+
+    L.polygon(coords, {
+      color: "orange"
+    }).addTo(map);
   });
 };
 
@@ -33,35 +61,148 @@ async function geocode(address) {
   };
 }
 
-// Routing
+// Route holen
 async function getRoute(start, end) {
-  const url = `https://osrm.servicecluster.de/route/v1/driving/${start.lon},${start.lat};${end.lon},${end.lat}?overview=full&geometries=geojson`;
+  const res = await fetch(
+    `https://osrm.servicecluster.de/route/v1/driving/${start.lon},${start.lat};${end.lon},${end.lat}?overview=full&geometries=geojson`
+  );
 
-  const res = await fetch(url);
   const data = await res.json();
-
-  if (!data.routes || data.routes.length === 0) {
-    alert("Keine Route gefunden");
-    return null;
-  }
-
   return data.routes[0].geometry;
+}
+
+// Route Check
+async function checkRoute(route) {
+  const res = await fetch("/api/route/check", {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json"
+    },
+    body: JSON.stringify({
+      route: route.coordinates.map(([lng, lat]) => [lat, lng])
+    })
+  });
+
+  const result = await res.json();
+  return result.data;
 }
 
 // Route zeichnen
 window.drawRoute = async function () {
 
-  console.log("Route gestartet");
+  const startInput = document.getElementById("start").value;
+  const endInput = document.getElementById("end").value;
 
-  const start = await geocode("Berlin Alexanderplatz");
-  const end = await geocode("Berlin Hauptbahnhof");
-
-  if (!start || !end) return;
+  const start = await geocode(startInput);
+  const end = await geocode(endInput);
 
   const route = await getRoute(start, end);
 
-  if (!route) return;
+  const result = await checkRoute(route);
 
-  const layer = L.geoJSON(route, { color: 'green' }).addTo(map);
-  map.fitBounds(layer.getBounds());
+  let color = "green";
+
+  if (result.status === "WARNING") {
+    color = "red";
+    alert("⚠️ Route kreuzt Sperrzone!");
+  }
+
+  L.geoJSON(route, { color }).addTo(map);
+};
+//
+
+// 🗺️ 1. Klick auf Karte
+// → User klickt auf Karte
+// → Marker wird gesetzt
+// → Koordinaten werden ausgegeben
+
+map.on('click', function (e) {
+  const lat = e.latlng.lat;
+  const lon = e.latlng.lng;
+
+  console.log("Klick:", lat, lon);
+
+  L.marker([lat, lon]).addTo(map);
+});
+
+
+// 🔍 2. Autocomplete (Adresssuche)
+// → User tippt in Input
+// → Vorschläge werden von Nominatim geladen
+// → Liste wird angezeigt
+
+window.searchAddress = async function () {
+  const query = document.getElementById("address").value;
+
+  // Nur suchen, wenn mindestens 3 Zeichen
+  if (query.length < 3) return;
+
+  const res = await fetch(
+    `https://nominatim.servicecluster.de/search?q=${encodeURIComponent(query)}&format=json`
+  );
+
+  const data = await res.json();
+
+  const list = document.getElementById("suggestions");
+  list.innerHTML = ""; // alte Vorschläge löschen
+
+  // maximal 5 Vorschläge anzeigen
+  data.slice(0, 5).forEach(place => {
+    const li = document.createElement("li");
+
+    li.innerText = place.display_name;
+    li.style.padding = "5px";
+    li.style.cursor = "pointer";
+
+    // Klick auf Vorschlag
+    li.onclick = () => selectAddress(place);
+
+    list.appendChild(li);
+  });
+};
+
+// 3. Vorschlag auswählen
+// → User klickt auf Vorschlag
+// → Marker wird gesetzt
+// → Karte zoomt
+// → Input wird aktualisiert
+
+function selectAddress(place) {
+  const lat = parseFloat(place.lat);
+  const lon = parseFloat(place.lon);
+
+  console.log("Selected:", lat, lon);
+
+  // Marker setzen
+  L.marker([lat, lon]).addTo(map);
+
+  // Karte auf Position bewegen
+  map.setView([lat, lon], 15);
+
+  // Input mit gewählter Adresse füllen
+  document.getElementById("address").value = place.display_name;
+
+  // Vorschlagsliste leeren
+  document.getElementById("suggestions").innerHTML = "";
+}
+
+
+// 4. Manuelle Suche (Button)
+// → User klickt auf Button
+// → Geocode wird ausgeführt
+// → Marker wird gesetzt
+
+window.testGeocode = async function () {
+  const address = document.getElementById("address").value;
+
+  console.log("Adresse:", address);
+
+  const result = await geocode(address);
+
+  console.log("Result:", result);
+
+  if (!result) return;
+
+  L.marker([result.lat, result.lon]).addTo(map);
+  map.setView([result.lat, result.lon], 15);
 };

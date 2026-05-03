@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html>
 <head>
-  <title>Urban Flow</title>
+  <title>Urban Governance Flow</title>
 
   <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css"/>
   <link rel="stylesheet" href="style.css"/>
@@ -10,10 +10,19 @@
 <body>
 
 <div id="sidebar">
-  <h2>Urban Flow</h2>
+  <h2>Urban Governance Flow</h2>
 
-  <button onclick="drawZones()">Zonen anzeigen</button>
+  <button onclick="login()">Login</button>
+  <button onclick="loadZones()">Zonen anzeigen</button>
   <button onclick="drawRoute()">Route anzeigen</button>
+  
+  <input id="address" placeholder="Adresse eingeben" oninput="searchAddress()">
+<ul id="suggestions" style="background: white; list-style: none; padding: 0;"></ul>
+
+
+  <input id="start" placeholder="Start">
+  <input id="end" placeholder="Ziel">
+
 
 </div>
 

@@ -1,6 +1,7 @@
 package ufg.app
 
 import grails.converters.JSON
+import ufg.app.security.RequiredRoles
 
 class RouteController {
 
@@ -9,6 +10,7 @@ class RouteController {
 
     RouteCheckService routeCheckService
 
+    @RequiredRoles(["ADMIN", "NUTZER"])
     def check() {
         def json = request.JSON
         if (!json?.route) {

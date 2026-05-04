@@ -342,7 +342,6 @@ paths:
   /api/zones:
     get:
       summary: Alle Sperrzonen abrufen
-      security: []
       tags: [Sperrzonen]
       responses:
         '200':
@@ -414,7 +413,6 @@ paths:
   /api/zones/active:
     get:
       summary: Alle aktiven Sperrzonen abrufen
-      security: []
       tags: [Sperrzonen]
       responses:
         '200':
@@ -437,7 +435,6 @@ paths:
   /api/zones/{id}:
     get:
       summary: Einzelne Sperrzone abrufen
-      security: []
       tags: [Sperrzonen]
       parameters:
         - name: id
@@ -564,7 +561,6 @@ paths:
   /api/route/check:
     post:
       summary: Route auf Sperrzonen prüfen
-      security: []
       tags: [Routen]
       requestBody:
         required: true

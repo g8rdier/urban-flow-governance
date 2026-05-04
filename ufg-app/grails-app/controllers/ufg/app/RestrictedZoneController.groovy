@@ -23,6 +23,11 @@ class RestrictedZoneController {
         render contentType: 'application/json', text: (ApiResponse.success('', [zones: zones]) as JSON)
     }
 
+    def active() {
+        List<Map> zones = restrictedZoneService.listActive().collect { toMap(it) }
+        render contentType: 'application/json', text: (ApiResponse.success('', [zones: zones]) as JSON)
+    }
+
     def show(Long id) {
         RestrictedZone zone = restrictedZoneService.get(id)
         if (!zone) {

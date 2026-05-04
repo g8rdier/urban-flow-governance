@@ -22,12 +22,14 @@
     <span><span class="legend-dot" style="background:gray"></span> Abgelaufen</span>
   </div>
   
-  <input id="address" placeholder="Adresse eingeben" oninput="searchAddress()">
-<ul id="suggestions" style="background: white; list-style: none; padding: 0;"></ul>
 
 
-  <input id="start" placeholder="Start">
-  <input id="end" placeholder="Ziel">
+   <input id="start" placeholder="Start" oninput="searchAddress('start')">
+   <ul id="suggestions-start"></ul>
+
+   <input id="end" placeholder="Ziel" oninput="searchAddress('end')">
+   <ul id="suggestions-end"></ul>
+
 
 
 </div>

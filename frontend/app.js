@@ -147,10 +147,9 @@ map.on('click', function (e) {
 // → Vorschläge werden von Nominatim geladen
 // → Liste wird angezeigt
 
-window.searchAddress = async function () {
-  const query = document.getElementById("address").value;
+window.searchAddress = async function (type) {
+  const query = document.getElementById(type).value;
 
-  // Nur suchen, wenn mindestens 3 Zeichen
   if (query.length < 3) return;
 
   const res = await fetch(
@@ -159,49 +158,45 @@ window.searchAddress = async function () {
 
   const data = await res.json();
 
-  const list = document.getElementById("suggestions");
-  list.innerHTML = ""; // alte Vorschläge löschen
+  const list = document.getElementById(`suggestions-${type}`);
+  list.innerHTML = "";
 
-  // maximal 5 Vorschläge anzeigen
   data.slice(0, 5).forEach(place => {
     const li = document.createElement("li");
-
     li.innerText = place.display_name;
-    li.style.padding = "5px";
     li.style.cursor = "pointer";
 
-    // Klick auf Vorschlag
-    li.onclick = () => selectAddress(place);
+    li.onclick = () => selectAddress(place, type);
 
     list.appendChild(li);
   });
 };
-
 // 3. Vorschlag auswählen
 // → User klickt auf Vorschlag
 // → Marker wird gesetzt
 // → Karte zoomt
 // → Input wird aktualisiert
 
-function selectAddress(place) {
+let startCoords = null;
+let endCoords = null;
+
+function selectAddress(place, type) {
   const lat = parseFloat(place.lat);
   const lon = parseFloat(place.lon);
 
-  console.log("Selected:", lat, lon);
-
-  // Marker setzen
   setSelectionMarker(lat, lon);
-
-  // Karte auf Position bewegen
   map.setView([lat, lon], 15);
 
-  // Input mit gewählter Adresse füllen
-  document.getElementById("address").value = place.display_name;
+  if (type === "start") {
+    startCoords = { lat, lon };
+    document.getElementById("start").value = place.display_name;
+  } else {
+    endCoords = { lat, lon };
+    document.getElementById("end").value = place.display_name;
+  }
 
-  // Vorschlagsliste leeren
-  document.getElementById("suggestions").innerHTML = "";
+  document.getElementById(`suggestions-${type}`).innerHTML = "";
 }
-
 
 // 4. Manuelle Suche (Button)
 // → User klickt auf Button

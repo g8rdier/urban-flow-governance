@@ -23,12 +23,17 @@ window.login = async function () {
   alert("Login erfolgreich!");
 };
 
+function authHeaders(extra = {}) {
+  const token = localStorage.getItem("token");
+  return { ...(token ? { Authorization: `Bearer ${token}` } : {}), ...extra };
+}
+
 // Zonen laden
 
 window.loadZones = async function () {
   console.log("Lade Zonen...");
 
-  const res = await fetch("/api/zones");
+  const res = await fetch("/api/zones", { headers: authHeaders() });
   const result = await res.json();
 
   console.log(result);
@@ -75,9 +80,7 @@ async function getRoute(start, end) {
 async function checkRoute(route) {
   const res = await fetch("/api/route/check", {
     method: "POST",
-    headers: {
-      "Content-Type": "application/json"
-    },
+    headers: authHeaders({ "Content-Type": "application/json" }),
     body: JSON.stringify({
       route: route.coordinates.map(([lng, lat]) => [lat, lng])
     })

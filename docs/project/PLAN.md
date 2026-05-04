@@ -29,6 +29,7 @@ kanban
     t1["US-2.1 Route berechnen (Elizat)"]
     t2[US-3.3 Route-Konflikt visuell hervorheben]
     t3[US-3.2 Zone-Details beim Klick anzeigen]
+    t4["US-4.1 Stadtteil/Straße suchen (Elizat)"]
     t5["GET /api/zones/active Endpoint"]
     t6["Auth-Scope alle Endpoints (Gregor)"]
     t8["Deploy to Prod (Tim)"]
@@ -55,6 +56,8 @@ kanban
 
   Erledigt
     d1["OpenAPI + Swagger UI (Gregor)"]
+    d2["GET /api/zones/active Endpoint (Gregor)"]
+    d3["Auth-Scope alle Endpoints (Gregor)"]
 ```
 
 ## Kommentare

@@ -23,6 +23,8 @@ window.login = async function () {
   alert("Login erfolgreich!");
 };
 
+import { mockZones } from "./data/mock.js";
+
 function authHeaders(extra = {}) {
   const token = localStorage.getItem("token");
   return { ...(token ? { Authorization: `Bearer ${token}` } : {}), ...extra };
@@ -33,17 +35,21 @@ function authHeaders(extra = {}) {
 window.loadZones = async function () {
   console.log("Lade Zonen...");
 
-  const res = await fetch("/api/zones", { headers: authHeaders() });
-  const result = await res.json();
-
-  console.log(result);
-
   const zoneColors = { PLANNED: "blue", ACTIVE: "red", EXPIRED: "gray" };
 
-  result.data.zones.forEach(zone => {
+  let zones;
+  try {
+    const res = await fetch("/api/zones", { headers: authHeaders() });
+    const result = await res.json();
+    zones = result.data.zones;
+  } catch (e) {
+    console.warn("API nicht erreichbar, nutze Mock-Daten");
+    zones = mockZones;
+  }
+
+  zones.forEach(zone => {
     const coords = zone.geometry.coordinates[0].map(([lng, lat]) => [lat, lng]);
     const color = zoneColors[zone.status] ?? "orange";
-
     L.polygon(coords, { color }).addTo(map);
   });
 };

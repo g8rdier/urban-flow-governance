@@ -38,13 +38,13 @@ window.loadZones = async function () {
 
   console.log(result);
 
-  result.data.zones.forEach(zone => {
-    // GeoJSON → Leaflet Format
-    const coords = zone.geometry.coordinates[0].map(([lng, lat]) => [lat, lng]);
+  const zoneColors = { PLANNED: "blue", ACTIVE: "red", EXPIRED: "gray" };
 
-    L.polygon(coords, {
-      color: "orange"
-    }).addTo(map);
+  result.data.zones.forEach(zone => {
+    const coords = zone.geometry.coordinates[0].map(([lng, lat]) => [lat, lng]);
+    const color = zoneColors[zone.status] ?? "orange";
+
+    L.polygon(coords, { color }).addTo(map);
   });
 };
 

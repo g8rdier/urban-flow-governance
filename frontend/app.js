@@ -72,14 +72,30 @@ async function geocode(address) {
   };
 }
 
-// Route holen
-async function getRoute(start, end) {
-  const res = await fetch(
-    `https://osrm.servicecluster.de/route/v1/driving/${start.lon},${start.lat};${end.lon},${end.lat}?overview=full&geometries=geojson`
-  );
+// Route berechnen
+async function calculateRoute() {
+  if (!startCoords || !endCoords) {
+    alert("Bitte Start und Ziel auswählen");
+    return;
+  }
 
+  const url = `https://osrm.servicecluster.de/route/v1/driving/${startCoords.lon},${startCoords.lat};${endCoords.lon},${endCoords.lat}?overview=full&geometries=geojson`;
+
+  const res = await fetch(url);
   const data = await res.json();
-  return data.routes[0].geometry;
+
+  if (!data.routes || data.routes.length === 0) {
+    alert("Keine Route gefunden");
+    return;
+  }
+
+  const route = data.routes[0].geometry;
+
+  // Route zeichnen
+  const layer = L.geoJSON(route, { color: "green" }).addTo(map);
+
+  // Zoom auf Route
+  map.fitBounds(layer.getBounds());
 }
 
 // Route Check
@@ -217,3 +233,4 @@ window.testGeocode = async function () {
   setSelectionMarker(result.lat, result.lon);
   map.setView([result.lat, result.lon], 15);
 };
+

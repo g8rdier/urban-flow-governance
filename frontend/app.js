@@ -116,13 +116,20 @@ window.drawRoute = async function () {
 // → Marker wird gesetzt
 // → Koordinaten werden ausgegeben
 
+let selectionMarker = null;
+
+function setSelectionMarker(lat, lon) {
+  if (selectionMarker) selectionMarker.remove();
+  selectionMarker = L.marker([lat, lon]).addTo(map);
+}
+
 map.on('click', function (e) {
   const lat = e.latlng.lat;
   const lon = e.latlng.lng;
 
   console.log("Klick:", lat, lon);
 
-  L.marker([lat, lon]).addTo(map);
+  setSelectionMarker(lat, lon);
 });
 
 
@@ -174,7 +181,7 @@ function selectAddress(place) {
   console.log("Selected:", lat, lon);
 
   // Marker setzen
-  L.marker([lat, lon]).addTo(map);
+  setSelectionMarker(lat, lon);
 
   // Karte auf Position bewegen
   map.setView([lat, lon], 15);
@@ -203,6 +210,6 @@ window.testGeocode = async function () {
 
   if (!result) return;
 
-  L.marker([result.lat, result.lon]).addTo(map);
+  setSelectionMarker(result.lat, result.lon);
   map.setView([result.lat, result.lon], 15);
 };

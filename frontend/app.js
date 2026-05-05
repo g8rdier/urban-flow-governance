@@ -3,13 +3,13 @@
 const map = L.map('map').setView([52.52, 13.40], 13);
 
 // 🗺️ Tiles
-L.tileLayer('https://gis.servicecluster.de/de_tiles/{z}/{x}/{y}.png', {
+L.tileLayer(window.TILES_URL, {
   maxZoom: 20
 }).addTo(map);
 
 // Login Seite
 window.login = async function () {
-  const res = await fetch("/api/session", {
+  const res = await fetch(`${window.API_BASE}/api/session`, {
     method: "POST",
     body: new URLSearchParams({
       username: "admin",
@@ -39,7 +39,7 @@ window.loadZones = async function () {
 
   let zones;
   try {
-    const res = await fetch("/api/zones", { headers: authHeaders() });
+    const res = await fetch(`${window.API_BASE}/api/zones`, { headers: authHeaders() });
     const result = await res.json();
     zones = result.data.zones;
   } catch (e) {
@@ -56,7 +56,7 @@ window.loadZones = async function () {
 
 // Geocoding
 async function geocode(address) {
-  const url = `https://nominatim.servicecluster.de/search?q=${encodeURIComponent(address)}&format=json`;
+  const url = `${window.NOMINATIM_URL}/search?q=${encodeURIComponent(address)}&format=json`;
 
   const res = await fetch(url);
   const data = await res.json();
@@ -88,7 +88,7 @@ window.calculateRoute = async function () {
   if (!endCoords) return;
   setRouteMarker(endCoords.lat, endCoords.lon, "end");
 
-  const url = `https://osrm.servicecluster.de/route/v1/driving/${startCoords.lon},${startCoords.lat};${endCoords.lon},${endCoords.lat}?overview=full&geometries=geojson`;
+  const url = `${window.OSRM_URL}/route/v1/driving/${startCoords.lon},${startCoords.lat};${endCoords.lon},${endCoords.lat}?overview=full&geometries=geojson`;
 
   const res = await fetch(url);
   const data = await res.json();
@@ -109,7 +109,7 @@ window.calculateRoute = async function () {
 
 // Route Check
 async function checkRoute(route) {
-  const res = await fetch("/api/route/check", {
+  const res = await fetch(`${window.API_BASE}/api/route/check`, {
     method: "POST",
     headers: authHeaders({ "Content-Type": "application/json" }),
     body: JSON.stringify({
@@ -130,7 +130,7 @@ window.drawRoute = async function () {
   const end = await geocode(endInput);
   if (!start || !end) return;
 
-  const url = `https://osrm.servicecluster.de/route/v1/driving/${start.lon},${start.lat};${end.lon},${end.lat}?overview=full&geometries=geojson`;
+  const url = `${window.OSRM_URL}/route/v1/driving/${start.lon},${start.lat};${end.lon},${end.lat}?overview=full&geometries=geojson`;
   const res = await fetch(url);
   const data = await res.json();
 
@@ -197,7 +197,7 @@ window.searchAddress = async function (type) {
   if (query.length < 3) return;
 
   const res = await fetch(
-    `https://nominatim.servicecluster.de/search?q=${encodeURIComponent(query)}&format=json`
+    `${window.NOMINATIM_URL}/search?q=${encodeURIComponent(query)}&format=json`
   );
 
   const data = await res.json();

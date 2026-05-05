@@ -25,10 +25,10 @@
   
 
 
-   <input id="start" placeholder="Start" oninput="searchAddress('start')">
+   <input id="start" placeholder="Start" oninput="searchAddress('start')" onblur="calculateRoute()">
    <ul id="suggestions-start"></ul>
 
-   <input id="end" placeholder="Ziel" oninput="searchAddress('end')">
+   <input id="end" placeholder="Ziel" oninput="searchAddress('end')" onblur="calculateRoute()">
    <ul id="suggestions-end"></ul>
 
 

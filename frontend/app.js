@@ -240,6 +240,11 @@ function selectAddress(place, type) {
   }
 
   document.getElementById(`suggestions-${type}`).innerHTML = "";
+
+  const otherType = type === "start" ? "end" : "start";
+  if (document.getElementById(otherType).value) {
+    window.calculateRoute();
+  }
 }
 
 // 4. Manuelle Suche (Button)

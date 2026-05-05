@@ -77,8 +77,7 @@ window.calculateRoute = async function () {
   const startInput = document.getElementById("start").value;
   const endInput = document.getElementById("end").value;
 
-  if (!startInput) { alert("Bitte Start eingeben"); return; }
-  if (!endInput) { alert("Bitte Ziel eingeben"); return; }
+  if (!startInput || !endInput) return;
 
   startCoords = await geocode(startInput);
   if (!startCoords) return;

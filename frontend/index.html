@@ -9,30 +9,33 @@
 
 <body>
 
-<div id="sidebar">
+<nav id="sidebar">
   <h2>Urban Governance Flow</h2>
-
-  <button onclick="login()">Login</button>
-  <button onclick="loadZones()">Zonen anzeigen</button>
-  <button onclick="drawRoute()">Route anzeigen</button>
 
   <div id="zone-legend">
     <span><span class="legend-dot" style="background:blue"></span> Geplant</span>
     <span><span class="legend-dot" style="background:red"></span> Aktiv</span>
     <span><span class="legend-dot" style="background:gray"></span> Abgelaufen</span>
   </div>
-  
 
+  <div class="input-group">
+    <label for="start">Start</label>
+    <input id="start" placeholder="z.B. Alexanderplatz, Berlin" oninput="searchAddress('start')" onblur="calculateRoute()">
+    <ul id="suggestions-start"></ul>
+  </div>
 
-   <input id="start" placeholder="Start" oninput="searchAddress('start')" onblur="calculateRoute()">
-   <ul id="suggestions-start"></ul>
+  <div class="input-group">
+    <label for="end">Ziel</label>
+    <input id="end" placeholder="z.B. Brandenburger Tor, Berlin" oninput="searchAddress('end')" onblur="calculateRoute()">
+    <ul id="suggestions-end"></ul>
+  </div>
 
-   <input id="end" placeholder="Ziel" oninput="searchAddress('end')" onblur="calculateRoute()">
-   <ul id="suggestions-end"></ul>
-
-
-
-</div>
+  <div class="button-group">
+    <button onclick="login()">Login</button>
+    <button onclick="loadZones()">Zonen anzeigen</button>
+    <button onclick="drawRoute()">Route anzeigen</button>
+  </div>
+</nav>
 
 <div id="map"></div>
 

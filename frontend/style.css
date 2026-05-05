@@ -1,31 +1,167 @@
-body {
+*, *::before, *::after {
+  box-sizing: border-box;
   margin: 0;
-  display: flex;
+  padding: 0;
 }
+
+body {
+  display: flex;
+  height: 100vh;
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  font-size: 14px;
+  color: #1a1a1a;
+}
+
+/* Sidebar */
 
 #sidebar {
-  width: 250px;
-  background: #f4f4f4;
-  padding: 10px;
-}
-
-#map {
-  flex: 1;
+  width: 280px;
+  flex-shrink: 0;
   height: 100vh;
-}
-
-#zone-legend {
-  margin-top: 12px;
+  overflow-y: auto;
+  background: #fff;
+  border-right: 1px solid #e0e0e0;
+  padding: 1.25rem 1rem;
   display: flex;
   flex-direction: column;
-  gap: 4px;
-  font-size: 13px;
+  gap: 1.25rem;
+}
+
+#sidebar h2 {
+  font-size: 0.95rem;
+  font-weight: 700;
+  letter-spacing: 0.01em;
+  color: #111;
+}
+
+/* Legend */
+
+#zone-legend {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+}
+
+#zone-legend span {
+  display: flex;
+  align-items: center;
+  color: #444;
 }
 
 .legend-dot {
   display: inline-block;
-  width: 10px;
-  height: 10px;
+  width: 9px;
+  height: 9px;
   border-radius: 50%;
-  margin-right: 6px;
+  margin-right: 7px;
+  flex-shrink: 0;
+}
+
+/* Inputs */
+
+.input-group {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.input-group label {
+  font-size: 0.78rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: #666;
+}
+
+.input-group input {
+  width: 100%;
+  padding: 0.45rem 0.6rem;
+  border: 1px solid #d0d0d0;
+  border-radius: 6px;
+  font-size: 0.875rem;
+  outline: none;
+  transition: border-color 0.15s;
+}
+
+.input-group input:focus {
+  border-color: #4a90e2;
+}
+
+#suggestions-start,
+#suggestions-end {
+  list-style: none;
+  border: 1px solid #e0e0e0;
+  border-radius: 6px;
+  overflow: hidden;
+  background: #fff;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+}
+
+#suggestions-start:empty,
+#suggestions-end:empty {
+  display: none;
+}
+
+#suggestions-start li,
+#suggestions-end li {
+  padding: 0.4rem 0.6rem;
+  cursor: pointer;
+  font-size: 0.82rem;
+  color: #333;
+  border-bottom: 1px solid #f0f0f0;
+}
+
+#suggestions-start li:last-child,
+#suggestions-end li:last-child {
+  border-bottom: none;
+}
+
+#suggestions-start li:hover,
+#suggestions-end li:hover {
+  background: #f0f6ff;
+}
+
+/* Buttons */
+
+.button-group {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  margin-top: auto;
+}
+
+button {
+  width: 100%;
+  padding: 0.5rem 0.75rem;
+  border: none;
+  border-radius: 6px;
+  font-size: 0.875rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: background 0.15s;
+}
+
+button:first-child {
+  background: #4a90e2;
+  color: #fff;
+}
+
+button:first-child:hover {
+  background: #357abd;
+}
+
+button:not(:first-child) {
+  background: #f0f0f0;
+  color: #333;
+}
+
+button:not(:first-child):hover {
+  background: #e0e0e0;
+}
+
+/* Map */
+
+#map {
+  flex: 1;
+  height: 100vh;
 }

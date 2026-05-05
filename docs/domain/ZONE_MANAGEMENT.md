@@ -1,5 +1,33 @@
 # Zone Management
 
+## Datenmodell
+
+```mermaid
+erDiagram
+    RESTRICTED_ZONE {
+        Long id PK
+        String name
+        String description
+        String reason
+        String geometryWKT
+        Date startTime
+        Date endTime
+        String status
+        Date createdAt
+        Date updatedAt
+        Long createdBy FK
+    }
+
+    USER ||--o{ RESTRICTED_ZONE : "creates"
+```
+
+**Wichtige Punkte:**
+- `geometryWKT` speichert die Polygon-Geometrie als WKT-String (Well-Known Text Format)
+- `status` kann einen der Werte haben: `PLANNED`, `ACTIVE`, `EXPIRED`
+- `reason` ist einer von: `Marathon`, `Baustelle`, `Umweltalarm`
+- `createdBy` speichert den Benutzer, der die Zone angelegt hat (Foreign Key zu `USER`)
+- `startTime` und `endTime` definieren den Gültigkeitszeitraum der Zone
+
 ## Sequenzdiagramm: Route-Check
 
 ```mermaid

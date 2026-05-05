@@ -73,11 +73,20 @@ async function geocode(address) {
 }
 
 // Route berechnen
-async function calculateRoute() {
-  if (!startCoords || !endCoords) {
-    alert("Bitte Start und Ziel auswählen");
-    return;
-  }
+window.calculateRoute = async function () {
+  const startInput = document.getElementById("start").value;
+  const endInput = document.getElementById("end").value;
+
+  if (!startInput) { alert("Bitte Start eingeben"); return; }
+  if (!endInput) { alert("Bitte Ziel eingeben"); return; }
+
+  startCoords = await geocode(startInput);
+  if (!startCoords) return;
+  setRouteMarker(startCoords.lat, startCoords.lon, "start");
+
+  endCoords = await geocode(endInput);
+  if (!endCoords) return;
+  setRouteMarker(endCoords.lat, endCoords.lon, "end");
 
   const url = `https://osrm.servicecluster.de/route/v1/driving/${startCoords.lon},${startCoords.lat};${endCoords.lon},${endCoords.lat}?overview=full&geometries=geojson`;
 
@@ -112,21 +121,28 @@ async function checkRoute(route) {
   return result.data;
 }
 
-// Route zeichnen
+// Route zeichnen (mit Zonen-Check)
 window.drawRoute = async function () {
-
   const startInput = document.getElementById("start").value;
   const endInput = document.getElementById("end").value;
 
   const start = await geocode(startInput);
   const end = await geocode(endInput);
+  if (!start || !end) return;
 
-  const route = await getRoute(start, end);
+  const url = `https://osrm.servicecluster.de/route/v1/driving/${start.lon},${start.lat};${end.lon},${end.lat}?overview=full&geometries=geojson`;
+  const res = await fetch(url);
+  const data = await res.json();
 
+  if (!data.routes || data.routes.length === 0) {
+    alert("Keine Route gefunden");
+    return;
+  }
+
+  const route = data.routes[0].geometry;
   const result = await checkRoute(route);
 
   let color = "green";
-
   if (result.status === "WARNING") {
     color = "red";
     alert("⚠️ Route kreuzt Sperrzone!");
@@ -142,10 +158,22 @@ window.drawRoute = async function () {
 // → Koordinaten werden ausgegeben
 
 let selectionMarker = null;
+let startMarker = null;
+let endMarker = null;
 
 function setSelectionMarker(lat, lon) {
   if (selectionMarker) selectionMarker.remove();
   selectionMarker = L.marker([lat, lon]).addTo(map);
+}
+
+function setRouteMarker(lat, lon, type) {
+  if (type === "start") {
+    if (startMarker) startMarker.remove();
+    startMarker = L.marker([lat, lon]).addTo(map);
+  } else {
+    if (endMarker) endMarker.remove();
+    endMarker = L.marker([lat, lon]).addTo(map);
+  }
 }
 
 map.on('click', function (e) {
@@ -200,7 +228,7 @@ function selectAddress(place, type) {
   const lat = parseFloat(place.lat);
   const lon = parseFloat(place.lon);
 
-  setSelectionMarker(lat, lon);
+  setRouteMarker(lat, lon, type);
   map.setView([lat, lon], 15);
 
   if (type === "start") {
@@ -212,6 +240,11 @@ function selectAddress(place, type) {
   }
 
   document.getElementById(`suggestions-${type}`).innerHTML = "";
+
+  const otherType = type === "start" ? "end" : "start";
+  if (document.getElementById(otherType).value) {
+    window.calculateRoute();
+  }
 }
 
 // 4. Manuelle Suche (Button)

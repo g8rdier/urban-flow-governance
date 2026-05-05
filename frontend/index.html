@@ -15,7 +15,6 @@
   <button onclick="login()">Login</button>
   <button onclick="loadZones()">Zonen anzeigen</button>
   <button onclick="drawRoute()">Route anzeigen</button>
-  <button onclick="calculateRoute()">Route berechnen</button>
 
   <div id="zone-legend">
     <span><span class="legend-dot" style="background:blue"></span> Geplant</span>
@@ -25,10 +24,10 @@
   
 
 
-   <input id="start" placeholder="Start" oninput="searchAddress('start')">
+   <input id="start" placeholder="Start" oninput="searchAddress('start')" onblur="calculateRoute()">
    <ul id="suggestions-start"></ul>
 
-   <input id="end" placeholder="Ziel" oninput="searchAddress('end')">
+   <input id="end" placeholder="Ziel" oninput="searchAddress('end')" onblur="calculateRoute()">
    <ul id="suggestions-end"></ul>
 
 

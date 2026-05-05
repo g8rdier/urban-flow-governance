@@ -29,6 +29,8 @@ cp build/libs/ufg-app-0.1.war /opt/tomcat/webapps/
 
 ```bash
 # Dev
+sudo chmod +x ~/.sdkman/candidates/tomcat/9.0.116/bin/*.sh 
+
 ~/.sdkman/candidates/tomcat/9.0.116/bin/startup.sh
 ~/.sdkman/candidates/tomcat/9.0.116/bin/shutdown.sh
 ```

@@ -73,22 +73,20 @@ async function geocode(address) {
 }
 
 // Route berechnen
-async function calculateRoute() {
-  if (!startCoords) {
-    const input = document.getElementById("start").value;
-    if (!input) { alert("Bitte Start eingeben"); return; }
-    startCoords = await geocode(input);
-    if (!startCoords) return;
-    setRouteMarker(startCoords.lat, startCoords.lon, "start");
-  }
+window.calculateRoute = async function () {
+  const startInput = document.getElementById("start").value;
+  const endInput = document.getElementById("end").value;
 
-  if (!endCoords) {
-    const input = document.getElementById("end").value;
-    if (!input) { alert("Bitte Ziel eingeben"); return; }
-    endCoords = await geocode(input);
-    if (!endCoords) return;
-    setRouteMarker(endCoords.lat, endCoords.lon, "end");
-  }
+  if (!startInput) { alert("Bitte Start eingeben"); return; }
+  if (!endInput) { alert("Bitte Ziel eingeben"); return; }
+
+  startCoords = await geocode(startInput);
+  if (!startCoords) return;
+  setRouteMarker(startCoords.lat, startCoords.lon, "start");
+
+  endCoords = await geocode(endInput);
+  if (!endCoords) return;
+  setRouteMarker(endCoords.lat, endCoords.lon, "end");
 
   const url = `https://osrm.servicecluster.de/route/v1/driving/${startCoords.lon},${startCoords.lat};${endCoords.lon},${endCoords.lat}?overview=full&geometries=geojson`;
 

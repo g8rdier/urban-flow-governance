@@ -28,7 +28,7 @@ environments:
         context-path: /elgreti-ufg
     dataSource:
       dbCreate: none
-      url: jdbc:postgresql://localhost:5432/elgreti_prod
+      url: jdbc:postgresql://iu.servicecluster.de:5432/elgreti_prod
       username: iu
       password: iu
       properties:

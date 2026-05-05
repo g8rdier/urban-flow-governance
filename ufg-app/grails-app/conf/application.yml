@@ -22,6 +22,8 @@ environments:
     dataSource:
       dbCreate: none
       url: jdbc:postgresql://localhost:5432/elgreti_prod
+      username: ${UFG_DB_PROD_USERNAME}
+      password: ${UFG_DB_PROD_PASSWORD}
       properties:
         jmxEnabled: true
         initialSize: 5

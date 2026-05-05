@@ -1,15 +1,22 @@
 # Tomcat Deployment
 
-## WAR-Datei erstellen
+## Prod WAR-Datei erstellen
 
 ```bash
-cd ufg-app
+cd /workspaces/urban-flow-governance/ufg-app
 ./gradlew war
+
+# Rename for correct URL base path
+cd build/libs
+mv ufg-app-0.1-plain.war elgreti-ufg.war
 ```
 
-Ausgabe: `ufg-app/build/libs/ufg-app-0.1.war`
+Ausgabe: ``
 
-## WAR deployen
+**Manager GUI:**`iu-tomcat.servicecluster.de/manager/html`
+
+
+## Dev WAR deployen
 
 **Manuell:**
 ```bash
@@ -18,16 +25,12 @@ cp build/libs/ufg-app-0.1.war /opt/tomcat/webapps/
 
 **Über Manager GUI:** `http://localhost:8080/manager/html`
 
-## Tomcat steuern
+## Dev Tomcat steuern
 
 ```bash
 # Dev
 ~/.sdkman/candidates/tomcat/9.0.116/bin/startup.sh
 ~/.sdkman/candidates/tomcat/9.0.116/bin/shutdown.sh
-
-# Prod
-/opt/tomcat/bin/startup.sh
-/opt/tomcat/bin/shutdown.sh
 ```
 
 ## Logs

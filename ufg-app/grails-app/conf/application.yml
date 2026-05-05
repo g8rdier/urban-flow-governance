@@ -17,13 +17,20 @@ environments:
   test:
     dataSource:
       dbCreate: update
-      url: jdbc:postgresql://localhost:5432/elgreti_test
+      url: jdbc:h2:mem:testDb;DB_CLOSE_DELAY=-1;DB_CLOSE_ON_EXIT=FALSE
+      driverClassName: org.h2.Driver
+      username: sa
+      password:
+      dialect: org.hibernate.dialect.H2Dialect
   production:
+    server:
+      servlet:
+        context-path: /elgreti-ufg
     dataSource:
       dbCreate: none
       url: jdbc:postgresql://localhost:5432/elgreti_prod
-      username: ${UFG_DB_PROD_USERNAME}
-      password: ${UFG_DB_PROD_PASSWORD}
+      username: iu
+      password: iu
       properties:
         jmxEnabled: true
         initialSize: 5

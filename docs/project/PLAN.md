@@ -21,15 +21,12 @@ config:
 kanban
   Backlog
     b1[US-2.3 Alternative Route anfordern]
-    b2[US-4.2 Startpunkt/Ziel suchen]
     b3[US-5.2 Benachrichtigung bei Zone-Aktivierung]
     b4[US-6.1 Zone-Verlauf ansehen]
 
   ToDo[To Do]
-    t1["US-2.1 Route berechnen (Elizat)"]
     t2[US-3.3 Route-Konflikt visuell hervorheben]
     t3[US-3.2 Zone-Details beim Klick anzeigen]
-    t4["US-4.1 Stadtteil/Straße suchen (Elizat)"]
     t5["GET /api/zones/active Endpoint"]
     t6["Auth-Scope alle Endpoints (Gregor)"]
     t8["Deploy to Prod (Tim)"]
@@ -40,7 +37,6 @@ kanban
     p3["US-3.1 Sperrzonen auf Karte anzeigen (Elizat)"]
     p4["US-5.1 Aktive Zonen anzeigen (Gregor)"]
     t7["Datenbank Schema erstellen Prod (Tim)"]
-    t4["US-4.1 Stadtteil/Straße suchen (Elizat)"]
 
   Review
     r1["US-1.2 Sperrzone bearbeiten (Gregor)"]
@@ -58,14 +54,18 @@ kanban
     d1["OpenAPI + Swagger UI (Gregor)"]
     d2["GET /api/zones/active Endpoint (Gregor)"]
     d3["Auth-Scope alle Endpoints (Gregor)"]
+    d4["US-2.1 Route berechnen (Elizat/Gregor)"]
+    d5["US-4.1 Stadtteil/Straße suchen (Elizat)"]
+    d6["US-4.2 Startpunkt/Ziel suchen (Elizat)"]
 ```
 
 ## Kommentare
 
 | ID | Kommentar |
 |----|-----------|
-| US-2.1 | Prototyp in `.devcontainer/frontend/`; Grails-Integration ausstehend |
-| US-4.1 | Geocoding via Nominatim im Prototyp vorhanden; Grails-Integration ausstehend |
+| US-2.1 | Route-Berechnung via OSRM fertig; Auto-Trigger bei Eingabe beider Felder; Grails-Integration ausstehend |
+| US-4.1 | Autocomplete via Nominatim fertig; Grails-Integration ausstehend |
+| US-4.2 | Start-/Zielmarker auf Karte fertig |
 | US-1.1 | Backend/API + Tests fertig (save, PLANNED-Status); Polygon-Zeichnen + Admin-UI offen |
 | US-1.4 | Status-Enum + activate/deactivate fertig; zeitgesteuerte Übergänge + UI fehlen |
 | US-3.1 | Prototyp mit Leaflet + Mock-Daten; API-Anbindung + Grails-Integration ausstehend |

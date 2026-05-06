@@ -9,8 +9,9 @@
   <div id="swagger-ui"></div>
   <script src="https://unpkg.com/swagger-ui-dist/swagger-ui-bundle.js"></script>
   <script>
+    const basePath = window.location.pathname.replace(/\/swagger-ui.*$/, '');
     SwaggerUIBundle({
-      url: "/openapi.yaml",
+      url: basePath + '/openapi.yaml',
       dom_id: '#swagger-ui',
       presets: [SwaggerUIBundle.presets.apis, SwaggerUIBundle.SwaggerUIStandalonePreset],
       layout: "BaseLayout"

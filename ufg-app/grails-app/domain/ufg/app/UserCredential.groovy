@@ -16,5 +16,6 @@ class UserCredential {
 
     static mapping = {
         table "user_credential"
+        id generator: 'identity'
     }
 }

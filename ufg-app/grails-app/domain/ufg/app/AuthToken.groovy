@@ -14,5 +14,6 @@ class AuthToken {
 
     static mapping = {
         table "auth_token"
+        id generator: 'identity'
     }
 }

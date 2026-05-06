@@ -42,6 +42,7 @@ class RestrictedZone {
 
     static mapping = {
         table "restricted_zone"
+        id generator: 'identity'
         geometryWKT type: 'text'
     }
 

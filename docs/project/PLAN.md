@@ -52,7 +52,7 @@ kanban
     d1["OpenAPI + Swagger UI (Gregor)"]
     d2["GET /api/zones/active Endpoint (Gregor)"]
     d3["Auth-Scope alle Endpoints (Gregor)"]
-    d4["US-2.1 Route berechnen (Elizat/Gregor)"]
+    d4["US-2.1 Route berechnen (Elizat)"]
     d5["US-4.1 Stadtteil/Straße suchen (Elizat)"]
     d6["US-4.2 Startpunkt/Ziel suchen (Elizat)"]
 ```

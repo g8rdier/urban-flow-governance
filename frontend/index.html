@@ -18,16 +18,22 @@
     <span><span class="legend-dot" style="background:gray"></span> Abgelaufen</span>
   </div>
 
-  <div class="input-group">
-    <label for="start">Start</label>
-    <input id="start" placeholder="z.B. Alexanderplatz, Berlin" oninput="searchAddress('start')" onblur="calculateRoute()">
-    <ul id="suggestions-start"></ul>
-  </div>
+  <div id="route-inputs">
+    <div class="input-group">
+      <label for="start">Start</label>
+      <input id="start" placeholder="z.B. Alexanderplatz, Berlin" oninput="searchAddress('start')" onblur="calculateRoute()">
+      <ul id="suggestions-start"></ul>
+    </div>
 
-  <div class="input-group">
-    <label for="end">Ziel</label>
-    <input id="end" placeholder="z.B. Brandenburger Tor, Berlin" oninput="searchAddress('end')" onblur="calculateRoute()">
-    <ul id="suggestions-end"></ul>
+    <div class="swap-row">
+      <button id="swap-btn" onclick="swapRoute()" title="Start und Ziel tauschen">&#8645;</button>
+    </div>
+
+    <div class="input-group">
+      <label for="end">Ziel</label>
+      <input id="end" placeholder="z.B. Brandenburger Tor, Berlin" oninput="searchAddress('end')" onblur="calculateRoute()">
+      <ul id="suggestions-end"></ul>
+    </div>
   </div>
 
   <div class="button-group">

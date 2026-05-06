@@ -5,6 +5,7 @@ info:
     grailsVersion: '@info.app.grailsVersion@'
 dataSource:
   driverClassName: org.postgresql.Driver
+  dialect: org.hibernate.dialect.PostgreSQL10Dialect
   username: elgreti
   password: elgreti
   pooled: true
@@ -28,9 +29,9 @@ environments:
         context-path: /elgreti-ufg
     dataSource:
       dbCreate: none
-      url: jdbc:postgresql://iu.servicecluster.de:5432/elgreti_prod
-      username: iu
-      password: iu
+      url: jdbc:postgresql://localhost:5432/elgreti_prod
+      username: ufg
+      password: safe
       properties:
         jmxEnabled: true
         initialSize: 5

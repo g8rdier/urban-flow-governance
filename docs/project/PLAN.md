@@ -27,8 +27,6 @@ kanban
   ToDo[To Do]
     t2[US-3.3 Route-Konflikt visuell hervorheben]
     t3[US-3.2 Zone-Details beim Klick anzeigen]
-    t5["GET /api/zones/active Endpoint"]
-    t6["Auth-Scope alle Endpoints (Gregor)"]
     t8["Deploy to Prod (Tim)"]
 
   InProgress[In Bearbeitung]
@@ -67,10 +65,9 @@ kanban
 | US-4.1 | Autocomplete via Nominatim fertig; Grails-Integration ausstehend |
 | US-4.2 | Start-/Zielmarker auf Karte fertig |
 | US-1.1 | Backend/API + Tests fertig (save, PLANNED-Status); Polygon-Zeichnen + Admin-UI offen |
-| US-1.4 | Status-Enum + activate/deactivate fertig; zeitgesteuerte Übergänge + UI fehlen |
+| US-1.4 | Status-Enum + activate/deactivate + ZoneTransitionService (60s-Scheduler) fertig; UI fehlt noch |
 | US-3.1 | Prototyp mit Leaflet + Mock-Daten; API-Anbindung + Grails-Integration ausstehend |
-| US-5.1 | Service.listActive vorhanden und getestet; REST-Endpoint + Sidebar/Panel fehlen |
-| GET /api/zones/active | Service.listActive() vorhanden, Controller-Action fehlt noch |
+| US-5.1 | Service + REST-Endpoint fertig; Frontend zeigt alle Zonen farbkodiert, dediziertes Panel fehlt noch |
 | Auth-Scope | Alle Endpoints erhalten @RequiredRoles. GET /api/zones, GET /api/zones/{id}, GET /api/zones/active, POST /api/route/check → ADMIN + NUTZER; schreibende Zone-Endpoints + User-Management → ADMIN |
 | US-1.2 | update-Endpoint + Integrationstest grün; Frontend-Integration ausstehend |
 | US-1.3 | delete-Endpoint + Integrationstest grün; Bestätigungsdialog im Frontend offen |

@@ -7,6 +7,15 @@ L.tileLayer(window.TILES_URL, {
   maxZoom: 20
 }).addTo(map);
 
+// Auth tab switch
+window.switchTab = function (tab) {
+  document.getElementById('login-form').style.display = tab === 'login' ? '' : 'none';
+  document.getElementById('register-form').style.display = tab === 'register' ? '' : 'none';
+  document.querySelectorAll('.auth-tab').forEach((btn, i) => {
+    btn.classList.toggle('active', (i === 0) === (tab === 'login'));
+  });
+};
+
 // Login
 window.submitLogin = async function (e) {
   e.preventDefault();
@@ -26,6 +35,42 @@ window.submitLogin = async function (e) {
   }
 
   localStorage.setItem('token', result.data.token);
+  document.getElementById('login-overlay').style.display = 'none';
+  loadZones();
+};
+
+// Register
+window.submitRegister = async function (e) {
+  e.preventDefault();
+  const username = document.getElementById('reg-username').value;
+  const password = document.getElementById('reg-password').value;
+  const password2 = document.getElementById('reg-password2').value;
+  const error = document.getElementById('register-error');
+
+  if (password !== password2) {
+    error.textContent = 'Passwörter stimmen nicht überein.';
+    return;
+  }
+
+  const res = await fetch(`${window.API_BASE}/api/users`, {
+    method: 'POST',
+    body: new URLSearchParams({ username, password, role: 'NUTZER' })
+  });
+  const result = await res.json();
+
+  if (result.status !== 'success') {
+    error.textContent = result.msg || 'Registrierung fehlgeschlagen.';
+    return;
+  }
+
+  // Auto-login after successful registration
+  const loginRes = await fetch(`${window.API_BASE}/api/session`, {
+    method: 'POST',
+    body: new URLSearchParams({ username, password })
+  });
+  const loginResult = await loginRes.json();
+
+  localStorage.setItem('token', loginResult.data.token);
   document.getElementById('login-overlay').style.display = 'none';
   loadZones();
 };

@@ -13,6 +13,12 @@
 <div id="login-overlay">
   <div id="login-box">
     <h2>Urban Flow Governance</h2>
+
+    <div id="auth-tabs">
+      <button class="auth-tab active" onclick="switchTab('login')">Anmelden</button>
+      <button class="auth-tab" onclick="switchTab('register')">Registrieren</button>
+    </div>
+
     <form id="login-form" onsubmit="submitLogin(event)">
       <div class="login-field">
         <label for="login-username">Benutzername</label>
@@ -22,8 +28,25 @@
         <label for="login-password">Passwort</label>
         <input id="login-password" type="password" autocomplete="current-password" required>
       </div>
-      <p id="login-error"></p>
+      <p class="auth-error" id="login-error"></p>
       <button type="submit">Anmelden</button>
+    </form>
+
+    <form id="register-form" onsubmit="submitRegister(event)" style="display:none">
+      <div class="login-field">
+        <label for="reg-username">Benutzername</label>
+        <input id="reg-username" type="text" autocomplete="username" required>
+      </div>
+      <div class="login-field">
+        <label for="reg-password">Passwort</label>
+        <input id="reg-password" type="password" autocomplete="new-password" required>
+      </div>
+      <div class="login-field">
+        <label for="reg-password2">Passwort wiederholen</label>
+        <input id="reg-password2" type="password" autocomplete="new-password" required>
+      </div>
+      <p class="auth-error" id="register-error"></p>
+      <button type="submit">Registrieren</button>
     </form>
   </div>
 </div>

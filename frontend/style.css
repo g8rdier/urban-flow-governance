@@ -73,6 +73,45 @@ body {
   gap: 1.25rem;
 }
 
+#auth-tabs {
+  display: flex;
+  gap: 0;
+  border-bottom: 1px solid var(--border);
+  margin: -0.25rem 0 0;
+}
+
+.auth-tab {
+  flex: 1;
+  width: auto;
+  padding: 0.5rem;
+  background: none;
+  border: none;
+  border-bottom: 2px solid transparent;
+  border-radius: 0;
+  font-size: 0.875rem;
+  font-weight: 500;
+  color: var(--text-muted);
+  cursor: pointer;
+  transition: color 0.15s, border-color 0.15s;
+  margin-bottom: -1px;
+}
+
+.auth-tab.active {
+  color: #4a90e2;
+  border-bottom-color: #4a90e2;
+}
+
+.auth-tab:hover:not(.active) {
+  color: var(--text);
+}
+
+.auth-error {
+  font-size: 0.8rem;
+  color: #e05252;
+  min-height: 1rem;
+  margin: -0.5rem 0;
+}
+
 #login-box h2 {
   font-size: 1rem;
   font-weight: 700;
@@ -110,12 +149,6 @@ body {
   border-color: #4a90e2;
 }
 
-#login-error {
-  font-size: 0.8rem;
-  color: #e05252;
-  min-height: 1rem;
-  margin: -0.5rem 0;
-}
 
 #login-form button {
   width: 100%;

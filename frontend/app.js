@@ -30,7 +30,7 @@ window.submitLogin = async function (e) {
   const result = await res.json();
 
   if (result.status !== 'success') {
-    error.textContent = 'Ungültige Anmeldedaten.';
+    error.textContent = result.msg || 'Ungültige Anmeldedaten.';
     return;
   }
 

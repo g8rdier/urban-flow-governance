@@ -1,6 +1,6 @@
 
 // Karte erstellen
-const map = L.map('map').setView([52.52, 13.40], 13);
+const map = L.map('map').setView([48.137, 11.576], 13);
 
 // 🗺️ Tiles
 L.tileLayer(window.TILES_URL, {
@@ -257,6 +257,7 @@ window.toggleTheme = function () {
 document.addEventListener('DOMContentLoaded', function () {
   const saved = localStorage.getItem('theme');
   if (saved) document.documentElement.setAttribute('data-theme', saved);
+  loadZones();
 });
 
 // Swap-Button exakt zwischen den beiden Inputs positionieren
@@ -287,6 +288,7 @@ window.swapRoute = function () {
     window.calculateRoute();
   }
 };
+
 
 
 // 4. Manuelle Suche (Button)

@@ -6,11 +6,19 @@ REMOTE_PORT="11422"
 REMOTE_PATH="/media/sf_iu/daps-ss26/elgreti/webclient/"
 SSH_KEY="$HOME/.ssh/iu"
 
-# Only deploy when pushing main
+ZERO_SHA="0000000000000000000000000000000000000000"
+
 while read local_ref local_sha remote_ref remote_sha; do
   if [ "$remote_ref" = "refs/heads/main" ]; then
-    # Check if the push contains any frontend changes
-    if git diff-tree --no-commit-id -r --name-only "$remote_sha" "$local_sha" | grep -q "^frontend/"; then
+    if [ "$remote_sha" = "$ZERO_SHA" ]; then
+      # First push on this branch: check all files in the commit
+      CHANGED=$(git diff-tree --no-commit-id -r --name-only "$local_sha")
+    else
+      # Subsequent push: check what changed between old and new tip
+      CHANGED=$(git log --name-only --pretty=format: "$remote_sha..$local_sha")
+    fi
+
+    if echo "$CHANGED" | grep -q "^frontend/"; then
       echo "frontend/ changed — deploying to Apache..."
       scp -P "$REMOTE_PORT" -i "$SSH_KEY" -o StrictHostKeyChecking=no \
         frontend/app.js \

@@ -56,19 +56,6 @@ hibernate:
     use_second_level_cache: false
     use_query_cache: false
 grails:
-  cors:
-    enabled: true
-    allowedOrigins:
-      - 'https://elgreti.servicecluster.de'
-    allowedHeaders:
-      - Authorization
-      - Content-Type
-    allowedMethods:
-      - GET
-      - POST
-      - PUT
-      - DELETE
-      - OPTIONS
   codegen:
     defaultPackage: ufg.app
   profile: web

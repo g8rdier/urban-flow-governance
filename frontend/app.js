@@ -254,9 +254,19 @@ window.toggleTheme = function () {
   localStorage.setItem('theme', next);
 };
 
-document.addEventListener('DOMContentLoaded', function () {
+document.addEventListener('DOMContentLoaded', async function () {
   const saved = localStorage.getItem('theme');
   if (saved) document.documentElement.setAttribute('data-theme', saved);
+
+  if (!localStorage.getItem('token')) {
+    const res = await fetch(`${window.API_BASE}/api/session`, {
+      method: 'POST',
+      body: new URLSearchParams({ username: 'admin', password: 'adminpass' })
+    });
+    const result = await res.json();
+    if (result.data?.token) localStorage.setItem('token', result.data.token);
+  }
+
   loadZones();
 });
 

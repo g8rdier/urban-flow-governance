@@ -6,6 +6,10 @@ REMOTE_PORT="11422"
 REMOTE_PATH="/media/sf_iu/daps-ss26/elgreti/webclient/"
 SSH_KEY="$HOME/.ssh/iu"
 
+# Only deploy from main
+BRANCH=$(git rev-parse --abbrev-ref HEAD)
+if [ "$BRANCH" != "main" ]; then exit 0; fi
+
 # Check if this commit touched any frontend files
 if git diff-tree --no-commit-id -r --name-only HEAD | grep -q "^frontend/"; then
   echo "frontend/ changed — deploying to Apache..."

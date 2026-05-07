@@ -43,7 +43,7 @@ class RestrictedZone {
     static mapping = {
         table "restricted_zone"
         id generator: 'identity'
-        geometryWKT type: 'text'
+        geometryWKT column: 'geometry_wkt', type: 'text'
     }
 
     static transients = ['geometry']

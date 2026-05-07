@@ -121,6 +121,41 @@ body {
   background: #f0f6ff;
 }
 
+/* Swap */
+
+#route-inputs {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+  position: relative;
+}
+
+.swap-row {
+  height: 0;
+}
+
+#swap-btn {
+  position: absolute;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: auto;
+  padding: 0.2rem 0.45rem;
+  background: #fff;
+  border: 1px solid #d0d0d0;
+  border-radius: 6px;
+  color: #666;
+  font-size: 1rem;
+  line-height: 1;
+  cursor: pointer;
+  transition: background 0.15s, color 0.15s, border-color 0.15s;
+}
+
+#swap-btn:hover {
+  background: #f0f6ff;
+  color: #4a90e2;
+  border-color: #4a90e2;
+}
+
 /* Buttons */
 
 .button-group {

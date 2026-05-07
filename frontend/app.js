@@ -246,6 +246,35 @@ function selectAddress(place, type) {
   }
 }
 
+// Swap-Button exakt zwischen den beiden Inputs positionieren
+function positionSwapButton() {
+  const startInput = document.getElementById('start');
+  const endInput = document.getElementById('end');
+  const btn = document.getElementById('swap-btn');
+  const container = document.getElementById('route-inputs');
+
+  const containerTop = container.getBoundingClientRect().top;
+  const midY = (startInput.getBoundingClientRect().bottom + endInput.getBoundingClientRect().top) / 2;
+  btn.style.top = (midY - containerTop) + 'px';
+}
+
+document.addEventListener('DOMContentLoaded', positionSwapButton);
+window.addEventListener('resize', positionSwapButton);
+
+// Start / Ziel tauschen
+window.swapRoute = function () {
+  const startInput = document.getElementById("start");
+  const endInput = document.getElementById("end");
+
+  [startInput.value, endInput.value] = [endInput.value, startInput.value];
+  [startCoords, endCoords] = [endCoords, startCoords];
+  [startMarker, endMarker] = [endMarker, startMarker];
+
+  if (startInput.value && endInput.value) {
+    window.calculateRoute();
+  }
+};
+
 // 4. Manuelle Suche (Button)
 // → User klickt auf Button
 // → Geocode wird ausgeführt

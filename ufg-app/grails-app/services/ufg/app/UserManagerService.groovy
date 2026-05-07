@@ -101,6 +101,10 @@ class UserManagerService {
             return failure(403, 'Role ADMIN required')
         }
 
+        if (User.countByUsername(username) > 0) {
+            return failure(409, 'Benutzername bereits vergeben.')
+        }
+
         User user = new User(username: username, role: requestedRole)
         if (!user.save(flush: true)) {
             return failure(400, user.errors.allErrors.collect { it.defaultMessage }.join(', '))

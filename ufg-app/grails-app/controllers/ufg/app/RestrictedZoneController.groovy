@@ -18,13 +18,11 @@ class RestrictedZoneController {
 
     private final GeometryFactory geometryFactory = new GeometryFactory()
 
-    @RequiredRoles(["ADMIN", "NUTZER"])
     def index() {
         List<Map> zones = restrictedZoneService.listAll().collect { toMap(it) }
         render contentType: 'application/json', text: (ApiResponse.success('', [zones: zones]) as JSON)
     }
 
-    @RequiredRoles(["ADMIN", "NUTZER"])
     def active() {
         List<Map> zones = restrictedZoneService.listActive().collect { toMap(it) }
         render contentType: 'application/json', text: (ApiResponse.success('', [zones: zones]) as JSON)
@@ -46,7 +44,7 @@ class RestrictedZoneController {
             Map params = parseZonePayload(request.JSON)
             RestrictedZone zone = restrictedZoneService.create(params)
             render status: 201, contentType: 'application/json', text: (ApiResponse.success("Zone ${zone.name} created", [zone: toMap(zone)]) as JSON)
-        } catch (IllegalArgumentException e) {
+        } catch (Exception e) {
             render status: 400, contentType: 'application/json', text: (ApiResponse.failure(e.message) as JSON)
         }
     }
@@ -61,7 +59,7 @@ class RestrictedZoneController {
                 return
             }
             render contentType: 'application/json', text: (ApiResponse.success("Zone ${zone.name} updated", [zone: toMap(zone)]) as JSON)
-        } catch (IllegalArgumentException e) {
+        } catch (Exception e) {
             render status: 400, contentType: 'application/json', text: (ApiResponse.failure(e.message) as JSON)
         }
     }
@@ -135,21 +133,22 @@ class RestrictedZoneController {
 
     private Date parseDate(String input) {
         if (!input) return null
-        Date.parse("yyyy-MM-dd'T'HH:mm:ss'Z'", input)
+        new java.text.SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss'Z'").parse(input)
     }
 
     private Map toMap(RestrictedZone zone) {
+        def fmt = new java.text.SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss'Z'")
         [
             id         : zone.id,
             name       : zone.name,
             description: zone.description,
             reason     : zone.reason,
             geometry   : geometryToGeoJson(zone),
-            startTime  : zone.startTime?.format("yyyy-MM-dd'T'HH:mm:ss'Z'"),
-            endTime    : zone.endTime?.format("yyyy-MM-dd'T'HH:mm:ss'Z'"),
+            startTime  : zone.startTime ? fmt.format(zone.startTime) : null,
+            endTime    : zone.endTime ? fmt.format(zone.endTime) : null,
             status     : zone.status,
-            createdAt  : zone.createdAt?.format("yyyy-MM-dd'T'HH:mm:ss'Z'"),
-            updatedAt  : zone.updatedAt?.format("yyyy-MM-dd'T'HH:mm:ss'Z'"),
+            createdAt  : zone.createdAt ? fmt.format(zone.createdAt) : null,
+            updatedAt  : zone.updatedAt ? fmt.format(zone.updatedAt) : null,
             createdBy  : zone.createdBy
         ]
     }

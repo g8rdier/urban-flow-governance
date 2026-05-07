@@ -29,6 +29,8 @@ Webbasierte Anwendung zur Verwaltung und Visualisierung von Sperrzonen sowie zur
 - Admin-Links:
 	- DB Management: `iu.servicecluster.de/phppgadmin/`
 	- Tomcat Manager: `iu-tomcat.servicecluster.de/manager/html`
+	- Swagger UI: `iu-tomcat.servicecluster.de/elgreti-ufg/swagger-ui`
+	- Frontend: `elgreti.servicecluster.de`
 
 ## Externe Dienste
 

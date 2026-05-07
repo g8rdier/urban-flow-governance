@@ -1,6 +1,6 @@
 
 // Karte erstellen
-const map = L.map('map').setView([52.52, 13.40], 13);
+const map = L.map('map').setView([48.137, 11.576], 13);
 
 // 🗺️ Tiles
 L.tileLayer(window.TILES_URL, {
@@ -245,6 +245,11 @@ function selectAddress(place, type) {
     window.calculateRoute();
   }
 }
+
+document.addEventListener('DOMContentLoaded', function () {
+  loadZones();
+});
+
 
 // 4. Manuelle Suche (Button)
 // → User klickt auf Button

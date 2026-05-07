@@ -7,20 +7,72 @@ L.tileLayer(window.TILES_URL, {
   maxZoom: 20
 }).addTo(map);
 
-// Login Seite
-window.login = async function () {
-  const res = await fetch(`${window.API_BASE}/api/session`, {
-    method: "POST",
-    body: new URLSearchParams({
-      username: "admin",
-      password: "adminpass"
-    })
+// Auth tab switch
+window.switchTab = function (tab) {
+  document.getElementById('login-form').style.display = tab === 'login' ? '' : 'none';
+  document.getElementById('register-form').style.display = tab === 'register' ? '' : 'none';
+  document.querySelectorAll('.auth-tab').forEach((btn, i) => {
+    btn.classList.toggle('active', (i === 0) === (tab === 'login'));
   });
+};
 
+// Login
+window.submitLogin = async function (e) {
+  e.preventDefault();
+  const username = document.getElementById('login-username').value;
+  const password = document.getElementById('login-password').value;
+  const error = document.getElementById('login-error');
+
+  const res = await fetch(`${window.API_BASE}/api/session`, {
+    method: 'POST',
+    body: new URLSearchParams({ username, password })
+  });
   const result = await res.json();
 
-  localStorage.setItem("token", result.data.token);
-  alert("Login erfolgreich!");
+  if (result.status !== 'success') {
+    error.textContent = 'Ungültige Anmeldedaten.';
+    return;
+  }
+
+  localStorage.setItem('token', result.data.token);
+  document.getElementById('login-overlay').style.display = 'none';
+  loadZones();
+};
+
+// Register
+window.submitRegister = async function (e) {
+  e.preventDefault();
+  const username = document.getElementById('reg-username').value;
+  const password = document.getElementById('reg-password').value;
+  const password2 = document.getElementById('reg-password2').value;
+  const error = document.getElementById('register-error');
+
+  if (password !== password2) {
+    error.textContent = 'Passwörter stimmen nicht überein.';
+    return;
+  }
+
+  const res = await fetch(`${window.API_BASE}/api/users`, {
+    method: 'POST',
+    body: new URLSearchParams({ username, password, role: 'NUTZER' })
+  });
+  const result = await res.json();
+
+  if (result.status !== 'success') {
+    error.textContent = result.msg || 'Registrierung fehlgeschlagen.';
+    return;
+  }
+
+  // Auto-login after successful registration
+  const loginRes = await fetch(`${window.API_BASE}/api/session`, {
+    method: 'POST',
+    body: new URLSearchParams({ username, password })
+  });
+  const loginResult = await loginRes.json();
+
+  localStorage.setItem('token', loginResult.data.token);
+  document.getElementById('login-overlay').style.display = 'none';
+  loadZones();
 };
 
 import { mockZones } from "./data/mock.js";
@@ -254,20 +306,14 @@ window.toggleTheme = function () {
   localStorage.setItem('theme', next);
 };
 
-document.addEventListener('DOMContentLoaded', async function () {
+document.addEventListener('DOMContentLoaded', function () {
   const saved = localStorage.getItem('theme');
   if (saved) document.documentElement.setAttribute('data-theme', saved);
 
-  if (!localStorage.getItem('token')) {
-    const res = await fetch(`${window.API_BASE}/api/session`, {
-      method: 'POST',
-      body: new URLSearchParams({ username: 'admin', password: 'adminpass' })
-    });
-    const result = await res.json();
-    if (result.data?.token) localStorage.setItem('token', result.data.token);
+  if (localStorage.getItem('token')) {
+    document.getElementById('login-overlay').style.display = 'none';
+    loadZones();
   }
-
-  loadZones();
 });
 
 // Swap-Button exakt zwischen den beiden Inputs positionieren

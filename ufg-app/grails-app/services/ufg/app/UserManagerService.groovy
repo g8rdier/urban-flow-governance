@@ -12,7 +12,7 @@ class UserManagerService {
     Map login(String username, String password) {
         User user = User.findByUsername(username)
         if (!user || !user.credential) {
-            return failure(401, 'Invalid credentials')
+            return failure(401, 'Benutzername nicht gefunden.')
         }
 
         boolean valid = passwordHashService.verifyPassword(
@@ -21,7 +21,7 @@ class UserManagerService {
             user.credential.passwordHash
         )
         if (!valid) {
-            return failure(401, 'Invalid credentials')
+            return failure(401, 'Falsches Passwort.')
         }
 
         success(200, 'Login successful', [user: user])
@@ -107,7 +107,10 @@ class UserManagerService {
 
         User user = new User(username: username, role: requestedRole)
         if (!user.save(flush: true)) {
-            return failure(400, user.errors.allErrors.collect { it.defaultMessage }.join(', '))
+            if (user.errors.getFieldError('username')?.code == 'unique') {
+                return failure(409, 'Benutzername bereits vergeben.')
+            }
+            return failure(400, 'Registrierung fehlgeschlagen.')
         }
 
         String salt = passwordHashService.generateSalt()

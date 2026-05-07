@@ -13,6 +13,13 @@ class RoleCheckInterceptor {
     }
 
     boolean before() {
+        if (request.method == 'OPTIONS') {
+            response.setHeader('Access-Control-Allow-Headers', 'Authorization, Content-Type')
+            response.setHeader('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, OPTIONS')
+            render status: 200
+            return false
+        }
+
         List<String> requiredRoles = resolveRequiredRoles(controllerName, actionName)
 
         if (!requiredRoles) {

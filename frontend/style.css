@@ -1,3 +1,39 @@
+:root {
+  --bg: #fff;
+  --bg-elevated: #fff;
+  --border: #d0d0d0;
+  --border-subtle: #f0f0f0;
+  --text: #1a1a1a;
+  --text-heading: #111;
+  --text-muted: #666;
+  --text-secondary: #444;
+  --text-item: #333;
+  --hover-bg: #f0f6ff;
+  --btn-secondary-bg: #f0f0f0;
+  --btn-secondary-text: #333;
+  --btn-secondary-hover: #e0e0e0;
+  --sidebar-border: #e0e0e0;
+  --shadow: rgba(0, 0, 0, 0.08);
+}
+
+[data-theme="dark"] {
+  --bg: #1c1c1e;
+  --bg-elevated: #2c2c2e;
+  --border: #3a3a3c;
+  --border-subtle: #2a2a2c;
+  --text: #e0e0e0;
+  --text-heading: #f5f5f5;
+  --text-muted: #999;
+  --text-secondary: #bbb;
+  --text-item: #ccc;
+  --hover-bg: #3a3a3c;
+  --btn-secondary-bg: #2c2c2e;
+  --btn-secondary-text: #ddd;
+  --btn-secondary-hover: #3a3a3c;
+  --sidebar-border: #3a3a3c;
+  --shadow: rgba(0, 0, 0, 0.3);
+}
+
 *, *::before, *::after {
   box-sizing: border-box;
   margin: 0;
@@ -9,7 +45,9 @@ body {
   height: 100vh;
   font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
   font-size: 14px;
-  color: #1a1a1a;
+  color: var(--text);
+  background: var(--bg);
+  transition: background 0.25s, color 0.25s;
 }
 
 /* Sidebar */
@@ -19,19 +57,45 @@ body {
   flex-shrink: 0;
   height: 100vh;
   overflow-y: auto;
-  background: #fff;
-  border-right: 1px solid #e0e0e0;
+  background: var(--bg);
+  border-right: 1px solid var(--sidebar-border);
   padding: 1.25rem 1rem;
   display: flex;
   flex-direction: column;
   gap: 1.25rem;
+  transition: background 0.25s, border-color 0.25s;
+}
+
+#sidebar-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
 }
 
 #sidebar h2 {
   font-size: 0.95rem;
   font-weight: 700;
   letter-spacing: 0.01em;
-  color: #111;
+  color: var(--text-heading);
+}
+
+#theme-toggle {
+  width: auto;
+  padding: 0.2rem 0.4rem;
+  background: none;
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  color: var(--text-muted);
+  font-size: 0.9rem;
+  line-height: 1;
+  cursor: pointer;
+  transition: background 0.15s, color 0.15s, border-color 0.15s;
+}
+
+#theme-toggle:hover {
+  background: var(--hover-bg);
+  color: #4a90e2;
+  border-color: #4a90e2;
 }
 
 /* Legend */
@@ -45,7 +109,7 @@ body {
 #zone-legend span {
   display: flex;
   align-items: center;
-  color: #444;
+  color: var(--text-secondary);
 }
 
 .legend-dot {
@@ -70,17 +134,19 @@ body {
   font-weight: 600;
   text-transform: uppercase;
   letter-spacing: 0.05em;
-  color: #666;
+  color: var(--text-muted);
 }
 
 .input-group input {
   width: 100%;
   padding: 0.45rem 0.6rem;
-  border: 1px solid #d0d0d0;
+  border: 1px solid var(--border);
   border-radius: 6px;
   font-size: 0.875rem;
   outline: none;
-  transition: border-color 0.15s;
+  background: var(--bg-elevated);
+  color: var(--text);
+  transition: border-color 0.15s, background 0.25s, color 0.25s;
 }
 
 .input-group input:focus {
@@ -90,11 +156,12 @@ body {
 #suggestions-start,
 #suggestions-end {
   list-style: none;
-  border: 1px solid #e0e0e0;
+  border: 1px solid var(--sidebar-border);
   border-radius: 6px;
   overflow: hidden;
-  background: #fff;
-  box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+  background: var(--bg-elevated);
+  box-shadow: 0 2px 8px var(--shadow);
+  transition: background 0.25s;
 }
 
 #suggestions-start:empty,
@@ -107,8 +174,8 @@ body {
   padding: 0.4rem 0.6rem;
   cursor: pointer;
   font-size: 0.82rem;
-  color: #333;
-  border-bottom: 1px solid #f0f0f0;
+  color: var(--text-item);
+  border-bottom: 1px solid var(--border-subtle);
 }
 
 #suggestions-start li:last-child,
@@ -118,7 +185,7 @@ body {
 
 #suggestions-start li:hover,
 #suggestions-end li:hover {
-  background: #f0f6ff;
+  background: var(--hover-bg);
 }
 
 /* Swap */
@@ -176,22 +243,22 @@ button {
   transition: background 0.15s;
 }
 
-button:first-child {
+.button-group button:first-child {
   background: #4a90e2;
   color: #fff;
 }
 
-button:first-child:hover {
+.button-group button:first-child:hover {
   background: #357abd;
 }
 
-button:not(:first-child) {
-  background: #f0f0f0;
-  color: #333;
+.button-group button:not(:first-child) {
+  background: var(--btn-secondary-bg);
+  color: var(--btn-secondary-text);
 }
 
-button:not(:first-child):hover {
-  background: #e0e0e0;
+.button-group button:not(:first-child):hover {
+  background: var(--btn-secondary-hover);
 }
 
 /* Map */
@@ -199,4 +266,12 @@ button:not(:first-child):hover {
 #map {
   flex: 1;
   height: 100vh;
+}
+
+[data-theme="dark"] .leaflet-tile {
+  filter: invert(100%) hue-rotate(180deg);
+}
+
+[data-theme="dark"] .leaflet-container {
+  background: #1c1c1e;
 }

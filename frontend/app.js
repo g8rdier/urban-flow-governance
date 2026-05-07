@@ -246,6 +246,19 @@ function selectAddress(place, type) {
   }
 }
 
+// Dark/Light Mode
+window.toggleTheme = function () {
+  const html = document.documentElement;
+  const next = html.getAttribute('data-theme') === 'dark' ? 'light' : 'dark';
+  html.setAttribute('data-theme', next);
+  localStorage.setItem('theme', next);
+};
+
+document.addEventListener('DOMContentLoaded', function () {
+  const saved = localStorage.getItem('theme');
+  if (saved) document.documentElement.setAttribute('data-theme', saved);
+});
+
 // Swap-Button exakt zwischen den beiden Inputs positionieren
 function positionSwapButton() {
   const startInput = document.getElementById('start');
@@ -274,6 +287,7 @@ window.swapRoute = function () {
     window.calculateRoute();
   }
 };
+
 
 // 4. Manuelle Suche (Button)
 // → User klickt auf Button

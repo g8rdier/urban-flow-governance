@@ -25,20 +25,14 @@ function authHeaders(extra = {}) {
   return { ...(token ? { Authorization: `Bearer ${token}` } : {}), ...extra };
 }
 
-async function initSession(token) {
+async function initSession(token, role = null) {
   localStorage.setItem('token', token);
-  try {
-    const res = await fetch(`${window.API_BASE}/api/session`, { headers: authHeaders() });
-    const result = await res.json();
-    if (result.status !== 'success') {
-      localStorage.removeItem('token');
-      return;
-    }
-    currentUser = result.data.user;
-  } catch (e) { /* offline — continue */ }
+  if (role !== null) localStorage.setItem('userRole', role);
+  const effectiveRole = role ?? localStorage.getItem('userRole');
+  currentUser = { role: effectiveRole };
 
   document.getElementById('login-overlay').style.display = 'none';
-  if (currentUser?.role === 'ADMIN') {
+  if (effectiveRole === 'ADMIN') {
     document.getElementById('mode-toggle').style.display = 'flex';
   }
   loadZones();
@@ -71,7 +65,7 @@ window.submitLogin = async function (e) {
     return;
   }
 
-  await initSession(result.data.token);
+  await initSession(result.data.token, result.data.role);
 };
 
 // Register
@@ -104,7 +98,7 @@ window.submitRegister = async function (e) {
   });
   const loginResult = await loginRes.json();
 
-  await initSession(loginResult.data.token);
+  await initSession(loginResult.data.token, loginResult.data.role);
 };
 
 // Zones (map)

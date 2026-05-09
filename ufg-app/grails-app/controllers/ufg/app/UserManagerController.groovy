@@ -31,12 +31,13 @@ class UserManagerController {
             return
         }
 
-        def user = result.user
+        User user = result.user as User
         String token = userManagerService.createTokenForUser(user)
         render status: 200, contentType: 'application/json', text: (ApiResponse.success('Login successful', [
             token: token,
             token_type: 'Bearer',
-            expires_in_minutes: UserManagerService.TOKEN_TTL_MINUTES
+            expires_in_minutes: UserManagerService.TOKEN_TTL_MINUTES,
+            role: user.role
         ]) as JSON)
     }
 

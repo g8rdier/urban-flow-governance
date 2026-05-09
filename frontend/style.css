@@ -398,3 +398,133 @@ button {
 [data-theme="dark"] .leaflet-container {
   background: #1c1c1e;
 }
+
+/* Mode toggle */
+
+#mode-toggle {
+  display: flex;
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  overflow: hidden;
+}
+
+.mode-btn {
+  flex: 1;
+  padding: 0.4rem;
+  background: none;
+  border: none;
+  border-radius: 0;
+  font-size: 0.8rem;
+  font-weight: 600;
+  color: var(--text-muted);
+  cursor: pointer;
+  transition: background 0.15s, color 0.15s;
+}
+
+.mode-btn.active {
+  background: #4a90e2;
+  color: #fff;
+}
+
+/* Admin panel */
+
+#admin-panel {
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.btn-secondary-full {
+  width: 100%;
+  padding: 0.5rem 0.75rem;
+  background: var(--btn-secondary-bg);
+  color: var(--btn-secondary-text);
+  border: none;
+  border-radius: 6px;
+  font-size: 0.875rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: background 0.15s;
+}
+
+.btn-secondary-full:hover {
+  background: var(--btn-secondary-hover);
+}
+
+.draw-hint {
+  font-size: 0.78rem;
+  color: var(--text-muted);
+  text-align: center;
+  line-height: 1.5;
+  margin-bottom: 0.4rem;
+}
+
+.section-label {
+  font-size: 0.78rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: var(--text-muted);
+  margin-bottom: 0.4rem;
+}
+
+/* Zone list */
+
+#zone-list {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.zone-item {
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  padding: 0.5rem 0.6rem;
+  background: var(--bg-elevated);
+}
+
+.zone-item-header {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  margin-bottom: 0.15rem;
+}
+
+.zone-item-header strong {
+  flex: 1;
+  font-size: 0.82rem;
+  color: var(--text);
+}
+
+.zone-status-tag {
+  font-size: 0.72rem;
+  font-weight: 600;
+}
+
+.zone-item-meta {
+  font-size: 0.78rem;
+  color: var(--text-muted);
+  margin-bottom: 0.35rem;
+}
+
+.zone-item-actions {
+  display: flex;
+  gap: 0.35rem;
+  flex-wrap: wrap;
+}
+
+.btn-small {
+  width: auto;
+  padding: 0.2rem 0.5rem;
+  font-size: 0.75rem;
+  font-weight: 500;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  transition: opacity 0.15s;
+}
+
+.btn-small:hover { opacity: 0.85; }
+
+.btn-activate   { background: #4a90e2; color: #fff; }
+.btn-deactivate { background: #e09a3a; color: #fff; }
+.btn-delete     { background: #e05252; color: #fff; }

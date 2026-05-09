@@ -57,33 +57,85 @@
     <button id="theme-toggle" onclick="toggleTheme()" title="Dark/Light Mode">◑</button>
   </div>
 
-  <div id="zone-legend">
-    <span><span class="legend-dot" style="background:blue"></span> Geplant</span>
-    <span><span class="legend-dot" style="background:red"></span> Aktiv</span>
-    <span><span class="legend-dot" style="background:gray"></span> Abgelaufen</span>
+  <div id="mode-toggle" style="display:none">
+    <button class="mode-btn active" id="mode-btn-nutzer" onclick="setMode('nutzer')">Nutzer</button>
+    <button class="mode-btn" id="mode-btn-admin" onclick="setMode('admin')">Admin</button>
   </div>
 
-  <div id="route-inputs">
-    <div class="input-group">
-      <label for="start">Start</label>
-      <input id="start" placeholder="z.B. Alexanderplatz, Berlin" oninput="searchAddress('start')" onblur="calculateRoute()">
-      <ul id="suggestions-start"></ul>
+  <!-- Nutzer panel -->
+  <div id="user-panel">
+    <div id="zone-legend">
+      <span><span class="legend-dot" style="background:blue"></span> Geplant</span>
+      <span><span class="legend-dot" style="background:red"></span> Aktiv</span>
+      <span><span class="legend-dot" style="background:gray"></span> Abgelaufen</span>
     </div>
 
-    <div class="swap-row">
-      <button id="swap-btn" onclick="swapRoute()" title="Start und Ziel tauschen">&#8645;</button>
+    <div id="route-inputs">
+      <div class="input-group">
+        <label for="start">Start</label>
+        <input id="start" placeholder="z.B. Alexanderplatz, Berlin" oninput="searchAddress('start')" onblur="calculateRoute()">
+        <ul id="suggestions-start"></ul>
+      </div>
+
+      <div class="swap-row">
+        <button id="swap-btn" onclick="swapRoute()" title="Start und Ziel tauschen">&#8645;</button>
+      </div>
+
+      <div class="input-group">
+        <label for="end">Ziel</label>
+        <input id="end" placeholder="z.B. Brandenburger Tor, Berlin" oninput="searchAddress('end')" onblur="calculateRoute()">
+        <ul id="suggestions-end"></ul>
+      </div>
     </div>
 
-    <div class="input-group">
-      <label for="end">Ziel</label>
-      <input id="end" placeholder="z.B. Brandenburger Tor, Berlin" oninput="searchAddress('end')" onblur="calculateRoute()">
-      <ul id="suggestions-end"></ul>
+    <div class="button-group">
+      <button onclick="loadZones()">Zonen anzeigen</button>
+      <button onclick="drawRoute()">Route anzeigen</button>
     </div>
   </div>
 
-  <div class="button-group">
-    <button onclick="loadZones()">Zonen anzeigen</button>
-    <button onclick="drawRoute()">Route anzeigen</button>
+  <!-- Admin panel -->
+  <div id="admin-panel" style="display:none">
+
+    <div id="draw-controls">
+      <button id="draw-btn" onclick="startDrawing()">+ Neue Zone zeichnen</button>
+      <div id="draw-active" style="display:none">
+        <p class="draw-hint">Klick = Punkt setzen &middot; Doppelklick = Abschließen</p>
+        <button class="btn-secondary-full" onclick="cancelDrawing()">Abbrechen</button>
+      </div>
+    </div>
+
+    <div id="zone-form-panel" style="display:none">
+      <form id="zone-form" onsubmit="submitZone(event)">
+        <div class="input-group">
+          <label>Name</label>
+          <input id="zone-name" required>
+        </div>
+        <div class="input-group">
+          <label>Grund</label>
+          <input id="zone-reason" placeholder="z.B. Marathon, Baustelle">
+        </div>
+        <div class="input-group">
+          <label>Start</label>
+          <input id="zone-start" type="datetime-local" required>
+        </div>
+        <div class="input-group">
+          <label>Ende</label>
+          <input id="zone-end" type="datetime-local" required>
+        </div>
+        <p class="auth-error" id="zone-error"></p>
+        <div class="button-group">
+          <button type="submit">Zone speichern</button>
+          <button type="button" onclick="cancelZoneForm()">Abbrechen</button>
+        </div>
+      </form>
+    </div>
+
+    <div id="zone-list-panel">
+      <p class="section-label">Vorhandene Zonen</p>
+      <div id="zone-list"></div>
+    </div>
+
   </div>
 </nav>
 

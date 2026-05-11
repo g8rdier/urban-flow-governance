@@ -1,81 +1,68 @@
-# Apache Deployment (Dev Container) – Urban Flow Governance
+# Apache Deployment (Servicecluster) – Urban Flow Governance
 
 ## Überblick
 
-Das Frontend wird über Apache als statische Website ausgeliefert.
+Das Frontend wird über Apache als statische Website auf dem Servicecluster ausgeliefert.
 Alle API-Requests (`/api/...`) werden über Apache an das Backend weitergeleitet.
 
 ---
 
 ## Voraussetzungen
 
-* Dev Container läuft
-* Apache ist installiert
+* Servicecluster-Zugang vorhanden
+* Apache ist eingerichtet
 * Projektstruktur:
 
-```
+```text
 urban-flow-governance/
 ├── frontend/
 │   ├── index.html
 │   ├── app.js
-│   └── style.css
+│   ├── style.css
+│   └── data/
 ```
 
 ---
 
-## 1. Apache starten
+## 1. Frontend deployen
+
+### Frontend auf Servicecluster kopieren
 
 ```bash
-sudo service apache2 start
-```
-
-### Apache stoppen
-
-```bash
-sudo service apache2 stop
-```
-
-### Apache neu starten
-
-```bash
-sudo service apache2 restart
+scp -r -P 11422 frontend/* mairambekkyzy@iu.servicecluster.de:/media/sf_iu/daps-ss26/elgreti/webclient/.
 ```
 
 ---
 
-## 2. Frontend deployen
-
-### Frontend in Apache kopieren
+## 2. Auf Servicecluster verbinden
 
 ```bash
-sudo cp -r frontend/* /var/www/html/
 ```
 
 ---
 
-## Apache Web-Verzeichnis
+## 3. Deployment prüfen
+
+### Zum Webclient-Verzeichnis wechseln
 
 ```bash
-/var/www/html/
+cd /media/sf_iu/daps-ss26/elgreti/webclient
+```
+
+### Dateien anzeigen
+
+```bash
+ls
 ```
 
 Hier müssen liegen:
 
-```
+```text
 index.html
 app.js
 style.css
-```
-
----
-
-## 3. Änderungen übernehmen
-
-Nach Änderungen:
-
-```bash
-sudo cp -r frontend/* /var/www/html/
-sudo service apache2 restart
+config.js
+mock.js
 ```
 
 ---
@@ -84,72 +71,100 @@ sudo service apache2 restart
 
 Im Browser:
 
-```
-http://localhost
+```text
+https://elgreti.servicecluster.de/
 ```
 
 ---
 
-## 5. Backend anbinden (Reverse Proxy)
+## 5. Änderungen übernehmen
+
+Nach Frontend-Änderungen erneut deployen:
+
+```bash
+scp -r -P 11422 frontend/* mairambekkyzy@iu.servicecluster.de:/media/sf_iu/daps-ss26/elgreti/webclient/.
+```
+
+Browser-Cache neu laden:
+
+```text
+Strg + Shift + R
+```
+
+---
+
+## 6. Backend starten (Grails)
+
+Im Projektordner:
+
+```bash
+cd ufg-app
+./gradlew bootRun
+```
+
+Backend erreichbar unter:
+
+```text
+http://localhost:8080
+```
+
+---
+
+## 7. API testen
+
+### Zonen abrufen
+
+```bash
+curl http://localhost:8080/api/zones
+```
+
+---
+
+### Route prüfen
+
+```bash
+curl -X POST http://localhost:8080/api/route/check \
+  -H "Content-Type: application/json" \
+  -d '{"route":[[52.5,13.4],[52.6,13.5]]}'
+```
+
+---
+
+## 8. Backend anbinden (Reverse Proxy)
 
 Damit `/api` funktioniert:
 
-### Apache Config öffnen
-
-```bash
-sudo nano /etc/apache2/sites-available/000-default.conf
-```
-
----
-
-### Diese Zeilen hinzufügen:
+### Apache-Konfiguration
 
 ```apache
 ProxyPass /api http://localhost:8080/api
 ProxyPassReverse /api http://localhost:8080/api
 ```
 
+Dadurch kann das Frontend einfach verwenden:
+
+```js
+fetch("/api/zones")
+```
+
+ohne direkte Tomcat-URL.
+
 ---
 
-### Module aktivieren
+## 9. Nützliche Befehle
+
+### Aktuelles Verzeichnis anzeigen
 
 ```bash
-sudo a2enmod proxy
-sudo a2enmod proxy_http
+pwd
 ```
 
 ---
 
-### Apache neu starten
+### Dateien anzeigen
 
 ```bash
-sudo service apache2 restart
-```
-
----
-
-##  6. Test
-
-Browser öffnen:
-
-```
-http://localhost
-```
-
-API testen (z. B. im Browser oder Console):
-
-```
-http://localhost/api/zones
-```
-
----
-
-## Nützliche Befehle
-
-### Dateien prüfen
-
-```bash
-ls /var/www/html/
+ls
 ```
 
 ---
@@ -164,22 +179,23 @@ tail -f /var/log/apache2/error.log
 
 ## Troubleshooting
 
-| Problem             | Ursache            | Lösung                  |
-| ------------------- | ------------------ | ----------------------- |
-| Permission denied   | keine Rechte       | `sudo` benutzen         |
-| Alte Seite sichtbar | Browser Cache      | `Strg + Shift + R`      |
-| 404 Fehler          | Dateien fehlen     | `/var/www/html` prüfen  |
-| API geht nicht      | Proxy fehlt        | Config prüfen           |
-| Seite lädt nicht    | Apache läuft nicht | `service apache2 start` |
+| Problem             | Ursache               | Lösung                       |
+| ------------------- | --------------------- | ---------------------------- |
+| Permission denied   | keine Rechte          | richtigen User / Pfad prüfen |
+| Alte Seite sichtbar | Browser Cache         | `Strg + Shift + R`           |
+| 404 Fehler          | Dateien fehlen        | `webclient/` prüfen          |
+| API geht nicht      | Proxy fehlt           | Apache Config prüfen         |
+| Seite lädt nicht    | Dateien nicht kopiert | `scp` erneut ausführen       |
 
 ---
 
-## Dev Container Hinweis
+## Servicecluster Hinweis
 
-| Pfad            | Bedeutung      |
-| --------------- | -------------- |
-| `/workspace`    | Projekt        |
-| `/var/www/html` | Apache Webroot |
+| Pfad                                       | Bedeutung                |
+| ------------------------------------------ | ------------------------ |
+| `/media/sf_iu/daps-ss26/elgreti/webclient` | Apache Webclient         |
+| `frontend/`                                | Lokales Frontend-Projekt |
+| `http://localhost:8080`                    | Grails/Tomcat Backend    |
 
 ---
 # Backend & API Testing – Urban Flow Governance

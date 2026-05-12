@@ -13,6 +13,8 @@ class RoleCheckInterceptor {
     }
 
     boolean before() {
+        response.setHeader('Access-Control-Allow-Origin', '*')
+
         if (request.method == 'OPTIONS') {
             response.setHeader('Access-Control-Allow-Headers', 'Authorization, Content-Type')
             response.setHeader('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, OPTIONS')

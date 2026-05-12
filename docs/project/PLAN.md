@@ -25,13 +25,13 @@ kanban
     b4[US-6.1 Zone-Verlauf ansehen]
 
   ToDo[To Do]
+    t1["US-1.2 Sperrzone bearbeiten (Elizat)"]
     t2[US-3.3 Route-Konflikt visuell hervorheben]
     t3[US-3.2 Zone-Details beim Klick anzeigen]
 
   InProgress[In Bearbeitung]
 
   Review
-    r1["US-1.2 Sperrzone bearbeiten (Gregor)"]
     r5["US-7.2 Logout als Admin/Nutzer (Tim)"]
     r6["US-7.3 Session Timeout (Tim)"]
     r8["US-8.2 Nutzer loeschen (Tim)"]
@@ -51,8 +51,8 @@ kanban
     p5["PostgreSQL in Dev einbinden (Tim)"]
     t7["Datenbank Schema erstellen Prod (Tim)"]
     t8["Deploy to Prod (Tim)"]
-    d7["Dark/Light Mode Toggle (Gregor)"]
-    d8["Start/Ziel tauschen (Gregor)"]
+    d7["Dark/Light Mode Toggle (Gregor/Elizat)"]
+    d8["Start/Ziel tauschen (Gregor/Elizat)"]
     d9["Deployment Pipeline pre-push (Gregor)"]
     d10["CORS fix (Gregor)"]
     d11["Auth-Fehlermeldungen Login/Registrierung (Gregor)"]

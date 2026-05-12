@@ -5,39 +5,39 @@ class UrlMappings {
     static mappings = {
         group "/api", {
             "/session"(controller: "userManager") {
-                action = [GET: "getSessioninfo", POST: "login", DELETE: "logout"]
+                action = [GET: "getSessioninfo", POST: "login", DELETE: "logout", OPTIONS: "getSessioninfo"]
             }
 
             "/users"(controller: "userManager") {
-                action = [POST: "create", GET: "list"]
+                action = [POST: "create", GET: "list", OPTIONS: "list"]
             }
 
             "/users/$id"(controller: "userManager") {
-                action = [PUT: "update", PATCH: "update", DELETE: "delete"]
+                action = [PUT: "update", PATCH: "update", DELETE: "delete", OPTIONS: "list"]
             }
 
             "/zones"(controller: "restrictedZone") {
-                action = [GET: "index", POST: "save"]
+                action = [GET: "index", POST: "save", OPTIONS: "index"]
             }
 
             "/zones/active"(controller: "restrictedZone") {
-                action = [GET: "active"]
+                action = [GET: "active", OPTIONS: "active"]
             }
 
             "/zones/$id"(controller: "restrictedZone") {
-                action = [GET: "show", PUT: "update", DELETE: "delete"]
+                action = [GET: "show", PUT: "update", DELETE: "delete", OPTIONS: "show"]
             }
 
             "/zones/$id/activate"(controller: "restrictedZone") {
-                action = [PUT: "activate"]
+                action = [PUT: "activate", OPTIONS: "activate"]
             }
-            
+
             "/zones/$id/deactivate"(controller: "restrictedZone") {
-                action = [PUT: "deactivate"]
+                action = [PUT: "deactivate", OPTIONS: "deactivate"]
             }
 
             "/route/check"(controller: "route") {
-                action = [POST: "check"]
+                action = [POST: "check", OPTIONS: "check"]
             }
         }
 

@@ -71,8 +71,8 @@ kanban
 
 | ID | Kommentar |
 |----|-----------|
-| US-2.1 | Route-Berechnung via OSRM fertig; Auto-Trigger bei Eingabe beider Felder; Grails-Integration ausstehend |
-| US-4.1 | Autocomplete via Nominatim fertig; Grails-Integration ausstehend |
+| US-2.1 | Route-Berechnung via OSRM fertig; Auto-Trigger bei Eingabe beider Felder |
+| US-4.1 | Autocomplete via Nominatim fertig |
 | US-4.2 | Start-/Zielmarker auf Karte fertig |
 | US-1.1 | Backend/API + Tests fertig; Polygon-Zeichnen + Admin-UI fertig |
 | US-1.4 | Status-Enum + activate/deactivate + ZoneTransitionService (60s-Scheduler) fertig; Aktivieren/Deaktivieren-Buttons im Admin-Panel fertig |

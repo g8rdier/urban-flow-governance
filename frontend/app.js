@@ -18,6 +18,7 @@ let endCoords = null;
 let selectionMarker = null;
 let startMarker = null;
 let endMarker = null;
+let currentEditZoneId = null;
 
 // Auth
 function authHeaders(extra = {}) {
@@ -235,8 +236,10 @@ async function loadAdminZoneList() {
     const color = statusColor[zone.status] || 'orange';
     const label = statusLabel[zone.status] || zone.status;
     let actions = '';
+    
     if (zone.status === 'PLANNED') actions += `<button class="btn-small btn-activate" onclick="activateZone(${zone.id})">Aktivieren</button>`;
     if (zone.status === 'ACTIVE') actions += `<button class="btn-small btn-deactivate" onclick="deactivateZone(${zone.id})">Deaktivieren</button>`;
+    actions += `<button class="btn-small btn-ed onclick="editZone(${zone.id})">Bearbeiten</button>`;
     actions += `<button class="btn-small btn-delete" onclick="deleteZone(${zone.id})">Löschen</button>`;
 
     const item = document.createElement('div');

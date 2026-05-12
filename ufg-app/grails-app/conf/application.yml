@@ -56,6 +56,19 @@ hibernate:
     use_second_level_cache: false
     use_query_cache: false
 grails:
+  cors:
+    enabled: true
+    allowedOrigins:
+      - '*'
+    allowedMethods:
+      - GET
+      - POST
+      - PUT
+      - DELETE
+      - OPTIONS
+    allowedHeaders:
+      - Authorization
+      - Content-Type
   codegen:
     defaultPackage: ufg.app
   profile: web

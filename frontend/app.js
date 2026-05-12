@@ -189,18 +189,32 @@ window.submitZone = async function (e) {
   const ring = [...drawVertices.map(([lat, lng]) => [lng, lat])];
   ring.push(ring[0]);
 
-  const res = await fetch(`${window.API_BASE}/api/zones`, {
-    method: 'POST',
-    headers: authHeaders({ 'Content-Type': 'application/json' }),
-    body: JSON.stringify({
-      name: document.getElementById('zone-name').value,
-      reason: document.getElementById('zone-reason').value,
-      startTime: toApiDate(document.getElementById('zone-start').value),
-      endTime: toApiDate(document.getElementById('zone-end').value),
-      createdBy: currentUser?.username,
-      geometry: { type: 'Polygon', coordinates: [ring] }
-    })
-  });
+  const isEdit = currentEditZoneId !== null;
+
+const url = isEdit
+  ? `${window.API_BASE}/api/zones/${currentEditZoneId}`
+  : `${window.API_BASE}/api/zones`;
+
+const method = isEdit ? 'PUT' : 'POST';
+
+const res = await fetch(url, {
+  method,
+  headers: authHeaders({
+    'Content-Type': 'application/json'
+  }),
+  body: JSON.stringify({
+    name: document.getElementById('zone-name').value,
+    reason: document.getElementById('zone-reason').value,
+    startTime: toApiDate(document.getElementById('zone-start').value),
+    endTime: toApiDate(document.getElementById('zone-end').value),
+    createdBy: currentUser?.username,
+    geometry: {
+      type: 'Polygon',
+      coordinates: [ring]
+    }
+  })
+});
+
 
   const result = await res.json();
   if (result.status !== 'success') {
@@ -239,7 +253,7 @@ async function loadAdminZoneList() {
     
     if (zone.status === 'PLANNED') actions += `<button class="btn-small btn-activate" onclick="activateZone(${zone.id})">Aktivieren</button>`;
     if (zone.status === 'ACTIVE') actions += `<button class="btn-small btn-deactivate" onclick="deactivateZone(${zone.id})">Deaktivieren</button>`;
-    actions += `<button class="btn-small btn-ed onclick="editZone(${zone.id})">Bearbeiten</button>`;
+    actions += `<button class="btn-small btn-edit" onclick="editZone(${zone.id})">Bearbeiten</button>`;
     actions += `<button class="btn-small btn-delete" onclick="deleteZone(${zone.id})">Löschen</button>`;
 
     const item = document.createElement('div');
@@ -275,7 +289,38 @@ window.deactivateZone = async function (id) {
   const result = await res.json();
   if (result.status === 'success') { loadZones(); loadAdminZoneList(); }
 };
+window.editZone = async function(id) {
 
+  const res = await fetch(
+    `${window.API_BASE}/api/zones/${id}`,
+    {
+      headers: authHeaders()
+    }
+  );
+
+  const result = await res.json();
+
+  const zone = result.data.zone;
+
+  // Formular anzeigen
+  document.getElementById('zone-form-panel').style.display = '';
+
+  // Formular füllen
+  document.getElementById('zone-name').value =
+    zone.name || '';
+
+  document.getElementById('zone-reason').value =
+    zone.reason || '';
+
+  document.getElementById('zone-start').value =
+    zone.startTime?.slice(0,16) || '';
+
+  document.getElementById('zone-end').value =
+    zone.endTime?.slice(0,16) || '';
+
+  // ID merken
+  currentEditZoneId = id;
+};
 // Geocoding
 async function geocode(address) {
   const res = await fetch(`${window.NOMINATIM_URL}/search?q=${encodeURIComponent(address)}&format=json`);

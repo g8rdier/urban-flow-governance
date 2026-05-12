@@ -86,7 +86,7 @@ kanban
 | Dark/Light Mode | Toggle in Sidebar; Präferenz in localStorage gespeichert; Leaflet-Tiles per CSS-Filter invertiert |
 | Start/Ziel tauschen | Swap-Button zwischen Start/Ziel per getBoundingClientRect() zentriert; tauscht Werte, Koordinaten und Marker |
 | Deployment Pipeline | pre-push Hook deployt frontend/ via SCP auf Apache automatisch bei Push auf main |
-| CORS fix | Doppelten Access-Control-Allow-Origin-Header entfernt (Grails-Config entfernt, Tomcat-Filter bleibt); OPTIONS-Preflight in RoleCheckInterceptor behandelt |
+| CORS fix | Grails-natives CORS aktiviert (application.yml); HttpServletResponseWrapper-Filter in Application.groovy entfernt ACAO-Header aus Tomcat-Antwort, damit Apache genau einen setzt; OPTIONS-Preflight im RoleCheckInterceptor abgefangen |
 | Auth-Fehlermeldungen | Login: „Benutzername nicht gefunden" / „Falsches Passwort"; Registrierung: „Benutzername bereits vergeben" |
 
 ## Hinweise

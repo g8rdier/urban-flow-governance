@@ -5,6 +5,8 @@ info:
   version: 1.0.0
 
 servers:
+  - url: https://iu-tomcat.servicecluster.de/elgreti-ufg
+    description: Produktionsserver
   - url: http://localhost:8080
     description: Lokaler Entwicklungsserver
 

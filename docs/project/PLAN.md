@@ -25,13 +25,13 @@ kanban
     b4[US-6.1 Zone-Verlauf ansehen]
 
   ToDo[To Do]
-    t1["US-1.2 Sperrzone bearbeiten (Elizat)"]
+    t1["US-1.2 Sperrzone bearbeiten"]
     t2[US-3.3 Route-Konflikt visuell hervorheben]
     t3[US-3.2 Zone-Details beim Klick anzeigen]
-    t4["US-7.2 Logout als Admin/Nutzer — Frontend (Tim)"]
-    t5["US-7.3 Session Timeout — Frontend (Tim)"]
-    t6["US-8.2 Nutzer loeschen — Frontend (Tim)"]
-    t7["US-8.3 Admin-Rolle zuordnen — Frontend (Tim)"]
+    t4["US-7.2 Logout als Admin/Nutzer — Frontend offen"]
+    t5["US-7.3 Session Timeout — Frontend offen"]
+    t6["US-8.2 Nutzer loeschen — Frontend offen"]
+    t7["US-8.3 Admin-Rolle zuordnen — Frontend offen"]
 
   InProgress[In Bearbeitung]
 
@@ -60,6 +60,11 @@ kanban
     p2["US-1.4 Zone-Status verwalten (Gregor)"]
     r2["US-1.3 Sperrzone loeschen (Gregor)"]
     r3["US-2.2 Warnung bei Sperrzone-Konflikt (Gregor)"]
+    e1["US-7.2 Logout — Backend (Tim)"]
+    e2["US-7.3 Session Timeout — Backend (Tim)"]
+    e3["US-8.2 Nutzer loeschen — Backend (Tim)"]
+    e4["US-8.3 Admin-Rolle zuordnen — Backend (Tim)"]
+    e5["US-1.2 Sperrzone bearbeiten — Backend (Gregor)"]
 ```
 
 ## Kommentare
@@ -74,7 +79,7 @@ kanban
 | US-3.1 | API-Anbindung fertig; Zonen laden via API und farbkodiert in Prod; dedizierter Review-Schritt mit Elizat offen |
 | US-5.1 | Zonen werden farbkodiert via API in Prod angezeigt (blau/rot/grau); dediziertes Sidebar-Panel mit Name, Grund, verbleibender Zeit fehlt noch |
 | Auth-Scope | Alle Endpoints erhalten @RequiredRoles. GET /api/zones, GET /api/zones/{id}, GET /api/zones/active, POST /api/route/check → ADMIN + NUTZER; schreibende Zone-Endpoints + User-Management → ADMIN |
-| US-1.2 | update-Endpoint + Integrationstest grün; Frontend-Integration ausstehend (Elizat) |
+| US-1.2 | Backend fertig (update-Endpoint + Integrationstest grün); Frontend-Integration ausstehend |
 | US-1.3 | delete-Endpoint + Integrationstest grün; Bestätigungsdialog + Frontend-Integration fertig |
 | US-2.2 | RouteCheckService liefert OK/WARNING mit Zone + Zeitraum; UI-Darstellung fertig (Alert + rote Route) |
 | US-7.1 | Login-Frontend fertig und in Prod; Fehlermeldungen für falschen Benutzernamen und falsches Passwort; Bearer-Token in localStorage |

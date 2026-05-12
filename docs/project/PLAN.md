@@ -28,14 +28,14 @@ kanban
     t1["US-1.2 Sperrzone bearbeiten (Elizat)"]
     t2[US-3.3 Route-Konflikt visuell hervorheben]
     t3[US-3.2 Zone-Details beim Klick anzeigen]
+    t4["US-7.2 Logout als Admin/Nutzer — Frontend (Tim)"]
+    t5["US-7.3 Session Timeout — Frontend (Tim)"]
+    t6["US-8.2 Nutzer loeschen — Frontend (Tim)"]
+    t7["US-8.3 Admin-Rolle zuordnen — Frontend (Tim)"]
 
   InProgress[In Bearbeitung]
 
   Review
-    r5["US-7.2 Logout als Admin/Nutzer (Tim)"]
-    r6["US-7.3 Session Timeout (Tim)"]
-    r8["US-8.2 Nutzer loeschen (Tim)"]
-    r9["US-8.3 Admin-Rolle zuordnen (Tim)"]
     p3["US-3.1 Sperrzonen auf Karte anzeigen (Elizat)"]
     p4["US-5.1 Aktive Zonen anzeigen (Gregor)"]
 

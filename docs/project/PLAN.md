@@ -74,7 +74,7 @@ kanban
 | US-2.1 | Route-Berechnung via OSRM fertig; Auto-Trigger bei Eingabe beider Felder |
 | US-4.1 | Autocomplete via Nominatim fertig |
 | US-4.2 | Start-/Zielmarker auf Karte fertig |
-| US-1.1 | Backend/API + Tests fertig; Polygon-Zeichnen + Admin-UI fertig |
+| US-1.1 | Backend/API + Tests fertig; Polygon-Zeichnen + Admin-UI fertig; Grund-Feld akzeptiert freien Text (inList-Constraint entfernt) |
 | US-1.4 | Status-Enum + activate/deactivate + ZoneTransitionService (60s-Scheduler) fertig; Aktivieren/Deaktivieren-Buttons im Admin-Panel fertig |
 | US-3.1 | API-Anbindung fertig; Zonen laden via API und farbkodiert in Prod; dedizierter Review-Schritt mit Elizat offen |
 | US-5.1 | Zonen werden farbkodiert via API in Prod angezeigt (blau/rot/grau); dediziertes Sidebar-Panel mit Name, Grund, verbleibender Zeit fehlt noch |

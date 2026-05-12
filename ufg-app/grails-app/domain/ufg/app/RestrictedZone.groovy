@@ -7,7 +7,6 @@ import org.locationtech.jts.io.WKTWriter
 class RestrictedZone {
 
     static final List<String> VALID_STATUSES = ["PLANNED", "ACTIVE", "EXPIRED"]
-    static final List<String> VALID_REASONS = ["Marathon", "Baustelle", "Umweltalarm"]
 
     String name
     String description
@@ -23,7 +22,7 @@ class RestrictedZone {
     static constraints = {
         name blank: false, maxSize: 255
         description nullable: true
-        reason blank: false, inList: VALID_REASONS
+        reason blank: false, maxSize: 255
         geometryWKT blank: false, validator: { val ->
             try {
                 def geom = new WKTReader().read(val)

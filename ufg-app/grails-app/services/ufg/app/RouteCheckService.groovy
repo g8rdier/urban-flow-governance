@@ -2,8 +2,10 @@ package ufg.app
 
 import grails.gorm.transactions.Transactional
 import org.locationtech.jts.geom.Coordinate
+import org.locationtech.jts.geom.Geometry
 import org.locationtech.jts.geom.GeometryFactory
 import org.locationtech.jts.geom.LineString
+import org.locationtech.jts.geom.MultiLineString
 import org.locationtech.jts.geom.Point
 import org.locationtech.jts.geom.Polygon
 
@@ -40,14 +42,42 @@ class RouteCheckService {
     @Transactional(readOnly = true)
     Map checkRoute(List<List<Double>> routeCoordinates) {
         List<RestrictedZone> activeZones = RestrictedZone.findAllByStatus("ACTIVE")
-        List<RestrictedZone> collidingZones = activeZones.findAll {
-            routeIntersectsZone(routeCoordinates, it)
+        LineString route = buildLineString(routeCoordinates)
+
+        List<Map> collidingZones = activeZones.findAll {
+            it.geometry?.intersects(route)
+        }.collect { zone ->
+            [
+                id          : zone.id,
+                name        : zone.name,
+                reason      : zone.reason,
+                intersection: geometryToGeoJson(zone.geometry.intersection(route))
+            ]
         }
 
         [
             status: collidingZones.isEmpty() ? "OK" : "WARNING",
-            zones : collidingZones.collect { [id: it.id, name: it.name, reason: it.reason] }
+            zones : collidingZones
         ]
+    }
+
+    private Map geometryToGeoJson(Geometry geom) {
+        if (!geom || geom.isEmpty()) return null
+        if (geom instanceof LineString) {
+            return [type: "LineString", coordinates: geom.coordinates.collect { [it.x, it.y] }]
+        }
+        if (geom instanceof MultiLineString) {
+            return [type: "MultiLineString", coordinates: (0..<geom.numGeometries).collect { i ->
+                geom.getGeometryN(i).coordinates.collect { [it.x, it.y] }
+            }]
+        }
+        def lines = (0..<geom.numGeometries).collect { i -> geom.getGeometryN(i) }
+            .findAll { it instanceof LineString && !it.isEmpty() }
+            .collect { it.coordinates.collect { c -> [c.x, c.y] } }
+        if (!lines) return null
+        return lines.size() == 1
+            ? [type: "LineString", coordinates: lines[0]]
+            : [type: "MultiLineString", coordinates: lines]
     }
 
     private LineString buildLineString(List<List<Double>> routeCoordinates) {

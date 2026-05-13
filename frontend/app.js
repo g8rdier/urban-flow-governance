@@ -20,6 +20,7 @@ let startMarker = null;
 let endMarker = null;
 let routeLayer = null;
 let conflictLayer = null;
+let zonesVisible = true;
 let currentEditZoneId = null;
 
 // Auth
@@ -121,10 +122,27 @@ window.loadZones = async function () {
       const coords = zone.geometry.coordinates[0].map(([lng, lat]) => [lat, lng]);
       L.polygon(coords, { color: zoneColors[zone.status] ?? 'orange' }).addTo(zonesLayer);
     });
+    zonesVisible = true;
+    updateZonesToggleBtn();
   } catch (e) {
     console.warn('Zonen konnten nicht geladen werden');
   }
 };
+
+window.toggleZones = function () {
+  if (zonesVisible) {
+    zonesLayer.clearLayers();
+    zonesVisible = false;
+  } else {
+    loadZones();
+  }
+  updateZonesToggleBtn();
+};
+
+function updateZonesToggleBtn() {
+  const btn = document.getElementById('zones-toggle-btn');
+  if (btn) btn.textContent = zonesVisible ? 'Aktive Zonen ausblenden' : 'Aktive Zonen anzeigen';
+}
 
 // Mode toggle
 window.setMode = function (mode) {

@@ -353,8 +353,9 @@ window.calculateRoute = async function () {
   const res = await fetch(url);
   const data = await res.json();
   if (!data.routes || data.routes.length === 0) { alert('Keine Route gefunden'); return; }
-  const layer = L.geoJSON(data.routes[0].geometry, { color: 'green' }).addTo(map);
-  map.fitBounds(layer.getBounds());
+  if (routeLayer) { routeLayer.remove(); }
+  routeLayer = L.geoJSON(data.routes[0].geometry, { color: 'green' }).addTo(map);
+  map.fitBounds(routeLayer.getBounds());
 };
 
 async function checkRoute(route) {

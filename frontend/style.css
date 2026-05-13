@@ -266,6 +266,47 @@ body {
 }
 
 
+/* Map pick popup */
+
+.map-pick-popup .leaflet-popup-content-wrapper {
+  border-radius: 8px;
+  padding: 0;
+  box-shadow: 0 4px 16px rgba(0,0,0,0.15);
+}
+
+.map-pick-popup .leaflet-popup-content {
+  margin: 0;
+  display: flex;
+  gap: 0;
+}
+
+.map-pick-popup button {
+  width: auto;
+  padding: 0.45rem 0.85rem;
+  font-size: 0.8rem;
+  background: #fff;
+  border: none;
+  border-radius: 0;
+  color: #333;
+  cursor: pointer;
+  transition: background 0.15s;
+}
+
+.map-pick-popup button:first-child {
+  border-radius: 8px 0 0 8px;
+  border-right: 1px solid #eee;
+  box-shadow: none;
+}
+
+.map-pick-popup button:last-child {
+  border-radius: 0 8px 8px 0;
+}
+
+.map-pick-popup button:hover {
+  background: #f0f6ff;
+  color: #4a90e2;
+}
+
 /* Zone warning */
 
 #zone-warning {

@@ -70,6 +70,7 @@ kanban
     e12["Einklappbare Sidebar (Gregor)"]
     e13["Zone-Warning Modal (Gregor)"]
     e14["Nur aktive Zonen fuer Nutzer (Gregor)"]
+    e15["Doppelklick Polygon-Zeichnen fix (Gregor)"]
 ```
 
 ## Kommentare

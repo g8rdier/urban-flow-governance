@@ -26,7 +26,6 @@ kanban
 
   ToDo[To Do]
     t0["Ansible Deployment (Gregor)"]
-    t1["US-1.2 Sperrzone bearbeiten"]
     t2[US-3.3 Route-Konflikt visuell hervorheben]
     t3[US-3.2 Zone-Details beim Klick anzeigen]
     t5["US-7.3 Session Timeout — Frontend offen"]
@@ -34,10 +33,9 @@ kanban
     t7["US-8.3 Admin-Rolle zuordnen — Frontend offen"]
 
   InProgress[In Bearbeitung]
+    i1["US-1.2 Sperrzone bearbeiten — Frontend (Elizat)"]
 
   Review
-    p3["US-3.1 Sperrzonen auf Karte anzeigen (Elizat)"]
-    p4["US-5.1 Aktive Zonen anzeigen (Gregor)"]
 
   Erledigt
     d1["OpenAPI + Swagger UI (Gregor)"]
@@ -66,6 +64,8 @@ kanban
     e4["US-8.3 Admin-Rolle zuordnen — Backend (Tim)"]
     e5["US-1.2 Sperrzone bearbeiten — Backend (Gregor)"]
     e6["US-7.2 Logout — Frontend (Elizat)"]
+    e7["US-3.1 Sperrzonen auf Karte anzeigen (Elizat)"]
+    e8["US-5.1 Aktive Zonen anzeigen (Gregor)"]
 ```
 
 ## Kommentare

@@ -68,7 +68,12 @@ window.submitLogin = async function (e) {
 
   await initSession(result.data.token, result.data.role);
 };
+window.logout = function () {
 
+  localStorage.clear();
+
+  location.reload();
+};
 // Register
 window.submitRegister = async function (e) {
   e.preventDefault();

@@ -452,9 +452,12 @@ map.on('click', function (e) {
 });
 
 map.on('dblclick', function (e) {
-  if (isDrawing && drawVertices.length >= 3) {
-    finishDrawing();
-  }
+  if (!isDrawing) return;
+  // dblclick fires two preceding click events — remove those 2 extra vertices and markers
+  drawVertices.splice(-2, 2);
+  drawMarkers.splice(-2).forEach(m => m.remove());
+  updateDrawPolyline();
+  if (drawVertices.length >= 3) finishDrawing();
 });
 
 // Autocomplete

@@ -73,6 +73,7 @@ kanban
     e15["Doppelklick Polygon-Zeichnen fix (Gregor)"]
     e16["Karteklick Start/Ziel setzen via Reverse Geocoding (Gregor)"]
     e17["Reisezeit-Panel: Distanz + Auto/Rad/Fuß-Zeiten (Gregor)"]
+    e18["Ziehbare Start/Ziel-Marker mit Live-Routenaktualisierung (Gregor)"]
 ```
 
 ## Kommentare
@@ -93,6 +94,7 @@ kanban
 | US-3.3 | Backend liefert Schnittgeometrie via JTS intersection(); Route blau, Konflikt-Segment rot; Warning-Modal zentriert mit "Ignorieren" → Banner in Sidebar |
 | Kartenklick Start/Ziel | Klick auf Karte → Reverse Geocoding via Nominatim; erster Klick füllt Start, jeder weitere füllt Ziel und löst Routenberechnung aus; Route-Zeichnen-Modus entfernt |
 | Reisezeit-Panel | Distanz und Auto-Zeit aus OSRM-Antwort; Rad (15 km/h) und Fuß (5 km/h) aus Distanz berechnet (OSRM-Instanz hat nur Driving-Profil); Card-Layout mit drei Spalten unterhalb der Eingaben |
+| Ziehbare Marker | Start- und Zielmarker sind draggable; dragend → Reverse Geocoding → Textfeld aktualisieren → Route + Zonencheck neu berechnen |
 | US-7.1 | Login-Frontend fertig und in Prod; Fehlermeldungen für falschen Benutzernamen und falsches Passwort; Bearer-Token in localStorage |
 | US-7.2 | Backend fertig; Logout-Button in Nutzer- und Admin-Panel fertig |
 | US-7.3 | Backend fertig (TOKEN_TTL_MINUTES); kein Frontend-Feedback bei abgelaufener Session |

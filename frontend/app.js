@@ -20,7 +20,7 @@ let startMarker = null;
 let endMarker = null;
 let routeLayer = null;
 let conflictLayer = null;
-let zonesVisible = true;
+let zonesVisible = false;
 let currentEditZoneId = null;
 
 // Auth
@@ -39,7 +39,6 @@ async function initSession(token, role = null) {
   if (effectiveRole === 'ADMIN') {
     document.getElementById('mode-toggle').style.display = 'flex';
   }
-  loadZones();
 }
 
 // Auth tab switch
@@ -129,12 +128,25 @@ window.loadZones = async function () {
   }
 };
 
-window.toggleZones = function () {
+window.toggleZones = async function () {
   if (zonesVisible) {
     zonesLayer.clearLayers();
     zonesVisible = false;
-  } else {
-    loadZones();
+    updateZonesToggleBtn();
+    return;
+  }
+  zonesLayer.clearLayers();
+  try {
+    const res = await fetch(`${window.API_BASE}/api/zones/active`, { headers: authHeaders() });
+    const result = await res.json();
+    (result.data.zones || []).forEach(zone => {
+      if (!zone.geometry) return;
+      const coords = zone.geometry.coordinates[0].map(([lng, lat]) => [lat, lng]);
+      L.polygon(coords, { color: 'red' }).addTo(zonesLayer);
+    });
+    zonesVisible = true;
+  } catch (e) {
+    console.warn('Zonen konnten nicht geladen werden');
   }
   updateZonesToggleBtn();
 };

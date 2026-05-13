@@ -473,27 +473,32 @@ async function finishRouteDrawing() {
   cancelRouteDrawing();
   const waypoints = vertices.map(([lat, lng]) => `${lng},${lat}`).join(';');
   const url = `${window.OSRM_URL}/route/v1/driving/${waypoints}?overview=full&geometries=geojson`;
-  const data = await (await fetch(url)).json();
+  let data;
+  try { data = await (await fetch(url)).json(); } catch { alert('Route konnte nicht berechnet werden.'); return; }
   if (!data.routes || !data.routes.length) { alert('Keine Route gefunden'); return; }
   const route = data.routes[0].geometry;
-  const result = await checkRoute(route);
-  document.getElementById('zone-warning').style.display = 'none';
-  document.getElementById('zone-warning-modal').style.display = 'none';
+
   if (conflictLayer) { conflictLayer.remove(); conflictLayer = null; }
   if (routeLayer) { routeLayer.remove(); }
   routeLayer = L.geoJSON(route, { color: '#4a90e2', weight: 4 }).addTo(map);
   map.fitBounds(routeLayer.getBounds());
-  if (result.status === 'WARNING') {
-    const names = result.zones.map(z => z.name).join(', ');
-    const msg = `⚠️ Route kreuzt Sperrzone: ${names}`;
-    document.getElementById('zone-warning-text').textContent = msg;
-    document.getElementById('zone-warning-text-small').textContent = msg;
-    document.getElementById('zone-warning-modal').style.display = 'flex';
-    const intersections = result.zones.map(z => z.intersection).filter(Boolean);
-    if (intersections.length) {
-      conflictLayer = L.layerGroup(intersections.map(g => L.geoJSON(g, { color: '#e05252', weight: 5 }))).addTo(map);
+  document.getElementById('zone-warning').style.display = 'none';
+  document.getElementById('zone-warning-modal').style.display = 'none';
+
+  try {
+    const result = await checkRoute(route);
+    if (result?.status === 'WARNING') {
+      const names = result.zones.map(z => z.name).join(', ');
+      const msg = `⚠️ Route kreuzt Sperrzone: ${names}`;
+      document.getElementById('zone-warning-text').textContent = msg;
+      document.getElementById('zone-warning-text-small').textContent = msg;
+      document.getElementById('zone-warning-modal').style.display = 'flex';
+      const intersections = result.zones.map(z => z.intersection).filter(Boolean);
+      if (intersections.length) {
+        conflictLayer = L.layerGroup(intersections.map(g => L.geoJSON(g, { color: '#e05252', weight: 5 }))).addTo(map);
+      }
     }
-  }
+  } catch { /* zone check failed, route still shown */ }
 }
 
 // Map events

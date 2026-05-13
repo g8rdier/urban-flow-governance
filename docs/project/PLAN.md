@@ -66,6 +66,8 @@ kanban
     e6["US-7.2 Logout — Frontend (Elizat)"]
     e7["US-3.1 Sperrzonen auf Karte anzeigen (Elizat)"]
     e8["US-5.1 Aktive Zonen anzeigen (Gregor)"]
+    e9["UI-Verbesserungen Sidebar/Buttons (Gregor)"]
+    e10["Deployment Pipeline post-receive Server (Gregor)"]
 ```
 
 ## Kommentare
@@ -92,7 +94,8 @@ kanban
 | Dark/Light Mode | Toggle in Sidebar; Präferenz in localStorage gespeichert; Leaflet-Tiles per CSS-Filter invertiert |
 | Start/Ziel tauschen | Swap-Button zwischen Start/Ziel per getBoundingClientRect() zentriert; tauscht Werte, Koordinaten und Marker |
 | Deployment Pipeline | pre-push Hook deployt frontend/ via SCP auf Apache automatisch bei Push auf main |
-| Ansible Deployment | post-receive Hook auf Server ruft ansible-playbook auf; deployt Frontend + Backend vollautomatisch bei Push auf main; ersetzt den lokalen Pre-push Hook; siehe [ANSIBLE_DEPLOYMENT.md](../ops/ANSIBLE_DEPLOYMENT.md) |
+| Deployment Pipeline post-receive | server-seitiger post-receive Hook deployt Frontend und Backend automatisch bei Push auf main; nur geänderte Teile werden deployed; ersetzt den lokalen pre-push Hook |
+| UI-Verbesserungen | Inter-Schrift, rundere Buttons (8px), Sidebar-Shadow, Zone-Items mit Shadow; Login-Box aufgewertet |
 | CORS fix | Grails-natives CORS aktiviert (application.yml); HttpServletResponseWrapper-Filter in Application.groovy entfernt ACAO-Header aus Tomcat-Antwort, damit Apache genau einen setzt; OPTIONS-Preflight im RoleCheckInterceptor abgefangen |
 | Auth-Fehlermeldungen | Login: „Benutzername nicht gefunden" / „Falsches Passwort"; Registrierung: „Benutzername bereits vergeben" |
 

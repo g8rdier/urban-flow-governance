@@ -440,6 +440,16 @@ function setRouteMarker(lat, lon, type) {
   }
 }
 
+async function reverseGeocode(lat, lng) {
+  try {
+    const res = await fetch(`${window.NOMINATIM_URL}/reverse?lat=${lat}&lon=${lng}&format=json`);
+    const data = await res.json();
+    return data.display_name || `${lat.toFixed(5)}, ${lng.toFixed(5)}`;
+  } catch {
+    return `${lat.toFixed(5)}, ${lng.toFixed(5)}`;
+  }
+}
+
 // Map events
 map.on('click', function (e) {
   const { lat, lng } = e.latlng;
@@ -448,8 +458,26 @@ map.on('click', function (e) {
     const m = L.circleMarker([lat, lng], { radius: 4, color: '#4a90e2', fillColor: '#4a90e2', fillOpacity: 1, weight: 1 }).addTo(map);
     drawMarkers.push(m);
     updateDrawPolyline();
+    return;
   }
+  const popup = L.popup({ closeButton: false, className: 'map-pick-popup' })
+    .setLatLng([lat, lng])
+    .setContent(`
+      <button onclick="pickMapPoint(${lat}, ${lng}, 'start')">Als Start</button>
+      <button onclick="pickMapPoint(${lat}, ${lng}, 'end')">Als Ziel</button>
+    `)
+    .openOn(map);
 });
+
+window.pickMapPoint = async function (lat, lng, type) {
+  map.closePopup();
+  const address = await reverseGeocode(lat, lng);
+  document.getElementById(type === 'start' ? 'start' : 'end').value = address;
+  setRouteMarker(lat, lng, type);
+  if (type === 'start') startCoords = { lat, lon: lng };
+  else endCoords = { lat, lon: lng };
+  if (startCoords && endCoords) calculateRoute();
+};
 
 map.on('dblclick', function (e) {
   if (!isDrawing) return;

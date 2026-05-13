@@ -25,7 +25,6 @@ kanban
     b4[US-6.1 Zone-Verlauf ansehen]
 
   ToDo[To Do]
-    t0["Ansible Deployment (Gregor)"]
     t2[US-3.3 Route-Konflikt visuell hervorheben]
     t3[US-3.2 Zone-Details beim Klick anzeigen]
     t5["US-7.3 Session Timeout — Frontend offen"]

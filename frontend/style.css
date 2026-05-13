@@ -185,6 +185,7 @@ body {
   flex-shrink: 0;
   height: 100vh;
   overflow-y: auto;
+  overflow-x: hidden;
   background: var(--bg);
   border-right: 1px solid var(--sidebar-border);
   box-shadow: 2px 0 12px var(--shadow);
@@ -192,7 +193,44 @@ body {
   display: flex;
   flex-direction: column;
   gap: 1.5rem;
-  transition: background 0.25s, border-color 0.25s;
+  transition: width 0.3s ease, padding 0.3s ease, background 0.25s, border-color 0.25s;
+}
+
+#sidebar.collapsed {
+  width: 0;
+  padding: 0;
+}
+
+#sidebar-collapse-btn {
+  position: fixed;
+  top: 50%;
+  left: 300px;
+  transform: translateY(-50%);
+  z-index: 1000;
+  width: 20px;
+  height: 48px;
+  padding: 0;
+  background: var(--bg);
+  border: 1px solid var(--sidebar-border);
+  border-left: none;
+  border-radius: 0 6px 6px 0;
+  color: var(--text-muted);
+  font-size: 1rem;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 2px 0 6px var(--shadow);
+  transition: left 0.3s ease, background 0.15s;
+}
+
+#sidebar-collapse-btn:hover {
+  background: var(--hover-bg);
+  color: #4a90e2;
+}
+
+#sidebar-collapse-btn.collapsed {
+  left: 0;
 }
 
 #sidebar-header {

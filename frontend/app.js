@@ -494,6 +494,15 @@ window.swapRoute = function () {
 };
 
 // Theme
+window.toggleSidebar = function () {
+  const sidebar = document.getElementById('sidebar');
+  const btn = document.getElementById('sidebar-collapse-btn');
+  const collapsed = sidebar.classList.toggle('collapsed');
+  btn.classList.toggle('collapsed', collapsed);
+  btn.innerHTML = collapsed ? '&#8250;' : '&#8249;';
+  setTimeout(() => map.invalidateSize(), 310);
+};
+
 window.toggleTheme = function () {
   const next = document.documentElement.getAttribute('data-theme') === 'dark' ? 'light' : 'dark';
   document.documentElement.setAttribute('data-theme', next);

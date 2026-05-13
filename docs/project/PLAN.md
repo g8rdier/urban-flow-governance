@@ -25,10 +25,10 @@ kanban
     b4[US-6.1 Zone-Verlauf ansehen]
 
   ToDo[To Do]
+    t0["Ansible Deployment (Gregor)"]
     t1["US-1.2 Sperrzone bearbeiten"]
     t2[US-3.3 Route-Konflikt visuell hervorheben]
     t3[US-3.2 Zone-Details beim Klick anzeigen]
-    t4["US-7.2 Logout als Admin/Nutzer — Frontend offen"]
     t5["US-7.3 Session Timeout — Frontend offen"]
     t6["US-8.2 Nutzer loeschen — Frontend offen"]
     t7["US-8.3 Admin-Rolle zuordnen — Frontend offen"]
@@ -65,6 +65,7 @@ kanban
     e3["US-8.2 Nutzer loeschen — Backend (Tim)"]
     e4["US-8.3 Admin-Rolle zuordnen — Backend (Tim)"]
     e5["US-1.2 Sperrzone bearbeiten — Backend (Gregor)"]
+    e6["US-7.2 Logout — Frontend (Elizat)"]
 ```
 
 ## Kommentare
@@ -91,6 +92,7 @@ kanban
 | Dark/Light Mode | Toggle in Sidebar; Präferenz in localStorage gespeichert; Leaflet-Tiles per CSS-Filter invertiert |
 | Start/Ziel tauschen | Swap-Button zwischen Start/Ziel per getBoundingClientRect() zentriert; tauscht Werte, Koordinaten und Marker |
 | Deployment Pipeline | pre-push Hook deployt frontend/ via SCP auf Apache automatisch bei Push auf main |
+| Ansible Deployment | post-receive Hook auf Server ruft ansible-playbook auf; deployt Frontend + Backend vollautomatisch bei Push auf main; ersetzt den lokalen Pre-push Hook; siehe [ANSIBLE_DEPLOYMENT.md](../ops/ANSIBLE_DEPLOYMENT.md) |
 | CORS fix | Grails-natives CORS aktiviert (application.yml); HttpServletResponseWrapper-Filter in Application.groovy entfernt ACAO-Header aus Tomcat-Antwort, damit Apache genau einen setzt; OPTIONS-Preflight im RoleCheckInterceptor abgefangen |
 | Auth-Fehlermeldungen | Login: „Benutzername nicht gefunden" / „Falsches Passwort"; Registrierung: „Benutzername bereits vergeben" |
 

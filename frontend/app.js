@@ -408,9 +408,7 @@ map.on('click', function (e) {
     const m = L.circleMarker([lat, lng], { radius: 4, color: '#4a90e2', fillColor: '#4a90e2', fillOpacity: 1, weight: 1 }).addTo(map);
     drawMarkers.push(m);
     updateDrawPolyline();
-    return;
   }
-  setSelectionMarker(lat, lng);
 });
 
 map.on('dblclick', function (e) {

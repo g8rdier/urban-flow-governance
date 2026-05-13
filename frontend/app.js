@@ -19,6 +19,7 @@ let selectionMarker = null;
 let startMarker = null;
 let endMarker = null;
 let routeLayer = null;
+let conflictLayer = null;
 let currentEditZoneId = null;
 
 // Auth
@@ -356,20 +357,27 @@ window.calculateRoute = async function () {
 
   const route = data.routes[0].geometry;
   const result = await checkRoute(route);
-  let color = 'green';
   document.getElementById('zone-warning').style.display = 'none';
   document.getElementById('zone-warning-modal').style.display = 'none';
+  if (conflictLayer) { conflictLayer.remove(); conflictLayer = null; }
+  if (routeLayer) { routeLayer.remove(); }
+  routeLayer = L.geoJSON(route, { color: '#4a90e2', weight: 4 }).addTo(map);
+  map.fitBounds(routeLayer.getBounds());
+
   if (result.status === 'WARNING') {
-    color = 'red';
     const names = result.zones.map(z => z.name).join(', ');
     const msg = `⚠️ Route kreuzt Sperrzone: ${names}`;
     document.getElementById('zone-warning-text').textContent = msg;
     document.getElementById('zone-warning-text-small').textContent = msg;
     document.getElementById('zone-warning-modal').style.display = 'flex';
+
+    const intersections = result.zones.map(z => z.intersection).filter(Boolean);
+    if (intersections.length > 0) {
+      conflictLayer = L.layerGroup(
+        intersections.map(geom => L.geoJSON(geom, { color: '#e05252', weight: 5 }))
+      ).addTo(map);
+    }
   }
-  if (routeLayer) { routeLayer.remove(); }
-  routeLayer = L.geoJSON(route, { color }).addTo(map);
-  map.fitBounds(routeLayer.getBounds());
 };
 
 async function checkRoute(route) {

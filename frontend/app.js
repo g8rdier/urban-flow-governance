@@ -21,6 +21,10 @@ let endMarker = null;
 let routeLayer = null;
 let conflictLayer = null;
 let zonesVisible = false;
+let isRouteDrawing = false;
+let routeDrawVertices = [];
+let routeDrawMarkers = [];
+let routeDrawPolyline = null;
 let currentEditZoneId = null;
 
 // Auth
@@ -440,13 +444,54 @@ function setRouteMarker(lat, lon, type) {
   }
 }
 
-async function reverseGeocode(lat, lng) {
-  try {
-    const res = await fetch(`${window.NOMINATIM_URL}/reverse?lat=${lat}&lon=${lng}&format=json`);
-    const data = await res.json();
-    return data.display_name || `${lat.toFixed(5)}, ${lng.toFixed(5)}`;
-  } catch {
-    return `${lat.toFixed(5)}, ${lng.toFixed(5)}`;
+// Route drawing mode
+window.startRouteDrawing = function () {
+  isRouteDrawing = true;
+  routeDrawVertices = [];
+  routeDrawMarkers.forEach(m => m.remove());
+  routeDrawMarkers = [];
+  if (routeDrawPolyline) { routeDrawPolyline.remove(); routeDrawPolyline = null; }
+  document.getElementById('route-draw-btn').style.display = 'none';
+  document.getElementById('route-draw-active').style.display = '';
+  map.getContainer().style.cursor = 'crosshair';
+};
+
+window.cancelRouteDrawing = function () {
+  isRouteDrawing = false;
+  routeDrawVertices = [];
+  routeDrawMarkers.forEach(m => m.remove());
+  routeDrawMarkers = [];
+  if (routeDrawPolyline) { routeDrawPolyline.remove(); routeDrawPolyline = null; }
+  document.getElementById('route-draw-btn').style.display = '';
+  document.getElementById('route-draw-active').style.display = 'none';
+  map.getContainer().style.cursor = '';
+};
+
+async function finishRouteDrawing() {
+  if (routeDrawVertices.length < 2) return;
+  cancelRouteDrawing();
+  const waypoints = routeDrawVertices.map(([lat, lng]) => `${lng},${lat}`).join(';');
+  const url = `${window.OSRM_URL}/route/v1/driving/${waypoints}?overview=full&geometries=geojson`;
+  const data = await (await fetch(url)).json();
+  if (!data.routes || !data.routes.length) { alert('Keine Route gefunden'); return; }
+  const route = data.routes[0].geometry;
+  const result = await checkRoute(route);
+  document.getElementById('zone-warning').style.display = 'none';
+  document.getElementById('zone-warning-modal').style.display = 'none';
+  if (conflictLayer) { conflictLayer.remove(); conflictLayer = null; }
+  if (routeLayer) { routeLayer.remove(); }
+  routeLayer = L.geoJSON(route, { color: '#4a90e2', weight: 4 }).addTo(map);
+  map.fitBounds(routeLayer.getBounds());
+  if (result.status === 'WARNING') {
+    const names = result.zones.map(z => z.name).join(', ');
+    const msg = `⚠️ Route kreuzt Sperrzone: ${names}`;
+    document.getElementById('zone-warning-text').textContent = msg;
+    document.getElementById('zone-warning-text-small').textContent = msg;
+    document.getElementById('zone-warning-modal').style.display = 'flex';
+    const intersections = result.zones.map(z => z.intersection).filter(Boolean);
+    if (intersections.length) {
+      conflictLayer = L.layerGroup(intersections.map(g => L.geoJSON(g, { color: '#e05252', weight: 5 }))).addTo(map);
+    }
   }
 }
 
@@ -460,32 +505,34 @@ map.on('click', function (e) {
     updateDrawPolyline();
     return;
   }
-  const popup = L.popup({ closeButton: false, className: 'map-pick-popup' })
-    .setLatLng([lat, lng])
-    .setContent(`
-      <button onclick="pickMapPoint(${lat}, ${lng}, 'start')">Als Start</button>
-      <button onclick="pickMapPoint(${lat}, ${lng}, 'end')">Als Ziel</button>
-    `)
-    .openOn(map);
+  if (isRouteDrawing) {
+    routeDrawVertices.push([lat, lng]);
+    const m = L.circleMarker([lat, lng], { radius: 4, color: '#4a90e2', fillColor: '#4a90e2', fillOpacity: 1, weight: 1 }).addTo(map);
+    routeDrawMarkers.push(m);
+    if (routeDrawPolyline) routeDrawPolyline.remove();
+    if (routeDrawVertices.length > 1) {
+      routeDrawPolyline = L.polyline(routeDrawVertices, { color: '#4a90e2', dashArray: '5 5', weight: 2 }).addTo(map);
+    }
+  }
 });
 
-window.pickMapPoint = async function (lat, lng, type) {
-  map.closePopup();
-  const address = await reverseGeocode(lat, lng);
-  document.getElementById(type === 'start' ? 'start' : 'end').value = address;
-  setRouteMarker(lat, lng, type);
-  if (type === 'start') startCoords = { lat, lon: lng };
-  else endCoords = { lat, lon: lng };
-  if (startCoords && endCoords) calculateRoute();
-};
-
 map.on('dblclick', function (e) {
-  if (!isDrawing) return;
-  // dblclick fires two preceding click events — remove those 2 extra vertices and markers
-  drawVertices.splice(-2, 2);
-  drawMarkers.splice(-2).forEach(m => m.remove());
-  updateDrawPolyline();
-  if (drawVertices.length >= 3) finishDrawing();
+  if (isDrawing) {
+    drawVertices.splice(-2, 2);
+    drawMarkers.splice(-2).forEach(m => m.remove());
+    updateDrawPolyline();
+    if (drawVertices.length >= 3) finishDrawing();
+    return;
+  }
+  if (isRouteDrawing) {
+    routeDrawVertices.splice(-2, 2);
+    routeDrawMarkers.splice(-2).forEach(m => m.remove());
+    if (routeDrawPolyline) { routeDrawPolyline.remove(); routeDrawPolyline = null; }
+    if (routeDrawVertices.length > 1) {
+      routeDrawPolyline = L.polyline(routeDrawVertices, { color: '#4a90e2', dashArray: '5 5', weight: 2 }).addTo(map);
+    }
+    finishRouteDrawing();
+  }
 });
 
 // Autocomplete

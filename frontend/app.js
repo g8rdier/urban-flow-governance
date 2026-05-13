@@ -469,8 +469,9 @@ window.cancelRouteDrawing = function () {
 
 async function finishRouteDrawing() {
   if (routeDrawVertices.length < 2) return;
+  const vertices = [...routeDrawVertices];
   cancelRouteDrawing();
-  const waypoints = routeDrawVertices.map(([lat, lng]) => `${lng},${lat}`).join(';');
+  const waypoints = vertices.map(([lat, lng]) => `${lng},${lat}`).join(';');
   const url = `${window.OSRM_URL}/route/v1/driving/${waypoints}?overview=full&geometries=geojson`;
   const data = await (await fetch(url)).json();
   if (!data.routes || !data.routes.length) { alert('Keine Route gefunden'); return; }

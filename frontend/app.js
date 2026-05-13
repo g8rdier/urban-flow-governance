@@ -464,10 +464,24 @@ function setSelectionMarker(lat, lon) {
 function setRouteMarker(lat, lon, type) {
   if (type === 'start') {
     if (startMarker) startMarker.remove();
-    startMarker = L.marker([lat, lon]).addTo(map);
+    startMarker = L.marker([lat, lon], { draggable: true }).addTo(map);
+    startMarker.on('dragend', async function () {
+      const pos = startMarker.getLatLng();
+      startCoords = { lat: pos.lat, lon: pos.lng };
+      const place = await reverseGeocode(pos.lat, pos.lng);
+      if (place) document.getElementById('start').value = place;
+      doRouting();
+    });
   } else {
     if (endMarker) endMarker.remove();
-    endMarker = L.marker([lat, lon]).addTo(map);
+    endMarker = L.marker([lat, lon], { draggable: true }).addTo(map);
+    endMarker.on('dragend', async function () {
+      const pos = endMarker.getLatLng();
+      endCoords = { lat: pos.lat, lon: pos.lng };
+      const place = await reverseGeocode(pos.lat, pos.lng);
+      if (place) document.getElementById('end').value = place;
+      doRouting();
+    });
   }
 }
 

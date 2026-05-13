@@ -366,6 +366,29 @@ async function geocode(address) {
   return { lat: parseFloat(data[0].lat), lon: parseFloat(data[0].lon) };
 }
 
+function formatDuration(seconds) {
+  const mins = Math.round(seconds / 60);
+  if (mins < 60) return `${mins} Min`;
+  const h = Math.floor(mins / 60);
+  const m = mins % 60;
+  return m > 0 ? `${h} h ${m} Min` : `${h} h`;
+}
+
+function formatDistance(meters) {
+  if (meters < 1000) return `${Math.round(meters)} m`;
+  return `${(meters / 1000).toFixed(1)} km`;
+}
+
+function showRouteInfo(distanceMeters, drivingSeconds) {
+  const bikeSeconds = (distanceMeters / 1000) / 15 * 3600;
+  const walkSeconds = (distanceMeters / 1000) / 5 * 3600;
+  document.getElementById('route-info-distance').textContent = formatDistance(distanceMeters);
+  document.getElementById('route-time-car').textContent = formatDuration(drivingSeconds);
+  document.getElementById('route-time-bike').textContent = formatDuration(bikeSeconds);
+  document.getElementById('route-time-walk').textContent = formatDuration(walkSeconds);
+  document.getElementById('route-info').style.display = '';
+}
+
 // Route
 async function doRouting() {
   if (!startCoords || !endCoords) return;
@@ -373,11 +396,12 @@ async function doRouting() {
   const res = await fetch(url);
   const data = await res.json();
   if (!data.routes || data.routes.length === 0) { alert('Keine Route gefunden'); return; }
-  const route = data.routes[0].geometry;
+  const { geometry: route, distance, duration } = data.routes[0];
   if (conflictLayer) { conflictLayer.remove(); conflictLayer = null; }
   if (routeLayer) { routeLayer.remove(); }
   routeLayer = L.geoJSON(route, { color: '#4a90e2', weight: 4 }).addTo(map);
   map.fitBounds(routeLayer.getBounds());
+  showRouteInfo(distance, duration);
   document.getElementById('zone-warning').style.display = 'none';
   document.getElementById('zone-warning-modal').style.display = 'none';
   try {

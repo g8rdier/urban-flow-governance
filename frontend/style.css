@@ -221,19 +221,6 @@ body {
   border-color: #4a90e2;
 }
 
-/* Legend */
-
-#zone-legend {
-  display: flex;
-  flex-direction: column;
-  gap: 5px;
-}
-
-#zone-legend span {
-  display: flex;
-  align-items: center;
-  color: var(--text-secondary);
-}
 
 .legend-dot {
   display: inline-block;

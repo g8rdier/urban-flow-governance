@@ -357,7 +357,15 @@ window.calculateRoute = async function () {
   const route = data.routes[0].geometry;
   const result = await checkRoute(route);
   let color = 'green';
-  if (result.status === 'WARNING') { color = 'red'; alert('⚠️ Route kreuzt Sperrzone!'); }
+  const warning = document.getElementById('zone-warning');
+  if (result.status === 'WARNING') {
+    color = 'red';
+    const names = result.zones.map(z => z.name).join(', ');
+    document.getElementById('zone-warning-text').textContent = `⚠️ Route kreuzt Sperrzone: ${names}`;
+    warning.style.display = 'flex';
+  } else {
+    warning.style.display = 'none';
+  }
   if (routeLayer) { routeLayer.remove(); }
   routeLayer = L.geoJSON(route, { color }).addTo(map);
   map.fitBounds(routeLayer.getBounds());

@@ -357,14 +357,15 @@ window.calculateRoute = async function () {
   const route = data.routes[0].geometry;
   const result = await checkRoute(route);
   let color = 'green';
-  const warning = document.getElementById('zone-warning');
+  document.getElementById('zone-warning').style.display = 'none';
+  document.getElementById('zone-warning-modal').style.display = 'none';
   if (result.status === 'WARNING') {
     color = 'red';
     const names = result.zones.map(z => z.name).join(', ');
-    document.getElementById('zone-warning-text').textContent = `⚠️ Route kreuzt Sperrzone: ${names}`;
-    warning.style.display = 'flex';
-  } else {
-    warning.style.display = 'none';
+    const msg = `⚠️ Route kreuzt Sperrzone: ${names}`;
+    document.getElementById('zone-warning-text').textContent = msg;
+    document.getElementById('zone-warning-text-small').textContent = msg;
+    document.getElementById('zone-warning-modal').style.display = 'flex';
   }
   if (routeLayer) { routeLayer.remove(); }
   routeLayer = L.geoJSON(route, { color }).addTo(map);
@@ -379,6 +380,11 @@ async function checkRoute(route) {
   });
   return (await res.json()).data;
 }
+
+window.dismissZoneWarning = function () {
+  document.getElementById('zone-warning-modal').style.display = 'none';
+  document.getElementById('zone-warning').style.display = 'flex';
+};
 
 // Markers
 function setSelectionMarker(lat, lon) {

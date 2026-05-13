@@ -89,6 +89,27 @@
       </div>
     </div>
 
+    <div id="route-info" style="display:none">
+      <div id="route-info-distance"></div>
+      <div id="route-info-modes">
+        <div class="route-mode-cell">
+          <span class="route-mode-icon">🚗</span>
+          <span class="route-mode-time" id="route-time-car"></span>
+          <span class="route-mode-label">Auto</span>
+        </div>
+        <div class="route-mode-cell">
+          <span class="route-mode-icon">🚲</span>
+          <span class="route-mode-time" id="route-time-bike"></span>
+          <span class="route-mode-label">Fahrrad</span>
+        </div>
+        <div class="route-mode-cell">
+          <span class="route-mode-icon">🚶</span>
+          <span class="route-mode-time" id="route-time-walk"></span>
+          <span class="route-mode-label">Zu Fuß</span>
+        </div>
+      </div>
+    </div>
+
     <div class="button-group">
       <button id="zones-toggle-btn" onclick="toggleZones()">Aktive Zonen anzeigen</button>
       <button onclick="logout()">Logout</button>

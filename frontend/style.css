@@ -630,4 +630,58 @@ button {
 
 .btn-activate   { background: #4a90e2; color: #fff; }
 .btn-deactivate { background: #e09a3a; color: #fff; }
+.btn-edit       { background: #6c757d; color: #fff; }
 .btn-delete     { background: #e05252; color: #fff; }
+
+/* Route info */
+
+#route-info {
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  overflow: hidden;
+  background: var(--bg-elevated);
+  box-shadow: 0 1px 4px var(--shadow);
+}
+
+#route-info-distance {
+  padding: 0.5rem 0.85rem;
+  font-size: 0.95rem;
+  font-weight: 700;
+  color: var(--text-heading);
+  border-bottom: 1px solid var(--border);
+}
+
+#route-info-modes {
+  display: grid;
+  grid-template-columns: 1fr 1fr 1fr;
+}
+
+.route-mode-cell {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.15rem;
+  padding: 0.6rem 0.4rem;
+  border-right: 1px solid var(--border);
+}
+
+.route-mode-cell:last-child {
+  border-right: none;
+}
+
+.route-mode-icon {
+  font-size: 1.1rem;
+  line-height: 1;
+}
+
+.route-mode-time {
+  font-size: 0.82rem;
+  font-weight: 600;
+  color: var(--text);
+  white-space: nowrap;
+}
+
+.route-mode-label {
+  font-size: 0.68rem;
+  color: var(--text-muted);
+}

@@ -18,6 +18,7 @@ let endCoords = null;
 let selectionMarker = null;
 let startMarker = null;
 let endMarker = null;
+let routeLayer = null;
 let currentEditZoneId = null;
 
 // Auth
@@ -378,7 +379,8 @@ window.drawRoute = async function () {
   const result = await checkRoute(route);
   let color = 'green';
   if (result.status === 'WARNING') { color = 'red'; alert('⚠️ Route kreuzt Sperrzone!'); }
-  L.geoJSON(route, { color }).addTo(map);
+  if (routeLayer) { routeLayer.remove(); }
+  routeLayer = L.geoJSON(route, { color }).addTo(map);
 };
 
 // Markers

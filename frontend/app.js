@@ -353,8 +353,13 @@ window.calculateRoute = async function () {
   const res = await fetch(url);
   const data = await res.json();
   if (!data.routes || data.routes.length === 0) { alert('Keine Route gefunden'); return; }
+
+  const route = data.routes[0].geometry;
+  const result = await checkRoute(route);
+  let color = 'green';
+  if (result.status === 'WARNING') { color = 'red'; alert('⚠️ Route kreuzt Sperrzone!'); }
   if (routeLayer) { routeLayer.remove(); }
-  routeLayer = L.geoJSON(data.routes[0].geometry, { color: 'green' }).addTo(map);
+  routeLayer = L.geoJSON(route, { color }).addTo(map);
   map.fitBounds(routeLayer.getBounds());
 };
 
@@ -366,23 +371,6 @@ async function checkRoute(route) {
   });
   return (await res.json()).data;
 }
-
-window.drawRoute = async function () {
-  const start = await geocode(document.getElementById('start').value);
-  const end = await geocode(document.getElementById('end').value);
-  if (!start || !end) return;
-
-  const url = `${window.OSRM_URL}/route/v1/driving/${start.lon},${start.lat};${end.lon},${end.lat}?overview=full&geometries=geojson`;
-  const data = await (await fetch(url)).json();
-  if (!data.routes || data.routes.length === 0) { alert('Keine Route gefunden'); return; }
-
-  const route = data.routes[0].geometry;
-  const result = await checkRoute(route);
-  let color = 'green';
-  if (result.status === 'WARNING') { color = 'red'; alert('⚠️ Route kreuzt Sperrzone!'); }
-  if (routeLayer) { routeLayer.remove(); }
-  routeLayer = L.geoJSON(route, { color }).addTo(map);
-};
 
 // Markers
 function setSelectionMarker(lat, lon) {

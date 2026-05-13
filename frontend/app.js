@@ -21,10 +21,6 @@ let endMarker = null;
 let routeLayer = null;
 let conflictLayer = null;
 let zonesVisible = false;
-let isRouteDrawing = false;
-let routeDrawVertices = [];
-let routeDrawMarkers = [];
-let routeDrawPolyline = null;
 let currentEditZoneId = null;
 
 // Auth
@@ -371,47 +367,46 @@ async function geocode(address) {
 }
 
 // Route
-window.calculateRoute = async function () {
-  const startInput = document.getElementById('start').value;
-  const endInput = document.getElementById('end').value;
-  if (!startInput || !endInput) return;
-
-  startCoords = await geocode(startInput);
-  if (!startCoords) return;
-  setRouteMarker(startCoords.lat, startCoords.lon, 'start');
-
-  endCoords = await geocode(endInput);
-  if (!endCoords) return;
-  setRouteMarker(endCoords.lat, endCoords.lon, 'end');
-
+async function doRouting() {
+  if (!startCoords || !endCoords) return;
   const url = `${window.OSRM_URL}/route/v1/driving/${startCoords.lon},${startCoords.lat};${endCoords.lon},${endCoords.lat}?overview=full&geometries=geojson`;
   const res = await fetch(url);
   const data = await res.json();
   if (!data.routes || data.routes.length === 0) { alert('Keine Route gefunden'); return; }
-
   const route = data.routes[0].geometry;
-  const result = await checkRoute(route);
-  document.getElementById('zone-warning').style.display = 'none';
-  document.getElementById('zone-warning-modal').style.display = 'none';
   if (conflictLayer) { conflictLayer.remove(); conflictLayer = null; }
   if (routeLayer) { routeLayer.remove(); }
   routeLayer = L.geoJSON(route, { color: '#4a90e2', weight: 4 }).addTo(map);
   map.fitBounds(routeLayer.getBounds());
-
-  if (result.status === 'WARNING') {
-    const names = result.zones.map(z => z.name).join(', ');
-    const msg = `⚠️ Route kreuzt Sperrzone: ${names}`;
-    document.getElementById('zone-warning-text').textContent = msg;
-    document.getElementById('zone-warning-text-small').textContent = msg;
-    document.getElementById('zone-warning-modal').style.display = 'flex';
-
-    const intersections = result.zones.map(z => z.intersection).filter(Boolean);
-    if (intersections.length > 0) {
-      conflictLayer = L.layerGroup(
-        intersections.map(geom => L.geoJSON(geom, { color: '#e05252', weight: 5 }))
-      ).addTo(map);
+  document.getElementById('zone-warning').style.display = 'none';
+  document.getElementById('zone-warning-modal').style.display = 'none';
+  try {
+    const result = await checkRoute(route);
+    if (result?.status === 'WARNING') {
+      const names = result.zones.map(z => z.name).join(', ');
+      const msg = `⚠️ Route kreuzt Sperrzone: ${names}`;
+      document.getElementById('zone-warning-text').textContent = msg;
+      document.getElementById('zone-warning-text-small').textContent = msg;
+      document.getElementById('zone-warning-modal').style.display = 'flex';
+      const intersections = result.zones.map(z => z.intersection).filter(Boolean);
+      if (intersections.length) {
+        conflictLayer = L.layerGroup(intersections.map(g => L.geoJSON(g, { color: '#e05252', weight: 5 }))).addTo(map);
+      }
     }
-  }
+  } catch { /* zone check failed, route still shown */ }
+}
+
+window.calculateRoute = async function () {
+  const startInput = document.getElementById('start').value;
+  const endInput = document.getElementById('end').value;
+  if (!startInput || !endInput) return;
+  startCoords = await geocode(startInput);
+  if (!startCoords) return;
+  setRouteMarker(startCoords.lat, startCoords.lon, 'start');
+  endCoords = await geocode(endInput);
+  if (!endCoords) return;
+  setRouteMarker(endCoords.lat, endCoords.lon, 'end');
+  await doRouting();
 };
 
 async function checkRoute(route) {
@@ -421,6 +416,14 @@ async function checkRoute(route) {
     body: JSON.stringify({ route: route.coordinates.map(([lng, lat]) => [lat, lng]) })
   });
   return (await res.json()).data;
+}
+
+async function reverseGeocode(lat, lon) {
+  try {
+    const res = await fetch(`${window.NOMINATIM_URL}/reverse?lat=${lat}&lon=${lon}&format=json`);
+    const data = await res.json();
+    return data.display_name || null;
+  } catch { return null; }
 }
 
 window.dismissZoneWarning = function () {
@@ -444,65 +447,8 @@ function setRouteMarker(lat, lon, type) {
   }
 }
 
-// Route drawing mode
-window.startRouteDrawing = function () {
-  isRouteDrawing = true;
-  routeDrawVertices = [];
-  routeDrawMarkers.forEach(m => m.remove());
-  routeDrawMarkers = [];
-  if (routeDrawPolyline) { routeDrawPolyline.remove(); routeDrawPolyline = null; }
-  document.getElementById('route-draw-btn').style.display = 'none';
-  document.getElementById('route-draw-active').style.display = '';
-  map.getContainer().style.cursor = 'crosshair';
-};
-
-window.cancelRouteDrawing = function () {
-  isRouteDrawing = false;
-  routeDrawVertices = [];
-  routeDrawMarkers.forEach(m => m.remove());
-  routeDrawMarkers = [];
-  if (routeDrawPolyline) { routeDrawPolyline.remove(); routeDrawPolyline = null; }
-  document.getElementById('route-draw-btn').style.display = '';
-  document.getElementById('route-draw-active').style.display = 'none';
-  map.getContainer().style.cursor = '';
-};
-
-async function finishRouteDrawing() {
-  if (routeDrawVertices.length < 2) return;
-  const vertices = [...routeDrawVertices];
-  cancelRouteDrawing();
-  const waypoints = vertices.map(([lat, lng]) => `${lng},${lat}`).join(';');
-  const url = `${window.OSRM_URL}/route/v1/driving/${waypoints}?overview=full&geometries=geojson`;
-  let data;
-  try { data = await (await fetch(url)).json(); } catch { alert('Route konnte nicht berechnet werden.'); return; }
-  if (!data.routes || !data.routes.length) { alert('Keine Route gefunden'); return; }
-  const route = data.routes[0].geometry;
-
-  if (conflictLayer) { conflictLayer.remove(); conflictLayer = null; }
-  if (routeLayer) { routeLayer.remove(); }
-  routeLayer = L.geoJSON(route, { color: '#4a90e2', weight: 4 }).addTo(map);
-  map.fitBounds(routeLayer.getBounds());
-  document.getElementById('zone-warning').style.display = 'none';
-  document.getElementById('zone-warning-modal').style.display = 'none';
-
-  try {
-    const result = await checkRoute(route);
-    if (result?.status === 'WARNING') {
-      const names = result.zones.map(z => z.name).join(', ');
-      const msg = `⚠️ Route kreuzt Sperrzone: ${names}`;
-      document.getElementById('zone-warning-text').textContent = msg;
-      document.getElementById('zone-warning-text-small').textContent = msg;
-      document.getElementById('zone-warning-modal').style.display = 'flex';
-      const intersections = result.zones.map(z => z.intersection).filter(Boolean);
-      if (intersections.length) {
-        conflictLayer = L.layerGroup(intersections.map(g => L.geoJSON(g, { color: '#e05252', weight: 5 }))).addTo(map);
-      }
-    }
-  } catch { /* zone check failed, route still shown */ }
-}
-
 // Map events
-map.on('click', function (e) {
+map.on('click', async function (e) {
   const { lat, lng } = e.latlng;
   if (isDrawing) {
     drawVertices.push([lat, lng]);
@@ -511,33 +457,29 @@ map.on('click', function (e) {
     updateDrawPolyline();
     return;
   }
-  if (isRouteDrawing) {
-    routeDrawVertices.push([lat, lng]);
-    const m = L.circleMarker([lat, lng], { radius: 4, color: '#4a90e2', fillColor: '#4a90e2', fillOpacity: 1, weight: 1 }).addTo(map);
-    routeDrawMarkers.push(m);
-    if (routeDrawPolyline) routeDrawPolyline.remove();
-    if (routeDrawVertices.length > 1) {
-      routeDrawPolyline = L.polyline(routeDrawVertices, { color: '#4a90e2', dashArray: '5 5', weight: 2 }).addTo(map);
-    }
+  if (document.getElementById('user-panel').style.display === 'none') return;
+  const place = await reverseGeocode(lat, lng);
+  if (!place) return;
+  const startInput = document.getElementById('start');
+  const endInput = document.getElementById('end');
+  if (!startInput.value) {
+    startInput.value = place;
+    startCoords = { lat, lon: lng };
+    setRouteMarker(lat, lng, 'start');
+  } else {
+    endInput.value = place;
+    endCoords = { lat, lon: lng };
+    setRouteMarker(lat, lng, 'end');
+    doRouting();
   }
 });
 
-map.on('dblclick', function (e) {
+map.on('dblclick', function () {
   if (isDrawing) {
     drawVertices.splice(-2, 2);
     drawMarkers.splice(-2).forEach(m => m.remove());
     updateDrawPolyline();
     if (drawVertices.length >= 3) finishDrawing();
-    return;
-  }
-  if (isRouteDrawing) {
-    routeDrawVertices.splice(-2, 2);
-    routeDrawMarkers.splice(-2).forEach(m => m.remove());
-    if (routeDrawPolyline) { routeDrawPolyline.remove(); routeDrawPolyline = null; }
-    if (routeDrawVertices.length > 1) {
-      routeDrawPolyline = L.polyline(routeDrawVertices, { color: '#4a90e2', dashArray: '5 5', weight: 2 }).addTo(map);
-    }
-    finishRouteDrawing();
   }
 });
 

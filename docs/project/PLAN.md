@@ -32,7 +32,6 @@ kanban
 
   InProgress[In Bearbeitung]
     i1["US-1.2 Sperrzone bearbeiten — Frontend (Elizat)"]
-    i2["US-3.3 Route-Konflikt visuell hervorheben (Gregor)"]
 
   Review
 
@@ -67,6 +66,10 @@ kanban
     e8["US-5.1 Aktive Zonen anzeigen (Gregor)"]
     e9["UI-Verbesserungen Sidebar/Buttons (Gregor)"]
     e10["Deployment Pipeline post-receive Server (Gregor)"]
+    e11["US-3.3 Route-Konflikt visuell hervorheben (Gregor)"]
+    e12["Einklappbare Sidebar (Gregor)"]
+    e13["Zone-Warning Modal (Gregor)"]
+    e14["Nur aktive Zonen fuer Nutzer (Gregor)"]
 ```
 
 ## Kommentare
@@ -84,7 +87,7 @@ kanban
 | US-1.2 | Backend fertig (update-Endpoint + Integrationstest grün); Frontend-Integration ausstehend |
 | US-1.3 | delete-Endpoint + Integrationstest grün; Bestätigungsdialog + Frontend-Integration fertig |
 | US-2.2 | RouteCheckService liefert OK/WARNING mit Zone; In-App Warning-Modal mit "Ignorieren"-Button; Route wird rot eingefärbt |
-| US-3.3 | In Bearbeitung: Backend liefert Schnittgeometrie via JTS intersection(); Frontend zeichnet nur Konflikt-Segment rot, Rest blau |
+| US-3.3 | Backend liefert Schnittgeometrie via JTS intersection(); Route blau, Konflikt-Segment rot; Warning-Modal zentriert mit "Ignorieren" → Banner in Sidebar |
 | US-7.1 | Login-Frontend fertig und in Prod; Fehlermeldungen für falschen Benutzernamen und falsches Passwort; Bearer-Token in localStorage |
 | US-7.2 | Backend fertig; Logout-Button in Nutzer- und Admin-Panel fertig |
 | US-7.3 | Backend fertig (TOKEN_TTL_MINUTES); kein Frontend-Feedback bei abgelaufener Session |
@@ -95,7 +98,8 @@ kanban
 | Start/Ziel tauschen | Swap-Button zwischen Start/Ziel per getBoundingClientRect() zentriert; tauscht Werte, Koordinaten und Marker |
 | Deployment Pipeline | pre-push Hook deployt frontend/ via SCP auf Apache automatisch bei Push auf main |
 | Deployment Pipeline post-receive | server-seitiger post-receive Hook deployt Frontend und Backend automatisch bei Push auf main; nur geänderte Teile werden deployed; ersetzt den lokalen pre-push Hook |
-| UI-Verbesserungen | Inter-Schrift, rundere Buttons (8px), Sidebar-Shadow, Zone-Items mit Shadow; Login-Box aufgewertet |
+| UI-Verbesserungen | Inter-Schrift, rundere Buttons (8px), Sidebar-Shadow, Zone-Items mit Shadow; Login-Box aufgewertet; einklappbare Sidebar mit animiertem Toggle-Button |
+| Aktive Zonen Nutzer | Nutzer sieht nur ACTIVE Zonen via /api/zones/active; nicht automatisch beim Login, nur auf Klick; Toggle-Button wechselt Label |
 | CORS fix | Grails-natives CORS aktiviert (application.yml); HttpServletResponseWrapper-Filter in Application.groovy entfernt ACAO-Header aus Tomcat-Antwort, damit Apache genau einen setzt; OPTIONS-Preflight im RoleCheckInterceptor abgefangen |
 | Auth-Fehlermeldungen | Login: „Benutzername nicht gefunden" / „Falsches Passwort"; Registrierung: „Benutzername bereits vergeben" |
 

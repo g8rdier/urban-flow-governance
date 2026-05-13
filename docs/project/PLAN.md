@@ -25,7 +25,6 @@ kanban
     b4[US-6.1 Zone-Verlauf ansehen]
 
   ToDo[To Do]
-    t2[US-3.3 Route-Konflikt visuell hervorheben]
     t3[US-3.2 Zone-Details beim Klick anzeigen]
     t5["US-7.3 Session Timeout — Frontend offen"]
     t6["US-8.2 Nutzer loeschen — Frontend offen"]
@@ -33,6 +32,7 @@ kanban
 
   InProgress[In Bearbeitung]
     i1["US-1.2 Sperrzone bearbeiten — Frontend (Elizat)"]
+    i2["US-3.3 Route-Konflikt visuell hervorheben (Gregor)"]
 
   Review
 
@@ -83,9 +83,10 @@ kanban
 | Auth-Scope | Alle Endpoints erhalten @RequiredRoles. GET /api/zones, GET /api/zones/{id}, GET /api/zones/active, POST /api/route/check → ADMIN + NUTZER; schreibende Zone-Endpoints + User-Management → ADMIN |
 | US-1.2 | Backend fertig (update-Endpoint + Integrationstest grün); Frontend-Integration ausstehend |
 | US-1.3 | delete-Endpoint + Integrationstest grün; Bestätigungsdialog + Frontend-Integration fertig |
-| US-2.2 | RouteCheckService liefert OK/WARNING mit Zone + Zeitraum; UI-Darstellung fertig (Alert + rote Route) |
+| US-2.2 | RouteCheckService liefert OK/WARNING mit Zone; In-App Warning-Modal mit "Ignorieren"-Button; Route wird rot eingefärbt |
+| US-3.3 | In Bearbeitung: Backend liefert Schnittgeometrie via JTS intersection(); Frontend zeichnet nur Konflikt-Segment rot, Rest blau |
 | US-7.1 | Login-Frontend fertig und in Prod; Fehlermeldungen für falschen Benutzernamen und falsches Passwort; Bearer-Token in localStorage |
-| US-7.2 | Backend fertig; Logout-Button im Frontend fehlt noch |
+| US-7.2 | Backend fertig; Logout-Button in Nutzer- und Admin-Panel fertig |
 | US-7.3 | Backend fertig (TOKEN_TTL_MINUTES); kein Frontend-Feedback bei abgelaufener Session |
 | US-8.1 | Registrierungs-Frontend fertig und in Prod; Auto-Login nach Registrierung; Fehlermeldung bei vergebenem Benutzernamen |
 | US-8.2 | delete-Endpoint + Integrationstest grün; Frontend-Integration ausstehend |

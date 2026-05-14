@@ -1,7 +1,15 @@
 // Map
 const map = L.map('map', { doubleClickZoom: false }).setView([48.137, 11.576], 13);
 
-L.tileLayer(window.TILES_URL, { maxZoom: 20 }).addTo(map);
+let tileLayer = null;
+function applyTileLayer(theme) {
+  if (tileLayer) tileLayer.remove();
+  tileLayer = L.tileLayer(
+    theme === 'dark' ? window.TILES_DARK : window.TILES_LIGHT,
+    { maxZoom: 20, attribution: window.TILES_ATTR }
+  ).addTo(map);
+}
+applyTileLayer(localStorage.getItem('theme') || 'light');
 
 const zonesLayer = L.layerGroup().addTo(map);
 
@@ -571,6 +579,7 @@ window.toggleTheme = function () {
   const next = document.documentElement.getAttribute('data-theme') === 'dark' ? 'light' : 'dark';
   document.documentElement.setAttribute('data-theme', next);
   localStorage.setItem('theme', next);
+  applyTileLayer(next);
 };
 
 // Init

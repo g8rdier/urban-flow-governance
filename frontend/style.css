@@ -493,10 +493,6 @@ button {
   height: 100vh;
 }
 
-[data-theme="dark"] .leaflet-tile {
-  filter: invert(100%) hue-rotate(180deg);
-}
-
 [data-theme="dark"] .leaflet-container {
   background: #1c1c1e;
 }

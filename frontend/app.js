@@ -604,3 +604,4 @@ function positionSwapButton() {
 }
 
 window.addEventListener('resize', positionSwapButton);
+

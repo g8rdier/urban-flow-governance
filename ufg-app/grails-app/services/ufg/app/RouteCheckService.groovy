@@ -91,7 +91,7 @@ class RouteCheckService {
         for (def zone : intersecting) {
             def env     = zone.geometry.envelopeInternal
             def centroid = zone.geometry.centroid
-            double mx   = Math.max(env.width, env.height) * 0.15 + 0.005
+            double mx   = 0.003
 
             // Exterior ring vertices offset outward from centroid
             List<List<Double>> vertices = (zone.geometry.exteriorRing.coordinates as List)

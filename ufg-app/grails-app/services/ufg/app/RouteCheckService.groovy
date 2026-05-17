@@ -146,9 +146,9 @@ class RouteCheckService {
     private boolean isClearOfZones(List<List<Double>> coords, List<RestrictedZone> zones) {
         LineString route = buildLineString(coords)
         zones.every { zone ->
-            if (!zone.geometry?.intersects(route)) return true
-            // Allow pure point-touches (start/end at boundary); only flag actual line crossings
-            zone.geometry.intersection(route).length < 0.0001
+            // Shrink zone by ~100m so boundary-hugging routes are not flagged
+            def inner = zone.geometry.buffer(-0.001)
+            inner.isEmpty() || !inner.intersects(route)
         }
     }
 

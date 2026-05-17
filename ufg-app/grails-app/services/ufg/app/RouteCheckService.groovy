@@ -89,8 +89,7 @@ class RouteCheckService {
         List<Map> cleanRoutes = []
 
         for (def zone : intersecting) {
-            def env     = zone.geometry.envelopeInternal
-            def centroid = zone.geometry.centroid
+            def env      = zone.geometry.envelopeInternal
             // Exterior ring vertices offset slightly outward so OSRM snaps to roads outside the zone
             def centroid = zone.geometry.centroid
             double mx = 0.001

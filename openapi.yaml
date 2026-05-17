@@ -611,3 +611,57 @@ paths:
                                   type: string
         '400':
           description: Route fehlt oder hat weniger als 2 Punkte
+
+  /api/route/alternative:
+    post:
+      summary: Zonenfreie Alternativroute berechnen
+      tags: [Routen]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [start, end]
+              properties:
+                start:
+                  type: array
+                  minItems: 2
+                  maxItems: 2
+                  items:
+                    type: number
+                  example: [48.137, 11.576]
+                end:
+                  type: array
+                  minItems: 2
+                  maxItems: 2
+                  items:
+                    type: number
+                  example: [48.15, 11.59]
+      responses:
+        '200':
+          description: Erste zonenfreie Alternativroute oder NONE_FOUND
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/ApiResponse'
+                  - type: object
+                    properties:
+                      data:
+                        type: object
+                        properties:
+                          status:
+                            type: string
+                            enum: [OK, NONE_FOUND, ERROR]
+                          geometry:
+                            type: object
+                            description: GeoJSON LineString der Route
+                          distance:
+                            type: number
+                            description: Distanz in Metern
+                          duration:
+                            type: number
+                            description: Fahrtzeit in Sekunden
+        '400':
+          description: start oder end fehlen

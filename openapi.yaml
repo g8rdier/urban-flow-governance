@@ -665,3 +665,4 @@ paths:
                             description: Fahrtzeit in Sekunden
         '400':
           description: start oder end fehlen
+

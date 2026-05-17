@@ -95,10 +95,14 @@ class RouteCheckService {
             double midLon = (env.minX + env.maxX) / 2
 
             List<List<Double>> candidates = [
-                [env.maxY + mx, midLon],
-                [env.minY - mx, midLon],
-                [midLat,        env.maxX + mx],
-                [midLat,        env.minX - mx],
+                [env.maxY + mx, midLon         ],  // N
+                [env.maxY + mx, env.maxX + mx  ],  // NE
+                [midLat,        env.maxX + mx  ],  // E
+                [env.minY - mx, env.maxX + mx  ],  // SE
+                [env.minY - mx, midLon         ],  // S
+                [env.minY - mx, env.minX - mx  ],  // SW
+                [midLat,        env.minX - mx  ],  // W
+                [env.maxY + mx, env.minX - mx  ],  // NW
             ]
 
             for (def wp : candidates) {

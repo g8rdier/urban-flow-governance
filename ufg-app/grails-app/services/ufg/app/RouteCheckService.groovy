@@ -91,10 +91,20 @@ class RouteCheckService {
         for (def zone : intersecting) {
             def env     = zone.geometry.envelopeInternal
             def centroid = zone.geometry.centroid
-            // Exterior ring vertices used directly as waypoints — OSRM snaps to nearest road
+            // Exterior ring vertices offset slightly outward so OSRM snaps to roads outside the zone
+            def centroid = zone.geometry.centroid
+            double mx = 0.001
             List<List<Double>> vertices = (zone.geometry.exteriorRing.coordinates as List)
                 .init()
-                .collect { coord -> [coord.y as double, coord.x as double] }
+                .collect { coord ->
+                    double dlat = coord.y - centroid.y
+                    double dlon = coord.x - centroid.x
+                    double dist = Math.sqrt(dlat * dlat + dlon * dlon)
+                    if (dist < 0.0001) return null
+                    double scale = (dist + mx) / dist
+                    [centroid.y + dlat * scale, centroid.x + dlon * scale]
+                }
+                .findAll { it != null }
 
             List<RestrictedZone> activeZones = RestrictedZone.findAllByStatus("ACTIVE")
 
@@ -102,10 +112,10 @@ class RouteCheckService {
             double midLat = (env.minY + env.maxY) / 2
             double midLon = (env.minX + env.maxX) / 2
             List<List<Double>> singles = vertices + [
-                [env.maxY, midLon],
-                [env.minY, midLon],
-                [midLat,   env.maxX],
-                [midLat,   env.minX],
+                [env.maxY + mx, midLon],
+                [env.minY - mx, midLon],
+                [midLat,        env.maxX + mx],
+                [midLat,        env.minX - mx],
             ]
             for (def wp : singles) {
                 def d = callOsrm(osrmBase, [start, wp, end], false)

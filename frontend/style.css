@@ -334,6 +334,28 @@ body {
   background: rgba(240, 180, 41, 0.2);
 }
 
+.modal-btn-row {
+  display: flex;
+  gap: 0.6rem;
+  justify-content: center;
+  flex-wrap: wrap;
+}
+
+#alt-route-btn {
+  background: #27ae60;
+  border-color: #27ae60;
+  color: #fff;
+}
+
+#alt-route-btn:hover {
+  background: #219a52;
+}
+
+#alt-route-btn:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
 .legend-dot {
   display: inline-block;
   width: 9px;

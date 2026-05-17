@@ -463,6 +463,45 @@ window.dismissZoneWarning = function () {
   document.getElementById('zone-warning').style.display = 'flex';
 };
 
+window.requestAlternativeRoute = async function () {
+  const btn = document.getElementById('alt-route-btn');
+  const warningText = document.getElementById('zone-warning-text');
+  btn.disabled = true;
+  btn.textContent = 'Suche...';
+
+  try {
+    const url = `${window.OSRM_URL}/route/v1/driving/${startCoords.lon},${startCoords.lat};${endCoords.lon},${endCoords.lat}?overview=full&geometries=geojson&alternatives=true`;
+    const res = await fetch(url);
+    const data = await res.json();
+
+    if (!data.routes || data.routes.length === 0) {
+      warningText.textContent = '⚠️ Keine alternative Route gefunden.';
+      return;
+    }
+
+    for (const route of data.routes) {
+      const result = await checkRoute(route.geometry);
+      if (result?.status === 'OK') {
+        if (conflictLayer) { conflictLayer.remove(); conflictLayer = null; }
+        if (routeLayer) routeLayer.remove();
+        routeLayer = L.geoJSON(route.geometry, { color: '#27ae60', weight: 4 }).addTo(map);
+        map.fitBounds(routeLayer.getBounds());
+        showRouteInfo(route.distance, route.duration);
+        document.getElementById('zone-warning-modal').style.display = 'none';
+        document.getElementById('zone-warning').style.display = 'none';
+        return;
+      }
+    }
+
+    warningText.textContent = '⚠️ Keine zonenfreie Alternative gefunden.';
+  } catch {
+    warningText.textContent = '⚠️ Fehler bei der Routenberechnung.';
+  } finally {
+    btn.disabled = false;
+    btn.textContent = 'Route umberechnen';
+  }
+};
+
 // Markers
 function setSelectionMarker(lat, lon) {
   if (selectionMarker) selectionMarker.remove();

@@ -84,7 +84,10 @@ class RouteCheckService {
         List<RestrictedZone> intersecting = RestrictedZone.findAllByStatus("ACTIVE")
             .findAll { it.geometry?.intersects(mainRoute) }
 
-        // Step 3: try waypoints around each blocking zone (N/S/E/W of bounding box)
+        // Step 3: try waypoints around each blocking zone (N/S/E/W of bounding box),
+        // collect all zone-free candidates and return the shortest one
+        List<Map> cleanRoutes = []
+
         for (def zone : intersecting) {
             def env = zone.geometry.envelopeInternal
             double mx = Math.max(env.width, env.height) * 0.4 + 0.005
@@ -104,12 +107,13 @@ class RouteCheckService {
                 List<List<Double>> coords = toLatLonList(wpData.routes[0].geometry.coordinates)
                 if (checkRoute(coords).status == "OK") {
                     def r = wpData.routes[0]
-                    return [status: "OK", geometry: r.geometry, distance: r.distance, duration: r.duration]
+                    cleanRoutes << [status: "OK", geometry: r.geometry, distance: r.distance, duration: r.duration]
                 }
             }
         }
 
-        [status: "NONE_FOUND"]
+        if (!cleanRoutes) return [status: "NONE_FOUND"]
+        cleanRoutes.min { it.distance as double }
     }
 
     private def callOsrm(String base, List<List<Double>> waypoints, boolean alternatives) {

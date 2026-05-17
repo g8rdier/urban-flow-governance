@@ -84,33 +84,54 @@ class RouteCheckService {
         List<RestrictedZone> intersecting = RestrictedZone.findAllByStatus("ACTIVE")
             .findAll { it.geometry?.intersects(mainRoute) }
 
-        // Step 3: try waypoints around each blocking zone (N/S/E/W of bounding box),
+        // Step 3: try waypoints around each blocking zone,
         // collect all zone-free candidates and return the shortest one
         List<Map> cleanRoutes = []
 
         for (def zone : intersecting) {
-            def env = zone.geometry.envelopeInternal
-            double mx = Math.max(env.width, env.height) * 0.4 + 0.005
+            def env     = zone.geometry.envelopeInternal
+            def centroid = zone.geometry.centroid
+            double mx   = Math.max(env.width, env.height) * 0.15 + 0.005
+
+            // Exterior ring vertices offset outward from centroid
+            List<List<Double>> vertices = (zone.geometry.exteriorRing.coordinates as List)
+                .init()
+                .collect { coord ->
+                    double dlat = coord.y - centroid.y
+                    double dlon = coord.x - centroid.x
+                    double dist = Math.sqrt(dlat * dlat + dlon * dlon)
+                    if (dist < 0.0001) return null
+                    double scale = (dist + mx) / dist
+                    [centroid.y + dlat * scale, centroid.x + dlon * scale]
+                }
+                .findAll { it != null }
+
+            // Single-waypoint: each vertex + N/S/E/W midpoints
             double midLat = (env.minY + env.maxY) / 2
             double midLon = (env.minX + env.maxX) / 2
-
-            List<List<Double>> candidates = [
-                [env.maxY + mx, midLon         ],  // N
-                [env.maxY + mx, env.maxX + mx  ],  // NE
-                [midLat,        env.maxX + mx  ],  // E
-                [env.minY - mx, env.maxX + mx  ],  // SE
-                [env.minY - mx, midLon         ],  // S
-                [env.minY - mx, env.minX - mx  ],  // SW
-                [midLat,        env.minX - mx  ],  // W
-                [env.maxY + mx, env.minX - mx  ],  // NW
+            List<List<Double>> singles = vertices + [
+                [env.maxY + mx, midLon],
+                [env.minY - mx, midLon],
+                [midLat,        env.maxX + mx],
+                [midLat,        env.minX - mx],
             ]
+            for (def wp : singles) {
+                def d = callOsrm(osrmBase, [start, wp, end], false)
+                if (!d?.routes) continue
+                if (checkRoute(toLatLonList(d.routes[0].geometry.coordinates)).status == "OK") {
+                    def r = d.routes[0]
+                    cleanRoutes << [status: "OK", geometry: r.geometry, distance: r.distance, duration: r.duration]
+                }
+            }
 
-            for (def wp : candidates) {
-                def wpData = callOsrm(osrmBase, [start, wp, end], false)
-                if (!wpData?.routes) continue
-                List<List<Double>> coords = toLatLonList(wpData.routes[0].geometry.coordinates)
-                if (checkRoute(coords).status == "OK") {
-                    def r = wpData.routes[0]
+            // Double-waypoint: pairs of consecutive vertices (routes around each side of the zone)
+            for (int i = 0; i < vertices.size(); i++) {
+                def w1 = vertices[i]
+                def w2 = vertices[(i + 1) % vertices.size()]
+                def d  = callOsrm(osrmBase, [start, w1, w2, end], false)
+                if (!d?.routes) continue
+                if (checkRoute(toLatLonList(d.routes[0].geometry.coordinates)).status == "OK") {
+                    def r = d.routes[0]
                     cleanRoutes << [status: "OK", geometry: r.geometry, distance: r.distance, duration: r.duration]
                 }
             }

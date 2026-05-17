@@ -106,6 +106,8 @@ class RouteCheckService {
                 }
                 .findAll { it != null }
 
+            List<RestrictedZone> activeZones = RestrictedZone.findAllByStatus("ACTIVE")
+
             // Single-waypoint: each vertex + N/S/E/W midpoints
             double midLat = (env.minY + env.maxY) / 2
             double midLon = (env.minX + env.maxX) / 2
@@ -118,7 +120,7 @@ class RouteCheckService {
             for (def wp : singles) {
                 def d = callOsrm(osrmBase, [start, wp, end], false)
                 if (!d?.routes) continue
-                if (checkRoute(toLatLonList(d.routes[0].geometry.coordinates)).status == "OK") {
+                if (isClearOfZones(toLatLonList(d.routes[0].geometry.coordinates), activeZones)) {
                     def r = d.routes[0]
                     cleanRoutes << [status: "OK", geometry: r.geometry, distance: r.distance, duration: r.duration]
                 }
@@ -130,7 +132,7 @@ class RouteCheckService {
                 def w2 = vertices[(i + 1) % vertices.size()]
                 def d  = callOsrm(osrmBase, [start, w1, w2, end], false)
                 if (!d?.routes) continue
-                if (checkRoute(toLatLonList(d.routes[0].geometry.coordinates)).status == "OK") {
+                if (isClearOfZones(toLatLonList(d.routes[0].geometry.coordinates), activeZones)) {
                     def r = d.routes[0]
                     cleanRoutes << [status: "OK", geometry: r.geometry, distance: r.distance, duration: r.duration]
                 }
@@ -139,6 +141,15 @@ class RouteCheckService {
 
         if (!cleanRoutes) return [status: "NONE_FOUND"]
         cleanRoutes.min { it.distance as double }
+    }
+
+    private boolean isClearOfZones(List<List<Double>> coords, List<RestrictedZone> zones) {
+        LineString route = buildLineString(coords)
+        zones.every { zone ->
+            if (!zone.geometry?.intersects(route)) return true
+            // Allow pure point-touches (start/end at boundary); only flag actual line crossings
+            zone.geometry.intersection(route).length < 0.0001
+        }
     }
 
     private def callOsrm(String base, List<List<Double>> waypoints, boolean alternatives) {

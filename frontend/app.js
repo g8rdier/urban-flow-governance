@@ -470,30 +470,27 @@ window.requestAlternativeRoute = async function () {
   btn.textContent = 'Suche...';
 
   try {
-    const url = `${window.OSRM_URL}/route/v1/driving/${startCoords.lon},${startCoords.lat};${endCoords.lon},${endCoords.lat}?overview=full&geometries=geojson&alternatives=true`;
-    const res = await fetch(url);
-    const data = await res.json();
+    const res = await fetch(`${window.API_BASE}/api/route/alternative`, {
+      method: 'POST',
+      headers: authHeaders({ 'Content-Type': 'application/json' }),
+      body: JSON.stringify({
+        start: [startCoords.lat, startCoords.lon],
+        end:   [endCoords.lat,   endCoords.lon]
+      })
+    });
+    const result = (await res.json()).data;
 
-    if (!data.routes || data.routes.length === 0) {
-      warningText.textContent = '⚠️ Keine alternative Route gefunden.';
-      return;
+    if (result?.status === 'OK') {
+      if (conflictLayer) { conflictLayer.remove(); conflictLayer = null; }
+      if (routeLayer) routeLayer.remove();
+      routeLayer = L.geoJSON(result.geometry, { color: '#27ae60', weight: 4 }).addTo(map);
+      map.fitBounds(routeLayer.getBounds());
+      showRouteInfo(result.distance, result.duration);
+      document.getElementById('zone-warning-modal').style.display = 'none';
+      document.getElementById('zone-warning').style.display = 'none';
+    } else {
+      warningText.textContent = '⚠️ Keine zonenfreie Alternative gefunden.';
     }
-
-    for (const route of data.routes) {
-      const result = await checkRoute(route.geometry);
-      if (result?.status === 'OK') {
-        if (conflictLayer) { conflictLayer.remove(); conflictLayer = null; }
-        if (routeLayer) routeLayer.remove();
-        routeLayer = L.geoJSON(route.geometry, { color: '#27ae60', weight: 4 }).addTo(map);
-        map.fitBounds(routeLayer.getBounds());
-        showRouteInfo(route.distance, route.duration);
-        document.getElementById('zone-warning-modal').style.display = 'none';
-        document.getElementById('zone-warning').style.display = 'none';
-        return;
-      }
-    }
-
-    warningText.textContent = '⚠️ Keine zonenfreie Alternative gefunden.';
   } catch {
     warningText.textContent = '⚠️ Fehler bei der Routenberechnung.';
   } finally {

@@ -13,6 +13,8 @@ class RouteCheckService {
 
     static transactional = false
 
+    def grailsApplication
+
     private final GeometryFactory geometryFactory = new GeometryFactory()
 
     boolean isPointInZone(double latitude, double longitude, RestrictedZone zone) {
@@ -59,6 +61,37 @@ class RouteCheckService {
             status: collidingZones.isEmpty() ? "OK" : "WARNING",
             zones : collidingZones
         ]
+    }
+
+    @Transactional(readOnly = true)
+    Map findAlternativeRoute(List<Double> start, List<Double> end) {
+        String osrmBase = grailsApplication.config.getProperty('ufg.osrm.url', String)
+        String url = "${osrmBase}/route/v1/driving/${start[1]},${start[0]};${end[1]},${end[0]}?overview=full&geometries=geojson&alternatives=true"
+
+        def osrmData
+        try {
+            osrmData = new groovy.json.JsonSlurper().parse(new URL(url))
+        } catch (e) {
+            return [status: "ERROR"]
+        }
+
+        if (!osrmData?.routes) return [status: "NONE_FOUND"]
+
+        for (def osrmRoute : osrmData.routes) {
+            List<List<Double>> coords = (osrmRoute.geometry.coordinates as List).collect {
+                [it[1] as double, it[0] as double]
+            }
+            if (checkRoute(coords).status == "OK") {
+                return [
+                    status  : "OK",
+                    geometry: osrmRoute.geometry,
+                    distance: osrmRoute.distance,
+                    duration: osrmRoute.duration
+                ]
+            }
+        }
+
+        [status: "NONE_FOUND"]
     }
 
     private Map geometryToGeoJson(Geometry geom) {

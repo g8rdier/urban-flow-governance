@@ -55,6 +55,10 @@ hibernate:
     queries: false
     use_second_level_cache: false
     use_query_cache: false
+ufg:
+  osrm:
+    url: https://osrm.servicecluster.de
+
 grails:
   cors:
     enabled: true

@@ -39,6 +39,10 @@ class UrlMappings {
             "/route/check"(controller: "route") {
                 action = [POST: "check", OPTIONS: "check"]
             }
+
+            "/route/alternative"(controller: "route") {
+                action = [POST: "alternative", OPTIONS: "alternative"]
+            }
         }
 
         group "/greeting", {

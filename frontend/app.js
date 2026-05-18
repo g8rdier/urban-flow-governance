@@ -78,6 +78,7 @@ window.submitLogin = async function (e) {
 
   await initSession(result.data.token, result.data.role);
 };
+// Logout
 window.logout = function () {
 
   localStorage.clear();
@@ -231,6 +232,11 @@ window.submitZone = async function (e) {
   const error = document.getElementById('zone-error');
   const toApiDate = v => v.length === 16 ? v + ':00Z' : v;
 
+if (drawVertices.length < 3) {
+  error.textContent = 'Polygon fehlt.';
+  return;
+}
+
   const ring = [...drawVertices.map(([lat, lng]) => [lng, lat])];
   ring.push(ring[0]);
 
@@ -316,6 +322,7 @@ async function loadAdminZoneList() {
   });
 }
 
+// Zone löschen
 window.deleteZone = async function (id) {
   if (!confirm('Zone wirklich löschen?')) return;
   const res = await fetch(`${window.API_BASE}/api/zones/${id}`, { method: 'DELETE', headers: authHeaders() });
@@ -323,17 +330,22 @@ window.deleteZone = async function (id) {
   if (result.status === 'success') { loadZones(); loadAdminZoneList(); }
 };
 
+// Zone aktivieren
 window.activateZone = async function (id) {
   const res = await fetch(`${window.API_BASE}/api/zones/${id}/activate`, { method: 'PUT', headers: authHeaders() });
   const result = await res.json();
   if (result.status === 'success') { loadZones(); loadAdminZoneList(); }
 };
 
+// Zone deaktivieren
 window.deactivateZone = async function (id) {
   const res = await fetch(`${window.API_BASE}/api/zones/${id}/deactivate`, { method: 'PUT', headers: authHeaders() });
   const result = await res.json();
   if (result.status === 'success') { loadZones(); loadAdminZoneList(); }
 };
+
+// Zone bearbeiten
+
 window.editZone = async function(id) {
 
   const res = await fetch(
@@ -363,9 +375,26 @@ window.editZone = async function(id) {
   document.getElementById('zone-end').value =
     zone.endTime?.slice(0,16) || '';
 
-  // ID merken
+    // ID merken
   currentEditZoneId = id;
+
+  // Polygon-Koordinaten übernehmen
+  if (zone.geometry && zone.geometry.coordinates) {
+
+    drawVertices = zone.geometry.coordinates[0]
+      .slice(0, -1)
+      .map(([lng, lat]) => [lat, lng]);
+
+    if (drawPolygon) { drawPolygon.remove(); drawPolygon = null; }
+    drawPolygon = L.polygon(drawVertices, { color: '#4a90e2', fillOpacity: 0.15, weight: 2 }).addTo(map);
+
+  } else {
+
+    console.warn('Keine Geometry gefunden');
+    drawVertices = [];
+  }
 };
+
 // Geocoding
 async function geocode(address) {
   const res = await fetch(`${window.NOMINATIM_URL}/search?q=${encodeURIComponent(address)}&format=json`);

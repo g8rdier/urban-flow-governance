@@ -461,12 +461,16 @@ window.calculateRoute = async function () {
   const startInput = document.getElementById('start').value;
   const endInput = document.getElementById('end').value;
   if (!startInput || !endInput) return;
-  startCoords = await geocode(startInput);
-  if (!startCoords) return;
-  setRouteMarker(startCoords.lat, startCoords.lon, 'start');
-  endCoords = await geocode(endInput);
-  if (!endCoords) return;
-  setRouteMarker(endCoords.lat, endCoords.lon, 'end');
+  if (!startCoords) {
+    startCoords = await geocode(startInput);
+    if (!startCoords) return;
+    setRouteMarker(startCoords.lat, startCoords.lon, 'start');
+  }
+  if (!endCoords) {
+    endCoords = await geocode(endInput);
+    if (!endCoords) return;
+    setRouteMarker(endCoords.lat, endCoords.lon, 'end');
+  }
   await doRouting();
 };
 
@@ -654,6 +658,9 @@ document.addEventListener('DOMContentLoaded', function () {
 
   const token = localStorage.getItem('token');
   if (token) initSession(token);
+
+  document.getElementById('start').addEventListener('input', () => { startCoords = null; });
+  document.getElementById('end').addEventListener('input', () => { endCoords = null; });
 
   positionSwapButton();
 });

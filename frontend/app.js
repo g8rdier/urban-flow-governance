@@ -382,13 +382,18 @@ window.editZone = async function(id) {
   if (zone.geometry && zone.geometry.coordinates) {
 
     drawVertices = zone.geometry.coordinates[0]
+      .slice(0, -1)
       .map(([lng, lat]) => [lat, lng]);
+
+    if (drawPolygon) { drawPolygon.remove(); drawPolygon = null; }
+    drawPolygon = L.polygon(drawVertices, { color: '#4a90e2', fillOpacity: 0.15, weight: 2 }).addTo(map);
 
   } else {
 
     console.warn('Keine Geometry gefunden');
     drawVertices = [];
   }
+};
 
 // Geocoding
 async function geocode(address) {
@@ -628,4 +633,3 @@ function positionSwapButton() {
 }
 
 window.addEventListener('resize', positionSwapButton);
-}

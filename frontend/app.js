@@ -47,6 +47,7 @@ async function initSession(token, role = null) {
   document.getElementById('login-overlay').style.display = 'none';
   if (effectiveRole === 'ADMIN') {
     document.getElementById('mode-toggle').style.display = 'flex';
+    setMode('admin');
   }
 }
 

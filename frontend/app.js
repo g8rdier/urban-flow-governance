@@ -172,7 +172,16 @@ window.setMode = function (mode) {
   document.getElementById('admin-panel').style.display = mode === 'admin' ? 'flex' : 'none';
   document.getElementById('mode-btn-nutzer').classList.toggle('active', mode === 'nutzer');
   document.getElementById('mode-btn-admin').classList.toggle('active', mode === 'admin');
-  if (mode === 'admin') loadAdminZoneList();
+  if (mode === 'admin') { setAdminTab('zones'); loadAdminZoneList(); }
+};
+
+// Admin sub-tab toggle
+window.setAdminTab = function (tab) {
+  document.getElementById('admin-zones-section').style.display = tab === 'zones' ? '' : 'none';
+  document.getElementById('admin-users-section').style.display = tab === 'users' ? '' : 'none';
+  document.getElementById('admin-tab-zones').classList.toggle('active', tab === 'zones');
+  document.getElementById('admin-tab-users').classList.toggle('active', tab === 'users');
+  if (tab === 'users') loadAdminUserList();
 };
 
 // Draw mode
@@ -328,6 +337,106 @@ async function loadAdminZoneList() {
     list.appendChild(item);
   });
 }
+
+// Benutzerverwaltung (Admin)
+let adminUsersCache = [];
+let currentEditUserId = null;
+
+async function loadAdminUserList() {
+  const list = document.getElementById('user-list');
+  list.innerHTML = '';
+  try {
+    const res = await fetch(`${window.API_BASE}/api/users`, { headers: authHeaders() });
+    const result = await res.json();
+    adminUsersCache = result.data?.users || [];
+  } catch (e) { return; }
+
+  if (adminUsersCache.length === 0) {
+    list.innerHTML = '<p class="draw-hint">Keine Benutzer vorhanden.</p>';
+    return;
+  }
+
+  adminUsersCache.forEach(user => {
+    const item = document.createElement('div');
+    item.className = 'zone-item';
+    item.innerHTML = `
+      <div class="zone-item-header">
+        <strong>${user.username}</strong>
+        <span class="zone-status-tag">${user.role}</span>
+      </div>
+      <div class="zone-item-actions">
+        <button class="btn-small btn-edit" onclick="editUser(${user.id})">Bearbeiten</button>
+        <button class="btn-small btn-delete" onclick="deleteUser(${user.id})">Löschen</button>
+      </div>
+    `;
+    list.appendChild(item);
+  });
+}
+
+window.showUserForm = function () {
+  currentEditUserId = null;
+  document.getElementById('user-form').reset();
+  document.getElementById('user-password-label').textContent = 'Passwort';
+  document.getElementById('user-password').required = true;
+  document.getElementById('user-error').textContent = '';
+  document.getElementById('user-form-panel').style.display = '';
+  document.getElementById('user-add-btn').style.display = 'none';
+};
+
+window.editUser = function (id) {
+  const user = adminUsersCache.find(u => u.id === id);
+  if (!user) return;
+  currentEditUserId = id;
+  document.getElementById('user-username').value = user.username;
+  document.getElementById('user-role').value = user.role;
+  document.getElementById('user-password').value = '';
+  document.getElementById('user-password').required = false;
+  document.getElementById('user-password-label').textContent = 'Neues Passwort (leer lassen = unverändert)';
+  document.getElementById('user-error').textContent = '';
+  document.getElementById('user-form-panel').style.display = '';
+  document.getElementById('user-add-btn').style.display = 'none';
+};
+
+window.cancelUserForm = function () {
+  document.getElementById('user-form-panel').style.display = 'none';
+  document.getElementById('user-form').reset();
+  document.getElementById('user-error').textContent = '';
+  document.getElementById('user-add-btn').style.display = '';
+  currentEditUserId = null;
+};
+
+window.deleteUser = async function (id) {
+  if (!confirm('Benutzer wirklich löschen?')) return;
+  const res = await fetch(`${window.API_BASE}/api/users/${id}`, { method: 'DELETE', headers: authHeaders() });
+  const result = await res.json();
+  if (result.status === 'success') loadAdminUserList();
+};
+
+window.submitUser = async function (e) {
+  e.preventDefault();
+  const error = document.getElementById('user-error');
+  const username = document.getElementById('user-username').value;
+  const password = document.getElementById('user-password').value;
+  const role = document.getElementById('user-role').value;
+
+  const isEdit = currentEditUserId !== null;
+  const url = isEdit
+    ? `${window.API_BASE}/api/users/${currentEditUserId}`
+    : `${window.API_BASE}/api/users`;
+  const method = isEdit ? 'PUT' : 'POST';
+
+  const body = new URLSearchParams({ username, role });
+  if (password) body.append('password', password);
+
+  const res = await fetch(url, { method, headers: authHeaders(), body });
+  const result = await res.json();
+  if (result.status !== 'success') {
+    error.textContent = result.msg || 'Fehler beim Speichern.';
+    return;
+  }
+  cancelUserForm();
+  loadAdminUserList();
+};
 
 // Zone löschen
 window.deleteZone = async function (id) {

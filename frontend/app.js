@@ -238,7 +238,12 @@ if (drawVertices.length < 3) {
   return;
 }
 
-  const ring = [...drawVertices.map(([lat, lng]) => [lng, lat])];
+  const validVertices = drawVertices.filter(v => Array.isArray(v) && v[0] != null && v[1] != null);
+  if (validVertices.length < 3) {
+    error.textContent = 'Polygon enthält ungültige Koordinaten.';
+    return;
+  }
+  const ring = [...validVertices.map(([lat, lng]) => [lng, lat])];
   ring.push(ring[0]);
 
   const isEdit = currentEditZoneId !== null;

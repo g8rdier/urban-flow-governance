@@ -1,6 +1,7 @@
 package ufg.app
 
 import grails.converters.JSON
+
 import org.locationtech.jts.geom.Coordinate
 import org.locationtech.jts.geom.GeometryFactory
 import org.locationtech.jts.io.WKTWriter

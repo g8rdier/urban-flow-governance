@@ -30,6 +30,7 @@ let routeLayer = null;
 let conflictLayer = null;
 let zonesVisible = false;
 let currentEditZoneId = null;
+let adminZonesCache = [];
 
 // Auth
 function authHeaders(extra = {}) {
@@ -287,6 +288,7 @@ async function loadAdminZoneList() {
     const res = await fetch(`${window.API_BASE}/api/zones`, { headers: authHeaders() });
     const result = await res.json();
     zones = result.data?.zones || [];
+    adminZonesCache = zones;
   } catch (e) { return; }
 
   if (zones.length === 0) {
@@ -348,16 +350,8 @@ window.deactivateZone = async function (id) {
 
 window.editZone = async function(id) {
 
-  const res = await fetch(
-    `${window.API_BASE}/api/zones/${id}`,
-    {
-      headers: authHeaders()
-    }
-  );
-
-  const result = await res.json();
-
-  const zone = result.data.zone;
+  const zone = adminZonesCache.find(z => z.id === id);
+  if (!zone) { console.warn('Zone nicht im Cache gefunden:', id); return; }
 
   // Formular anzeigen
   document.getElementById('zone-form-panel').style.display = '';

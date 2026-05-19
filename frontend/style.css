@@ -587,6 +587,84 @@ button {
   margin-bottom: 0.4rem;
 }
 
+/* Admin sub-tabs */
+
+#admin-tabs {
+  display: flex;
+  gap: 0;
+  border-bottom: 1px solid var(--border);
+  margin-bottom: 0.25rem;
+}
+
+.admin-tab {
+  flex: 1;
+  width: auto;
+  padding: 0.45rem 0.5rem;
+  background: none;
+  border: none;
+  border-bottom: 2px solid transparent;
+  border-radius: 0;
+  font-size: 0.82rem;
+  font-weight: 500;
+  color: var(--text-muted);
+  cursor: pointer;
+  transition: color 0.15s, border-color 0.15s;
+  margin-bottom: -1px;
+}
+
+.admin-tab.active {
+  color: #4a90e2;
+  border-bottom-color: #4a90e2;
+}
+
+.admin-tab:hover:not(.active) {
+  color: var(--text);
+}
+
+/* User add button */
+
+#user-add-btn {
+  width: 100%;
+  padding: 0.5rem;
+  background: none;
+  border: 1px dashed var(--border);
+  border-radius: 8px;
+  color: #4a90e2;
+  font-size: 0.82rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: background 0.15s, border-color 0.15s;
+}
+
+#user-add-btn:hover {
+  background: var(--hover-bg);
+  border-color: #4a90e2;
+}
+
+/* User list */
+
+#user-list {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.input-group select {
+  width: 100%;
+  padding: 0.45rem 0.6rem;
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  font-size: 0.875rem;
+  outline: none;
+  background: var(--bg-elevated);
+  color: var(--text);
+  transition: border-color 0.15s;
+}
+
+.input-group select:focus {
+  border-color: #4a90e2;
+}
+
 /* Zone list */
 
 #zone-list {

@@ -119,43 +119,90 @@
   <!-- Admin panel -->
   <div id="admin-panel" style="display:none">
 
-    <div id="draw-controls">
-      <button id="draw-btn" onclick="startDrawing()">+ Neue Zone zeichnen</button>
-      <div id="draw-active" style="display:none">
-        <p class="draw-hint">Klick = Punkt setzen &middot; Doppelklick = Abschließen</p>
-        <button class="btn-secondary-full" onclick="cancelDrawing()">Abbrechen</button>
+    <div id="admin-tabs">
+      <button class="admin-tab active" id="admin-tab-zones" onclick="setAdminTab('zones')">Zonen</button>
+      <button class="admin-tab" id="admin-tab-users" onclick="setAdminTab('users')">Benutzer</button>
+    </div>
+
+    <!-- Zonen-Bereich -->
+    <div id="admin-zones-section">
+
+      <div id="draw-controls">
+        <button id="draw-btn" onclick="startDrawing()">+ Neue Zone zeichnen</button>
+        <div id="draw-active" style="display:none">
+          <p class="draw-hint">Klick = Punkt setzen &middot; Doppelklick = Abschließen</p>
+          <button class="btn-secondary-full" onclick="cancelDrawing()">Abbrechen</button>
+        </div>
       </div>
+
+      <div id="zone-form-panel" style="display:none">
+        <form id="zone-form" onsubmit="submitZone(event)">
+          <div class="input-group">
+            <label>Name</label>
+            <input id="zone-name" required>
+          </div>
+          <div class="input-group">
+            <label>Grund</label>
+            <input id="zone-reason" placeholder="z.B. Marathon, Baustelle">
+          </div>
+          <div class="input-group">
+            <label>Start</label>
+            <input id="zone-start" type="datetime-local" required>
+          </div>
+          <div class="input-group">
+            <label>Ende</label>
+            <input id="zone-end" type="datetime-local" required>
+          </div>
+          <p class="auth-error" id="zone-error"></p>
+          <div class="button-group">
+            <button type="submit">Zone speichern</button>
+            <button type="button" onclick="cancelZoneForm()">Abbrechen</button>
+          </div>
+        </form>
+      </div>
+
+      <div id="zone-list-panel">
+        <p class="section-label">Vorhandene Zonen</p>
+        <div id="zone-list"></div>
+      </div>
+
     </div>
 
-    <div id="zone-form-panel" style="display:none">
-      <form id="zone-form" onsubmit="submitZone(event)">
-        <div class="input-group">
-          <label>Name</label>
-          <input id="zone-name" required>
-        </div>
-        <div class="input-group">
-          <label>Grund</label>
-          <input id="zone-reason" placeholder="z.B. Marathon, Baustelle">
-        </div>
-        <div class="input-group">
-          <label>Start</label>
-          <input id="zone-start" type="datetime-local" required>
-        </div>
-        <div class="input-group">
-          <label>Ende</label>
-          <input id="zone-end" type="datetime-local" required>
-        </div>
-        <p class="auth-error" id="zone-error"></p>
-        <div class="button-group">
-          <button type="submit">Zone speichern</button>
-          <button type="button" onclick="cancelZoneForm()">Abbrechen</button>
-        </div>
-      </form>
-    </div>
+    <!-- Benutzer-Bereich -->
+    <div id="admin-users-section" style="display:none">
 
-    <div id="zone-list-panel">
-      <p class="section-label">Vorhandene Zonen</p>
-      <div id="zone-list"></div>
+      <button id="user-add-btn" onclick="showUserForm()">+ Benutzer hinzufügen</button>
+
+      <div id="user-form-panel" style="display:none">
+        <form id="user-form" onsubmit="submitUser(event)">
+          <div class="input-group">
+            <label>Benutzername</label>
+            <input id="user-username" required>
+          </div>
+          <div class="input-group">
+            <label id="user-password-label">Passwort</label>
+            <input id="user-password" type="password" autocomplete="new-password">
+          </div>
+          <div class="input-group">
+            <label>Rolle</label>
+            <select id="user-role">
+              <option value="NUTZER">NUTZER</option>
+              <option value="ADMIN">ADMIN</option>
+            </select>
+          </div>
+          <p class="auth-error" id="user-error"></p>
+          <div class="button-group">
+            <button type="submit">Speichern</button>
+            <button type="button" onclick="cancelUserForm()">Abbrechen</button>
+          </div>
+        </form>
+      </div>
+
+      <div id="user-list-panel">
+        <p class="section-label">Vorhandene Benutzer</p>
+        <div id="user-list"></div>
+      </div>
+
     </div>
 
     <div class="button-group">

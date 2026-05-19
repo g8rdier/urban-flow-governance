@@ -164,7 +164,19 @@ window.toggleZones = async function () {
 function updateZonesToggleBtn() {
   const btn = document.getElementById('zones-toggle-btn');
   if (btn) btn.textContent = zonesVisible ? 'Aktive Zonen ausblenden' : 'Aktive Zonen anzeigen';
+  const adminBtn = document.getElementById('admin-zones-toggle-btn');
+  if (adminBtn) adminBtn.textContent = zonesVisible ? 'Zonen ausblenden' : 'Alle Zonen anzeigen';
 }
+
+window.toggleAdminZones = async function () {
+  if (zonesVisible) {
+    zonesLayer.clearLayers();
+    zonesVisible = false;
+    updateZonesToggleBtn();
+  } else {
+    await loadZones();
+  }
+};
 
 // Mode toggle
 window.setMode = function (mode) {
@@ -172,7 +184,7 @@ window.setMode = function (mode) {
   document.getElementById('admin-panel').style.display = mode === 'admin' ? 'flex' : 'none';
   document.getElementById('mode-btn-nutzer').classList.toggle('active', mode === 'nutzer');
   document.getElementById('mode-btn-admin').classList.toggle('active', mode === 'admin');
-  if (mode === 'admin') { setAdminTab('zones'); loadAdminZoneList(); }
+  if (mode === 'admin') { setAdminTab('zones'); loadAdminZoneList(); loadZones(); }
 };
 
 // Admin sub-tab toggle

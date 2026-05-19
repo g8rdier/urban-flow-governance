@@ -184,16 +184,7 @@ class UserManagerService {
             return failure(404, 'User not found')
         }
 
-        AuthToken authToken = AuthToken.findByUser(user)
-        if (authToken) {
-            authToken.delete(flush: true)
-        }
-
-        UserCredential credential = user.credential
-        if (credential) {
-            credential.delete(flush: true)
-        }
-
+        AuthToken.executeUpdate('delete AuthToken t where t.user = :user', [user: user])
         user.delete(flush: true)
         success(200, 'User deleted')
     }

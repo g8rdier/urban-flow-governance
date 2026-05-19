@@ -111,24 +111,39 @@ class RestrictedZoneController {
             name       : json.name,
             description: json.description,
             reason     : json.reason,
-            startTime  : parseDate(json.startTime),
-            endTime    : parseDate(json.endTime),
+            startTime  : parseDate(json.startTime as String),
+            endTime    : parseDate(json.endTime as String),
             createdBy  : json.createdBy
         ]
         if (json.status) params.status = json.status
-        if (json.geometry) params.geometryWKT = geoJsonToWKT(json.geometry)
+        def geom = json.geometry
+        if (geom && geom != 'null') params.geometryWKT = geoJsonToWKT(geom)
         params
     }
 
     private String geoJsonToWKT(def geometry) {
+        if (!geometry) throw new IllegalArgumentException("Geometry is required")
         if (geometry.type != "Polygon") {
             throw new IllegalArgumentException("Geometry must be of type Polygon")
         }
-        def rings = geometry.coordinates
-        if (!rings || rings.isEmpty()) {
+        def rawRings = geometry.coordinates
+        if (!rawRings) {
             throw new IllegalArgumentException("Polygon must have at least one ring")
         }
-        Coordinate[] coords = rings[0].collect { new Coordinate(it[0] as double, it[1] as double) } as Coordinate[]
+        List rings = rawRings as List
+        if (rings.isEmpty()) {
+            throw new IllegalArgumentException("Polygon must have at least one ring")
+        }
+        def outerRing = rings[0]
+        if (!outerRing) {
+            throw new IllegalArgumentException("Outer ring must not be empty or null")
+        }
+        Coordinate[] coords = (outerRing as List).collect { coord ->
+            if (coord == null) throw new IllegalArgumentException("Null coordinate in polygon ring")
+            List pair = coord as List
+            if (pair.size() < 2) throw new IllegalArgumentException("Coordinate pair must have at least 2 values")
+            new Coordinate(pair[0] as double, pair[1] as double)
+        } as Coordinate[]
         def polygon = geometryFactory.createPolygon(coords)
         new WKTWriter().write(polygon)
     }

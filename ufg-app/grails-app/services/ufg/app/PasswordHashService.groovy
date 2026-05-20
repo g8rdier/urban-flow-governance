@@ -40,7 +40,6 @@ class PasswordHashService {
             return false
         }
 
-        // Constant-time comparison to reduce timing side channels.
         byte[] left = Base64.getDecoder().decode(actualHash)
         byte[] right = Base64.getDecoder().decode(expectedHash)
 

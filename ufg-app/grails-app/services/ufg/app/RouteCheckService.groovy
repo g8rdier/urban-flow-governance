@@ -168,11 +168,7 @@ class RouteCheckService {
 
     private boolean isClearOfZones(List<List<Double>> coords, List<RestrictedZone> zones) {
         LineString route = buildLineString(coords)
-        zones.every { zone ->
-            // Shrink zone by ~300m to match waypoint offset; routes must go well inside to be rejected
-            def inner = zone.geometry.buffer(-0.003)
-            inner.isEmpty() || !inner.intersects(route)
-        }
+        zones.every { zone -> !zone.geometry?.intersects(route) }
     }
 
     private def callOsrm(String base, List<List<Double>> waypoints, boolean alternatives) {

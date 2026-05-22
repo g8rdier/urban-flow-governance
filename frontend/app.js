@@ -231,6 +231,7 @@ window.cancelZoneForm = function () {
   document.getElementById('draw-btn').style.display = '';
   document.getElementById('zone-form').reset();
   document.getElementById('zone-error').textContent = '';
+  document.getElementById('zone-status-group').style.display = 'none';
 };
 
 function updateDrawPolyline() {
@@ -276,22 +277,20 @@ const url = isEdit
 
 const method = isEdit ? 'PUT' : 'POST';
 
+const body = {
+  name: document.getElementById('zone-name').value,
+  reason: document.getElementById('zone-reason').value,
+  startTime: toApiDate(document.getElementById('zone-start').value),
+  endTime: toApiDate(document.getElementById('zone-end').value),
+  createdBy: currentUser?.username,
+  geometry: { type: 'Polygon', coordinates: [ring] }
+};
+if (isEdit) body.status = document.getElementById('zone-status').value;
+
 const res = await fetch(url, {
   method,
-  headers: authHeaders({
-    'Content-Type': 'application/json'
-  }),
-  body: JSON.stringify({
-    name: document.getElementById('zone-name').value,
-    reason: document.getElementById('zone-reason').value,
-    startTime: toApiDate(document.getElementById('zone-start').value),
-    endTime: toApiDate(document.getElementById('zone-end').value),
-    createdBy: currentUser?.username,
-    geometry: {
-      type: 'Polygon',
-      coordinates: [ring]
-    }
-  })
+  headers: authHeaders({ 'Content-Type': 'application/json' }),
+  body: JSON.stringify(body)
 });
 
 
@@ -496,8 +495,10 @@ window.editZone = async function(id) {
   document.getElementById('zone-end').value =
     zone.endTime?.slice(0,16) || '';
 
-    // ID merken
+    // ID merken, Status-Feld anzeigen und befüllen
   currentEditZoneId = id;
+  document.getElementById('zone-status-group').style.display = '';
+  document.getElementById('zone-status').value = zone.status || 'PLANNED';
 
   // Polygon-Koordinaten übernehmen
   if (zone.geometry && zone.geometry.coordinates) {

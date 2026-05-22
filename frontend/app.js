@@ -1,3 +1,5 @@
+// [Elizat 8.1]
+
 // Map
 const map = L.map('map', { doubleClickZoom: false }).setView([48.137, 11.576], 13);
 
@@ -31,6 +33,8 @@ let conflictLayer = null;
 let zonesVisible = false;
 let currentEditZoneId = null;
 let adminZonesCache = [];
+
+// [Elizat 8.2]
 
 // Auth
 function authHeaders(extra = {}) {
@@ -196,6 +200,8 @@ window.setAdminTab = function (tab) {
   document.getElementById('admin-tab-users').classList.toggle('active', tab === 'users');
   if (tab === 'users') loadAdminUserList();
 };
+
+// [Elizat 8.4]
 
 // Draw mode
 window.startDrawing = function () {
@@ -517,6 +523,8 @@ window.editZone = async function(id) {
   }
 };
 
+// [Elizat 8.3]
+
 // Geocoding
 async function geocode(address) {
   const res = await fetch(`${window.NOMINATIM_URL}/search?q=${encodeURIComponent(address)}&format=json`);
@@ -547,6 +555,8 @@ function showRouteInfo(distanceMeters, drivingSeconds) {
   document.getElementById('route-time-walk').textContent = formatDuration(walkSeconds);
   document.getElementById('route-info').style.display = '';
 }
+
+// [Gregor 7.1]
 
 // Route
 async function doRouting() {
@@ -605,6 +615,8 @@ async function checkRoute(route) {
   return (await res.json()).data;
 }
 
+// [Elizat 8.3]
+
 async function reverseGeocode(lat, lon) {
   try {
     const res = await fetch(`${window.NOMINATIM_URL}/reverse?lat=${lat}&lon=${lon}&format=json`);
@@ -617,6 +629,8 @@ window.dismissZoneWarning = function () {
   document.getElementById('zone-warning-modal').style.display = 'none';
   document.getElementById('zone-warning').style.display = 'flex';
 };
+
+// [Gregor 7.3]
 
 window.requestAlternativeRoute = async function () {
   const btn = document.getElementById('alt-route-btn');
@@ -653,6 +667,8 @@ window.requestAlternativeRoute = async function () {
     btn.textContent = 'Route umberechnen';
   }
 };
+
+// [Elizat 8.3]
 
 // Markers
 function setSelectionMarker(lat, lon) {

@@ -49,11 +49,14 @@ class RouteCheckService {
         List<Map> collidingZones = activeZones.findAll {
             it.geometry?.intersects(route)
         }.collect { zone ->
+            def intersectionGeom = null
+            try { intersectionGeom = geometryToGeoJson(zone.geometry.intersection(route)) }
+            catch (ignored) {}
             [
                 id          : zone.id,
                 name        : zone.name,
                 reason      : zone.reason,
-                intersection: geometryToGeoJson(zone.geometry.intersection(route))
+                intersection: intersectionGeom
             ]
         }
 

@@ -97,16 +97,50 @@ class RouteCheckService {
             def centroid   = zone.geometry.centroid
             def ringCoords = (zone.geometry.exteriorRing.coordinates as List).init()
 
-            // Base offset = zone radius so rings always start outside the zone
             double zoneRadius = ringCoords.collect { coord ->
                 double dlat = coord.y - centroid.y
                 double dlon = coord.x - centroid.x
                 Math.sqrt(dlat * dlat + dlon * dlon)
             }.max() ?: 0.003
 
-            int steps = 24  // every 15°
+            // Phase 1 — boundary sampling: waypoints directly on the polygon ring,
+            // offset outward by 50 m–300 m. Closest possible waypoints to the zone
+            // boundary → shortest achievable detour.
+            [0.0005, 0.001, 0.0015, 0.002, 0.0025, 0.003].each { double mx ->
+                List<List<Double>> candidates = []
+                ringCoords.each { coord ->
+                    double dlat = coord.y - centroid.y
+                    double dlon = coord.x - centroid.x
+                    double dist = Math.sqrt(dlat * dlat + dlon * dlon)
+                    if (dist < 0.0001) return
+                    double scale = (dist + mx) / dist
+                    candidates << [centroid.y + dlat * scale, centroid.x + dlon * scale]
+                }
+                (0..<ringCoords.size()).each { i ->
+                    def c1 = ringCoords[i]
+                    def c2 = ringCoords[(i + 1) % ringCoords.size()]
+                    double mlat = (c1.y + c2.y) / 2
+                    double mlon = (c1.x + c2.x) / 2
+                    double dlat = mlat - centroid.y
+                    double dlon = mlon - centroid.x
+                    double dist = Math.sqrt(dlat * dlat + dlon * dlon)
+                    if (dist < 0.0001) return
+                    double scale = (dist + mx) / dist
+                    candidates << [centroid.y + dlat * scale, centroid.x + dlon * scale]
+                }
+                for (def wp : candidates) {
+                    def d = callOsrm(osrmBase, [start, wp, end], false)
+                    if (!d?.routes) continue
+                    if (isClearOfZones(toLatLonList(d.routes[0].geometry.coordinates), activeZones)) {
+                        def r = d.routes[0]
+                        cleanRoutes << [status: "OK", geometry: r.geometry, distance: r.distance, duration: r.duration]
+                    }
+                }
+            }
 
-            // Single-waypoint: all rings × all angles — no early exit so shortest wins
+            // Phase 2 — angular rings: uniform coverage for all zone shapes,
+            // guarantees a solution is always found even if Phase 1 misses corridors.
+            int steps = 24  // every 15°
             for (int level = 1; level <= 15; level++) {
                 double offset = zoneRadius + level * 0.003
                 List<List<Double>> ring = (0..<steps).collect { s ->
@@ -123,7 +157,7 @@ class RouteCheckService {
                 }
             }
 
-            // Double-waypoint fallback: pairs ~90°–180° apart — only when single found nothing
+            // Phase 3 — double-waypoint fallback: only when both phases found nothing
             if (cleanRoutes.isEmpty()) {
                 for (int level = 1; level <= 10; level++) {
                     double offset = zoneRadius + level * 0.003

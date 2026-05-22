@@ -50,7 +50,7 @@ class RouteCheckService {
             it.geometry?.intersects(route)
         }.collect { zone ->
             def intersectionGeom = null
-            try { intersectionGeom = geometryToGeoJson(zone.geometry.buffer(0).intersection(route.buffer(0))) }
+            try { intersectionGeom = geometryToGeoJson(zone.geometry.buffer(0).intersection(route)) }
             catch (ignored) {}
             [
                 id          : zone.id,

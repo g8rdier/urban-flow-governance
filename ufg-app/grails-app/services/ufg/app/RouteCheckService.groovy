@@ -94,68 +94,70 @@ class RouteCheckService {
         List<RestrictedZone> activeZones = RestrictedZone.findAllByStatus("ACTIVE")
 
         for (def zone : intersecting) {
-            def env      = zone.geometry.envelopeInternal
-            def centroid = zone.geometry.centroid
-            // ~300m offset so OSRM reliably snaps to roads outside the zone
-            double mx = 0.003
+            def env        = zone.geometry.envelopeInternal
+            def centroid   = zone.geometry.centroid
             def ringCoords = (zone.geometry.exteriorRing.coordinates as List).init()
+            double midLat  = (env.minY + env.maxY) / 2
+            double midLon  = (env.minX + env.maxX) / 2
 
-            List<List<Double>> vertices = ringCoords.collect { coord ->
-                double dlat = coord.y - centroid.y
-                double dlon = coord.x - centroid.x
-                double dist = Math.sqrt(dlat * dlat + dlon * dlon)
-                if (dist < 0.0001) return null
-                double scale = (dist + mx) / dist
-                [centroid.y + dlat * scale, centroid.x + dlon * scale]
-            }.findAll { it != null }
+            // Try increasing offsets so OSRM is forced further from the zone on each pass
+            [0.003, 0.006, 0.009].each { double mx ->
+                List<List<Double>> vertices = ringCoords.collect { coord ->
+                    double dlat = coord.y - centroid.y
+                    double dlon = coord.x - centroid.x
+                    double dist = Math.sqrt(dlat * dlat + dlon * dlon)
+                    if (dist < 0.0001) return null
+                    double scale = (dist + mx) / dist
+                    [centroid.y + dlat * scale, centroid.x + dlon * scale]
+                }.findAll { it != null }
 
-            // Edge midpoints offset outward — gives OSRM more mid-edge bypass options
-            List<List<Double>> edgeMids = (0..<ringCoords.size()).collect { i ->
-                def c1 = ringCoords[i]
-                def c2 = ringCoords[(i + 1) % ringCoords.size()]
-                double mlat = (c1.y + c2.y) / 2
-                double mlon = (c1.x + c2.x) / 2
-                double dlat = mlat - centroid.y
-                double dlon = mlon - centroid.x
-                double dist = Math.sqrt(dlat * dlat + dlon * dlon)
-                if (dist < 0.0001) return null
-                double scale = (dist + mx) / dist
-                [centroid.y + dlat * scale, centroid.x + dlon * scale]
-            }.findAll { it != null }
+                List<List<Double>> edgeMids = (0..<ringCoords.size()).collect { i ->
+                    def c1 = ringCoords[i]
+                    def c2 = ringCoords[(i + 1) % ringCoords.size()]
+                    double mlat = (c1.y + c2.y) / 2
+                    double mlon = (c1.x + c2.x) / 2
+                    double dlat = mlat - centroid.y
+                    double dlon = mlon - centroid.x
+                    double dist = Math.sqrt(dlat * dlat + dlon * dlon)
+                    if (dist < 0.0001) return null
+                    double scale = (dist + mx) / dist
+                    [centroid.y + dlat * scale, centroid.x + dlon * scale]
+                }.findAll { it != null }
 
-            double midLat = (env.minY + env.maxY) / 2
-            double midLon = (env.minX + env.maxX) / 2
-            List<List<Double>> singles = vertices + edgeMids + [
-                [env.maxY + mx, midLon],
-                [env.minY - mx, midLon],
-                [midLat,        env.maxX + mx],
-                [midLat,        env.minX - mx],
-            ]
+                List<List<Double>> singles = vertices + edgeMids + [
+                    [env.maxY + mx, midLon],
+                    [env.minY - mx, midLon],
+                    [midLat,        env.maxX + mx],
+                    [midLat,        env.minX - mx],
+                ]
 
-            // Single-waypoint: route via each candidate point
-            for (def wp : singles) {
-                def d = callOsrm(osrmBase, [start, wp, end], false)
-                if (!d?.routes) continue
-                if (isClearOfZones(toLatLonList(d.routes[0].geometry.coordinates), activeZones)) {
-                    def r = d.routes[0]
-                    cleanRoutes << [status: "OK", geometry: r.geometry, distance: r.distance, duration: r.duration]
+                // Single-waypoint: route via each candidate point
+                for (def wp : singles) {
+                    def d = callOsrm(osrmBase, [start, wp, end], false)
+                    if (!d?.routes) continue
+                    if (isClearOfZones(toLatLonList(d.routes[0].geometry.coordinates), activeZones)) {
+                        def r = d.routes[0]
+                        cleanRoutes << [status: "OK", geometry: r.geometry, distance: r.distance, duration: r.duration]
+                    }
                 }
-            }
 
-            // Double-waypoint: consecutive pairs from interleaved vertices+midpoints
-            List<List<Double>> ring = []
-            for (int i = 0; i < vertices.size(); i++) {
-                ring << vertices[i]
-                if (i < edgeMids.size()) ring << edgeMids[i]
-            }
-            for (int i = 0; i < ring.size(); i++) {
-                def w1 = ring[i]
-                def w2 = ring[(i + 1) % ring.size()]
-                def d  = callOsrm(osrmBase, [start, w1, w2, end], false)
-                if (!d?.routes) continue
-                if (isClearOfZones(toLatLonList(d.routes[0].geometry.coordinates), activeZones)) {
-                    def r = d.routes[0]
-                    cleanRoutes << [status: "OK", geometry: r.geometry, distance: r.distance, duration: r.duration]
+                // Double-waypoint only at tighter offsets — at 900m pairs become too sparse
+                if (mx <= 0.006) {
+                    List<List<Double>> ring = []
+                    for (int i = 0; i < vertices.size(); i++) {
+                        ring << vertices[i]
+                        if (i < edgeMids.size()) ring << edgeMids[i]
+                    }
+                    for (int i = 0; i < ring.size(); i++) {
+                        def w1 = ring[i]
+                        def w2 = ring[(i + 1) % ring.size()]
+                        def d  = callOsrm(osrmBase, [start, w1, w2, end], false)
+                        if (!d?.routes) continue
+                        if (isClearOfZones(toLatLonList(d.routes[0].geometry.coordinates), activeZones)) {
+                            def r = d.routes[0]
+                            cleanRoutes << [status: "OK", geometry: r.geometry, distance: r.distance, duration: r.duration]
+                        }
+                    }
                 }
             }
         }

@@ -106,9 +106,8 @@ class RouteCheckService {
 
             int steps = 24  // every 15°
 
-            // Single-waypoint: escalate rings until at least one clean route is found
-            boolean foundSingle = false
-            for (int level = 1; level <= 15 && !foundSingle; level++) {
+            // Single-waypoint: all rings × all angles — no early exit so shortest wins
+            for (int level = 1; level <= 15; level++) {
                 double offset = zoneRadius + level * 0.003
                 List<List<Double>> ring = (0..<steps).collect { s ->
                     double angle = s * 2 * Math.PI / steps
@@ -120,13 +119,12 @@ class RouteCheckService {
                     if (isClearOfZones(toLatLonList(d.routes[0].geometry.coordinates), activeZones)) {
                         def r = d.routes[0]
                         cleanRoutes << [status: "OK", geometry: r.geometry, distance: r.distance, duration: r.duration]
-                        foundSingle = true
                     }
                 }
             }
 
-            // Double-waypoint fallback: pairs ~90°–180° apart on escalating rings
-            if (!foundSingle) {
+            // Double-waypoint fallback: pairs ~90°–180° apart — only when single found nothing
+            if (cleanRoutes.isEmpty()) {
                 for (int level = 1; level <= 10; level++) {
                     double offset = zoneRadius + level * 0.003
                     List<List<Double>> ring = (0..<steps).collect { s ->

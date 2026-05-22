@@ -190,6 +190,7 @@ window.setMode = function (mode) {
   document.getElementById('mode-btn-nutzer').classList.toggle('active', mode === 'nutzer');
   document.getElementById('mode-btn-admin').classList.toggle('active', mode === 'admin');
   if (mode === 'admin') { setAdminTab('zones'); loadAdminZoneList(); loadZones(); }
+  if (mode === 'nutzer') { zonesLayer.clearLayers(); zonesVisible = false; updateZonesToggleBtn(); }
 };
 
 // Admin sub-tab toggle

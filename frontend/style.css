@@ -656,7 +656,8 @@ button {
 
 /* User list */
 
-#user-list-panel {
+#user-list-panel,
+#zone-list-panel {
   margin-top: 1rem;
 }
 

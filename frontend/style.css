@@ -184,8 +184,7 @@ body {
   width: 300px;
   flex-shrink: 0;
   height: 100vh;
-  overflow-y: auto;
-  overflow-x: hidden;
+  overflow: hidden;
   background: var(--bg);
   border-right: 1px solid var(--sidebar-border);
   box-shadow: 2px 0 12px var(--shadow);
@@ -194,6 +193,16 @@ body {
   flex-direction: column;
   gap: 1.5rem;
   transition: width 0.3s ease, padding 0.3s ease, background 0.25s, border-color 0.25s;
+}
+
+#panel-container {
+  flex: 1;
+  overflow-y: auto;
+  overflow-x: hidden;
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+  min-height: 0;
 }
 
 #sidebar.collapsed {
@@ -553,6 +562,10 @@ button {
   gap: 1rem;
 }
 
+#draw-controls {
+  margin-top: 1rem;
+}
+
 .btn-secondary-full {
   width: 100%;
   padding: 0.5rem 0.75rem;
@@ -642,6 +655,10 @@ button {
 }
 
 /* User list */
+
+#user-list-panel {
+  margin-top: 1rem;
+}
 
 #user-list {
   display: flex;

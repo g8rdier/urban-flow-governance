@@ -8,14 +8,16 @@ Webbasierte Anwendung zur Verwaltung und Visualisierung von Sperrzonen sowie zur
 - [User Stories](docs/project/USER_STORIES.md)
 - [Kanban-Board / Todo-Liste](docs/project/PLAN.md)
 - [Zonenmodell](docs/architecture/ZONE_DATA_STRUCTURE.md)
+- [Devcontainer-Architektur](docs/architecture/DEVCONTAINER.md)
 - [Zonen-Management](docs/domain/ZONE_MANAGEMENT.md)
 - [Nutzerverwaltung](docs/domain/USER_MANAGEMENT.md)
 - [Tomcat-Deployment](docs/ops/TOMCAT_DEPLOYMENT.md)
 
 ## Kurzstart
 
-1. Repository in VS Code oeffnen und per Dev Container starten.
-2. Anwendung im Projektordner `ufg-app` mit `./gradlew bootRun` starten.
+1. Repository klonen: `git clone ssh://<USERNAME>@iu.servicecluster.de:11422/media/sf_iu/git/elgreti/urban-flow-governance.git`
+2. Repository in VS Code oeffnen und per Dev Container starten.
+3. Anwendung im Projektordner `ufg-app` mit `./gradlew bootRun` starten.
 
 ## Betrieb
 

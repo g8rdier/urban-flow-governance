@@ -159,6 +159,14 @@
             <label>Ende</label>
             <input id="zone-end" type="datetime-local" required>
           </div>
+          <div class="input-group" id="zone-status-group" style="display:none">
+            <label>Status</label>
+            <select id="zone-status">
+              <option value="PLANNED">Geplant</option>
+              <option value="ACTIVE">Aktiv</option>
+              <option value="EXPIRED">Abgelaufen</option>
+            </select>
+          </div>
           <p class="auth-error" id="zone-error"></p>
           <div class="button-group">
             <button type="submit">Zone speichern</button>

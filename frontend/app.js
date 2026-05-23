@@ -1,6 +1,6 @@
 // [Elizat 8.1]
 
-// ─── Karte initialisieren ───────────────────────────────────────────────────
+// ─── Karte initialisieren ────────────────────────────────────────────────────
 // Leaflet-Karte erstellen, zentriert auf München (Koordinaten + Zoomstufe 13)
 // doubleClickZoom deaktiviert, damit Doppelklick zum Zeichnen genutzt werden kann
 const map = L.map('map', { doubleClickZoom: false }).setView([48.137, 11.576], 13);
@@ -10,7 +10,7 @@ let tileLayer = null;
 
 // Lädt den passenden CARTO-Tile-Layer je nach Theme (dark / light)
 function applyTileLayer(theme) {
-  if (tileLayer) tileLayer.remove(); // alten Layer entfernen
+  if (tileLayer) tileLayer.remove();
   tileLayer = L.tileLayer(
     theme === 'dark' ? window.TILES_DARK : window.TILES_LIGHT,
     { maxZoom: 20, attribution: window.TILES_ATTR }
@@ -32,7 +32,6 @@ let drawPolygon = null;       // fertiges Polygon auf der Karte
 
 let startCoords = null;       // Startkoordinaten der Route
 let endCoords = null;         // Zielkoordinaten der Route
-let selectionMarker = null;   // Marker für Kartenklick-Auswahl
 let startMarker = null;       // Marker am Startpunkt der Route
 let endMarker = null;         // Marker am Zielpunkt der Route
 let routeLayer = null;        // GeoJSON-Layer der berechneten Route
@@ -144,6 +143,28 @@ window.submitRegister = async function (e) {
   await initSession(loginResult.data.token, loginResult.data.role);
 };
 
+// ─── Panel-Steuerung ─────────────────────────────────────────────────────────
+
+// Wechselt zwischen Nutzer-Panel und Admin-Panel
+// Admin: lädt automatisch Zonenliste und zeigt alle Zonen auf der Karte
+window.setMode = function (mode) {
+  document.getElementById('user-panel').style.display = mode === 'nutzer' ? '' : 'none';
+  document.getElementById('admin-panel').style.display = mode === 'admin' ? 'flex' : 'none';
+  document.getElementById('mode-btn-nutzer').classList.toggle('active', mode === 'nutzer');
+  document.getElementById('mode-btn-admin').classList.toggle('active', mode === 'admin');
+  if (mode === 'admin') { setAdminTab('zones'); loadAdminZoneList(); loadZones(); }
+  if (mode === 'nutzer') { zonesLayer.clearLayers(); zonesVisible = false; updateZonesToggleBtn(); }
+};
+
+// Wechselt im Admin-Panel zwischen Zonen-Tab und Benutzer-Tab
+window.setAdminTab = function (tab) {
+  document.getElementById('admin-zones-section').style.display = tab === 'zones' ? '' : 'none';
+  document.getElementById('admin-users-section').style.display = tab === 'users' ? '' : 'none';
+  document.getElementById('admin-tab-zones').classList.toggle('active', tab === 'zones');
+  document.getElementById('admin-tab-users').classList.toggle('active', tab === 'users');
+  if (tab === 'users') loadAdminUserList();
+};
+
 // ─── Sperrzonen auf der Karte ────────────────────────────────────────────────
 
 // Lädt alle Zonen (PLANNED/ACTIVE/EXPIRED) von der API und zeichnet sie farbig auf die Karte
@@ -208,28 +229,6 @@ window.toggleAdminZones = async function () {
   } else {
     await loadZones();
   }
-};
-
-// ─── Panel-Steuerung ─────────────────────────────────────────────────────────
-
-// Wechselt zwischen Nutzer-Panel und Admin-Panel
-// Admin: lädt automatisch Zonenliste und zeigt alle Zonen auf der Karte
-window.setMode = function (mode) {
-  document.getElementById('user-panel').style.display = mode === 'nutzer' ? '' : 'none';
-  document.getElementById('admin-panel').style.display = mode === 'admin' ? 'flex' : 'none';
-  document.getElementById('mode-btn-nutzer').classList.toggle('active', mode === 'nutzer');
-  document.getElementById('mode-btn-admin').classList.toggle('active', mode === 'admin');
-  if (mode === 'admin') { setAdminTab('zones'); loadAdminZoneList(); loadZones(); }
-  if (mode === 'nutzer') { zonesLayer.clearLayers(); zonesVisible = false; updateZonesToggleBtn(); }
-};
-
-// Wechselt im Admin-Panel zwischen Zonen-Tab und Benutzer-Tab
-window.setAdminTab = function (tab) {
-  document.getElementById('admin-zones-section').style.display = tab === 'zones' ? '' : 'none';
-  document.getElementById('admin-users-section').style.display = tab === 'users' ? '' : 'none';
-  document.getElementById('admin-tab-zones').classList.toggle('active', tab === 'zones');
-  document.getElementById('admin-tab-users').classList.toggle('active', tab === 'users');
-  if (tab === 'users') loadAdminUserList();
 };
 
 // [Elizat 8.4]
@@ -404,8 +403,66 @@ async function loadAdminZoneList() {
   });
 }
 
+// ─── Zonen-Aktionen ──────────────────────────────────────────────────────────
+
+// Löscht eine Zone nach Bestätigung und aktualisiert Karte + Liste
+window.deleteZone = async function (id) {
+  if (!confirm('Zone wirklich löschen?')) return;
+  const res = await fetch(`${window.API_BASE}/api/zones/${id}`, { method: 'DELETE', headers: authHeaders() });
+  const result = await res.json();
+  if (result.status === 'success') { loadZones(); loadAdminZoneList(); }
+};
+
+// Setzt den Status einer geplanten Zone auf ACTIVE
+window.activateZone = async function (id) {
+  const res = await fetch(`${window.API_BASE}/api/zones/${id}/activate`, { method: 'PUT', headers: authHeaders() });
+  const result = await res.json();
+  if (result.status === 'success') { loadZones(); loadAdminZoneList(); }
+};
+
+// Setzt den Status einer aktiven Zone auf EXPIRED (deaktiviert)
+window.deactivateZone = async function (id) {
+  const res = await fetch(`${window.API_BASE}/api/zones/${id}/deactivate`, { method: 'PUT', headers: authHeaders() });
+  const result = await res.json();
+  if (result.status === 'success') { loadZones(); loadAdminZoneList(); }
+};
+
+// Lädt eine Zone aus dem Cache und öffnet das Bearbeitungs-Formular
+// Zeigt das bestehende Polygon auf der Karte an
+window.editZone = async function (id) {
+  const zone = adminZonesCache.find(z => z.id === id);
+  if (!zone) { console.warn('Zone nicht im Cache gefunden:', id); return; }
+
+  document.getElementById('zone-form-panel').style.display = '';
+
+  // Formularfelder mit den bestehenden Zonendaten befüllen
+  document.getElementById('zone-name').value = zone.name || '';
+  document.getElementById('zone-reason').value = zone.reason || '';
+  // Datum auf 16 Zeichen kürzen ("YYYY-MM-DDTHH:MM") für datetime-local Input
+  document.getElementById('zone-start').value = zone.startTime?.slice(0, 16) || '';
+  document.getElementById('zone-end').value = zone.endTime?.slice(0, 16) || '';
+
+  currentEditZoneId = id;
+  document.getElementById('zone-status-group').style.display = '';
+  document.getElementById('zone-status').value = zone.status || 'PLANNED';
+
+  // GeoJSON-Koordinaten in Leaflet-Format umwandeln und Polygon anzeigen
+  if (zone.geometry && zone.geometry.coordinates) {
+    // Letzten Punkt entfernen (ist gleich dem ersten → GeoJSON schließt Ring)
+    drawVertices = zone.geometry.coordinates[0]
+      .slice(0, -1)
+      .map(([lng, lat]) => [lat, lng]);
+
+    if (drawPolygon) { drawPolygon.remove(); drawPolygon = null; }
+    drawPolygon = L.polygon(drawVertices, { color: '#4a90e2', fillOpacity: 0.15, weight: 2 }).addTo(map);
+  } else {
+    console.warn('Keine Geometry gefunden');
+    drawVertices = [];
+  }
+};
+
 // ─── Benutzerverwaltung (Admin) ──────────────────────────────────────────────
-let adminUsersCache = [];    // zwischengespeicherte Benutzerliste
+let adminUsersCache = [];     // zwischengespeicherte Benutzerliste
 let currentEditUserId = null; // ID des Benutzers der gerade bearbeitet wird
 
 // Lädt alle Benutzer und zeigt sie im Admin-Panel an
@@ -512,67 +569,9 @@ window.submitUser = async function (e) {
   loadAdminUserList();
 };
 
-// ─── Zonen-Aktionen ──────────────────────────────────────────────────────────
-
-// Löscht eine Zone nach Bestätigung und aktualisiert Karte + Liste
-window.deleteZone = async function (id) {
-  if (!confirm('Zone wirklich löschen?')) return;
-  const res = await fetch(`${window.API_BASE}/api/zones/${id}`, { method: 'DELETE', headers: authHeaders() });
-  const result = await res.json();
-  if (result.status === 'success') { loadZones(); loadAdminZoneList(); }
-};
-
-// Setzt den Status einer geplanten Zone auf ACTIVE
-window.activateZone = async function (id) {
-  const res = await fetch(`${window.API_BASE}/api/zones/${id}/activate`, { method: 'PUT', headers: authHeaders() });
-  const result = await res.json();
-  if (result.status === 'success') { loadZones(); loadAdminZoneList(); }
-};
-
-// Setzt den Status einer aktiven Zone auf EXPIRED (deaktiviert)
-window.deactivateZone = async function (id) {
-  const res = await fetch(`${window.API_BASE}/api/zones/${id}/deactivate`, { method: 'PUT', headers: authHeaders() });
-  const result = await res.json();
-  if (result.status === 'success') { loadZones(); loadAdminZoneList(); }
-};
-
-// Lädt eine Zone aus dem Cache und öffnet das Bearbeitungs-Formular
-// Zeigt das bestehende Polygon auf der Karte an
-window.editZone = async function(id) {
-  const zone = adminZonesCache.find(z => z.id === id);
-  if (!zone) { console.warn('Zone nicht im Cache gefunden:', id); return; }
-
-  document.getElementById('zone-form-panel').style.display = '';
-
-  // Formularfelder mit den bestehenden Zonendaten befüllen
-  document.getElementById('zone-name').value = zone.name || '';
-  document.getElementById('zone-reason').value = zone.reason || '';
-  // Datum auf 16 Zeichen kürzen ("YYYY-MM-DDTHH:MM") für datetime-local Input
-  document.getElementById('zone-start').value = zone.startTime?.slice(0,16) || '';
-  document.getElementById('zone-end').value = zone.endTime?.slice(0,16) || '';
-
-  currentEditZoneId = id;
-  document.getElementById('zone-status-group').style.display = '';
-  document.getElementById('zone-status').value = zone.status || 'PLANNED';
-
-  // GeoJSON-Koordinaten in Leaflet-Format umwandeln und Polygon anzeigen
-  if (zone.geometry && zone.geometry.coordinates) {
-    // Letzten Punkt entfernen (ist gleich dem ersten → GeoJSON schließt Ring)
-    drawVertices = zone.geometry.coordinates[0]
-      .slice(0, -1)
-      .map(([lng, lat]) => [lat, lng]);
-
-    if (drawPolygon) { drawPolygon.remove(); drawPolygon = null; }
-    drawPolygon = L.polygon(drawVertices, { color: '#4a90e2', fillOpacity: 0.15, weight: 2 }).addTo(map);
-  } else {
-    console.warn('Keine Geometry gefunden');
-    drawVertices = [];
-  }
-};
-
 // [Elizat 8.3]
 
-// ─── Geocoding (Adresse → Koordinaten) ──────────────────────────────────────
+// ─── Geocoding ───────────────────────────────────────────────────────────────
 
 // Sucht eine Adresse über die Nominatim-API und gibt lat/lon zurück
 async function geocode(address) {
@@ -580,6 +579,15 @@ async function geocode(address) {
   const data = await res.json();
   if (!data || data.length === 0) { alert('Adresse nicht gefunden'); return null; }
   return { lat: parseFloat(data[0].lat), lon: parseFloat(data[0].lon) };
+}
+
+// Reverse Geocoding: Koordinaten → Adresstext (für Klick auf Karte und Marker-Drag)
+async function reverseGeocode(lat, lon) {
+  try {
+    const res = await fetch(`${window.NOMINATIM_URL}/reverse?lat=${lat}&lon=${lon}&format=json`);
+    const data = await res.json();
+    return data.display_name || null;
+  } catch { return null; }
 }
 
 // Formatiert Sekunden in lesbare Zeitangabe (z.B. "1 h 23 Min")
@@ -676,17 +684,6 @@ async function checkRoute(route) {
   return (await res.json()).data;
 }
 
-// [Elizat 8.3]
-
-// Reverse Geocoding: Koordinaten → Adresstext (für Klick auf Karte und Marker-Drag)
-async function reverseGeocode(lat, lon) {
-  try {
-    const res = await fetch(`${window.NOMINATIM_URL}/reverse?lat=${lat}&lon=${lon}&format=json`);
-    const data = await res.json();
-    return data.display_name || null;
-  } catch { return null; }
-}
-
 // Schließt das Warn-Modal und zeigt die kleine Warnung in der Sidebar
 window.dismissZoneWarning = function () {
   document.getElementById('zone-warning-modal').style.display = 'none';
@@ -733,15 +730,7 @@ window.requestAlternativeRoute = async function () {
   }
 };
 
-// [Elizat 8.3]
-
 // ─── Marker auf der Karte ────────────────────────────────────────────────────
-
-// Setzt einen einfachen Auswahl-Marker an einer Position
-function setSelectionMarker(lat, lon) {
-  if (selectionMarker) selectionMarker.remove();
-  selectionMarker = L.marker([lat, lon]).addTo(map);
-}
 
 // Setzt einen verschiebbaren Start- oder Ziel-Marker
 // Bei Drag-Ende: Koordinaten und Adressfeld aktualisieren, Route neu berechnen

@@ -24,21 +24,30 @@ const zonesLayer = L.layerGroup().addTo(map);
 
 // ─── Globaler Zustand ────────────────────────────────────────────────────────
 let currentUser = null;       // eingeloggter Benutzer (Rolle etc.)
+
+// Zeichenmodus
 let isDrawing = false;        // true = Admin zeichnet gerade ein Polygon
 let drawVertices = [];        // gesammelte Klick-Koordinaten beim Zeichnen
 let drawMarkers = [];         // kleine Punkte auf der Karte pro Vertex
 let drawPolyline = null;      // gestrichelte Linie während des Zeichnens
 let drawPolygon = null;       // fertiges Polygon auf der Karte
 
+// Routenplanung
 let startCoords = null;       // Startkoordinaten der Route
 let endCoords = null;         // Zielkoordinaten der Route
 let startMarker = null;       // Marker am Startpunkt der Route
 let endMarker = null;         // Marker am Zielpunkt der Route
 let routeLayer = null;        // GeoJSON-Layer der berechneten Route
 let conflictLayer = null;     // Hervorhebung der Konflikt-Abschnitte mit Sperrzonen
+
+// Sperrzonen
 let zonesVisible = false;     // ob Sperrzonen aktuell auf der Karte sichtbar sind
 let currentEditZoneId = null; // ID der Zone, die gerade bearbeitet wird (null = Neu-Erstellung)
 let adminZonesCache = [];     // zwischengespeicherte Zonenliste für schnellen Zugriff bei Bearbeitung
+
+// Benutzerverwaltung
+let adminUsersCache = [];     // zwischengespeicherte Benutzerliste
+let currentEditUserId = null; // ID des Benutzers der gerade bearbeitet wird
 
 // [Elizat 8.2]
 
@@ -165,7 +174,7 @@ window.setAdminTab = function (tab) {
   if (tab === 'users') loadAdminUserList();
 };
 
-// ─── Sperrzonen auf der Karte ────────────────────────────────────────────────
+// ─── Karte: Sperrzonen-Anzeige ───────────────────────────────────────────────
 
 // Lädt alle Zonen (PLANNED/ACTIVE/EXPIRED) von der API und zeichnet sie farbig auf die Karte
 window.loadZones = async function () {
@@ -233,7 +242,7 @@ window.toggleAdminZones = async function () {
 
 // [Elizat 8.4]
 
-// ─── Zeichenmodus für Sperrzonen ─────────────────────────────────────────────
+// ─── Admin: Zeichenmodus für Sperrzonen ──────────────────────────────────────
 
 // Aktiviert den Zeichenmodus: Cursor wird zum Kreuz, Vertices-Array wird geleert
 window.startDrawing = function () {
@@ -292,7 +301,7 @@ function finishDrawing() {
   document.getElementById('zone-form-panel').style.display = '';
 }
 
-// ─── Zone speichern ──────────────────────────────────────────────────────────
+// ─── Admin: Zonenverwaltung ───────────────────────────────────────────────────
 
 // Speichert eine neue Zone (POST) oder aktualisiert eine bestehende (PUT)
 // Konvertiert die gezeichneten Leaflet-Koordinaten in ein GeoJSON-Polygon
@@ -355,8 +364,6 @@ window.submitZone = async function (e) {
   loadAdminZoneList();
 };
 
-// ─── Zonenliste im Admin-Panel ───────────────────────────────────────────────
-
 // Lädt alle Zonen von der API und rendert sie als Liste mit Aktions-Buttons
 async function loadAdminZoneList() {
   const list = document.getElementById('zone-list');
@@ -402,8 +409,6 @@ async function loadAdminZoneList() {
     list.appendChild(item);
   });
 }
-
-// ─── Zonen-Aktionen ──────────────────────────────────────────────────────────
 
 // Löscht eine Zone nach Bestätigung und aktualisiert Karte + Liste
 window.deleteZone = async function (id) {
@@ -461,9 +466,7 @@ window.editZone = async function (id) {
   }
 };
 
-// ─── Benutzerverwaltung (Admin) ──────────────────────────────────────────────
-let adminUsersCache = [];     // zwischengespeicherte Benutzerliste
-let currentEditUserId = null; // ID des Benutzers der gerade bearbeitet wird
+// ─── Admin: Benutzerverwaltung ───────────────────────────────────────────────
 
 // Lädt alle Benutzer und zeigt sie im Admin-Panel an
 async function loadAdminUserList() {
@@ -571,7 +574,7 @@ window.submitUser = async function (e) {
 
 // [Elizat 8.3]
 
-// ─── Geocoding ───────────────────────────────────────────────────────────────
+// ─── Nutzer: Geocoding & Hilfsfunktionen ─────────────────────────────────────
 
 // Sucht eine Adresse über die Nominatim-API und gibt lat/lon zurück
 async function geocode(address) {
@@ -617,9 +620,9 @@ function showRouteInfo(distanceMeters, drivingSeconds) {
   document.getElementById('route-info').style.display = '';
 }
 
-// [Gregor 7.1]
+// ─── Nutzer: Routenberechnung ─────────────────────────────────────────────────
 
-// ─── Routenberechnung ────────────────────────────────────────────────────────
+// [Gregor 7.1]
 
 // Berechnet Route über OSRM, zeichnet sie auf der Karte und prüft Sperrzonen
 async function doRouting() {
@@ -730,7 +733,47 @@ window.requestAlternativeRoute = async function () {
   }
 };
 
-// ─── Marker auf der Karte ────────────────────────────────────────────────────
+// ─── Nutzer: Adress-Autocomplete ─────────────────────────────────────────────
+
+// Sucht ab 3 Zeichen Vorschläge über Nominatim und zeigt max. 5 Ergebnisse
+window.searchAddress = async function (type) {
+  const query = document.getElementById(type).value;
+  if (query.length < 3) return;
+  const data = await (await fetch(`${window.NOMINATIM_URL}/search?q=${encodeURIComponent(query)}&format=json`)).json();
+  const list = document.getElementById(`suggestions-${type}`);
+  list.innerHTML = '';
+  data.slice(0, 5).forEach(place => {
+    const li = document.createElement('li');
+    li.innerText = place.display_name;
+    li.onclick = () => selectAddress(place, type);
+    list.appendChild(li);
+  });
+};
+
+// Übernimmt einen Vorschlag: setzt Koordinaten, Marker und Eingabefeld
+// Startet automatisch Routenberechnung wenn beide Felder gefüllt sind
+function selectAddress(place, type) {
+  const lat = parseFloat(place.lat);
+  const lon = parseFloat(place.lon);
+  setRouteMarker(lat, lon, type);
+  map.setView([lat, lon], 15);
+  if (type === 'start') { startCoords = { lat, lon }; document.getElementById('start').value = place.display_name; }
+  else { endCoords = { lat, lon }; document.getElementById('end').value = place.display_name; }
+  document.getElementById(`suggestions-${type}`).innerHTML = '';
+  if (document.getElementById(type === 'start' ? 'end' : 'start').value) window.calculateRoute();
+}
+
+// Tauscht Start und Ziel (Koordinaten, Felder und Marker), berechnet Route neu
+window.swapRoute = function () {
+  const s = document.getElementById('start');
+  const e = document.getElementById('end');
+  [s.value, e.value] = [e.value, s.value];
+  [startCoords, endCoords] = [endCoords, startCoords];
+  [startMarker, endMarker] = [endMarker, startMarker];
+  if (s.value && e.value) window.calculateRoute();
+};
+
+// ─── Karten-Marker ───────────────────────────────────────────────────────────
 
 // Setzt einen verschiebbaren Start- oder Ziel-Marker
 // Bei Drag-Ende: Koordinaten und Adressfeld aktualisieren, Route neu berechnen
@@ -798,46 +841,6 @@ map.on('dblclick', function () {
     if (drawVertices.length >= 3) finishDrawing();
   }
 });
-
-// ─── Adress-Autocomplete ─────────────────────────────────────────────────────
-
-// Sucht ab 3 Zeichen Vorschläge über Nominatim und zeigt max. 5 Ergebnisse
-window.searchAddress = async function (type) {
-  const query = document.getElementById(type).value;
-  if (query.length < 3) return;
-  const data = await (await fetch(`${window.NOMINATIM_URL}/search?q=${encodeURIComponent(query)}&format=json`)).json();
-  const list = document.getElementById(`suggestions-${type}`);
-  list.innerHTML = '';
-  data.slice(0, 5).forEach(place => {
-    const li = document.createElement('li');
-    li.innerText = place.display_name;
-    li.onclick = () => selectAddress(place, type);
-    list.appendChild(li);
-  });
-};
-
-// Übernimmt einen Vorschlag: setzt Koordinaten, Marker und Eingabefeld
-// Startet automatisch Routenberechnung wenn beide Felder gefüllt sind
-function selectAddress(place, type) {
-  const lat = parseFloat(place.lat);
-  const lon = parseFloat(place.lon);
-  setRouteMarker(lat, lon, type);
-  map.setView([lat, lon], 15);
-  if (type === 'start') { startCoords = { lat, lon }; document.getElementById('start').value = place.display_name; }
-  else { endCoords = { lat, lon }; document.getElementById('end').value = place.display_name; }
-  document.getElementById(`suggestions-${type}`).innerHTML = '';
-  if (document.getElementById(type === 'start' ? 'end' : 'start').value) window.calculateRoute();
-}
-
-// Tauscht Start und Ziel (Koordinaten, Felder und Marker), berechnet Route neu
-window.swapRoute = function () {
-  const s = document.getElementById('start');
-  const e = document.getElementById('end');
-  [s.value, e.value] = [e.value, s.value];
-  [startCoords, endCoords] = [endCoords, startCoords];
-  [startMarker, endMarker] = [endMarker, startMarker];
-  if (s.value && e.value) window.calculateRoute();
-};
 
 // ─── Sidebar & Theme ─────────────────────────────────────────────────────────
 

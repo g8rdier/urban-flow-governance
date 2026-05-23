@@ -1,6 +1,10 @@
+// ════════════════════════════════════════════════════════════════════════════
+// BLOCK 1 — KARTE & THEME
+// Karten-Initialisierung, Tile-Layer, Sidebar, Theme-Toggle, globaler Zustand
+// ════════════════════════════════════════════════════════════════════════════
+
 // [Elizat 8.1]
 
-// ─── Karte initialisieren ────────────────────────────────────────────────────
 // Leaflet-Karte erstellen, zentriert auf München (Koordinaten + Zoomstufe 13)
 // doubleClickZoom deaktiviert, damit Doppelklick zum Zeichnen genutzt werden kann
 const map = L.map('map', { doubleClickZoom: false }).setView([48.137, 11.576], 13);
@@ -21,6 +25,24 @@ applyTileLayer(localStorage.getItem('theme') || 'light');
 
 // Layer-Gruppe für alle Sperrzonen auf der Karte
 const zonesLayer = L.layerGroup().addTo(map);
+
+// Klappt die Sidebar ein oder aus, Karte passt Größe danach an
+window.toggleSidebar = function () {
+  const sidebar = document.getElementById('sidebar');
+  const btn = document.getElementById('sidebar-collapse-btn');
+  const collapsed = sidebar.classList.toggle('collapsed');
+  btn.classList.toggle('collapsed', collapsed);
+  btn.innerHTML = collapsed ? '&#8250;' : '&#8249;';
+  setTimeout(() => map.invalidateSize(), 310); // warten bis CSS-Animation fertig
+};
+
+// Wechselt zwischen Dark- und Light-Theme, speichert Auswahl im localStorage
+window.toggleTheme = function () {
+  const next = document.documentElement.getAttribute('data-theme') === 'dark' ? 'light' : 'dark';
+  document.documentElement.setAttribute('data-theme', next);
+  localStorage.setItem('theme', next);
+  applyTileLayer(next);
+};
 
 // ─── Globaler Zustand ────────────────────────────────────────────────────────
 let currentUser = null;       // eingeloggter Benutzer (Rolle etc.)
@@ -49,9 +71,13 @@ let adminZonesCache = [];     // zwischengespeicherte Zonenliste für schnellen 
 let adminUsersCache = [];     // zwischengespeicherte Benutzerliste
 let currentEditUserId = null; // ID des Benutzers der gerade bearbeitet wird
 
-// [Elizat 8.2]
 
-// ─── Authentifizierung ───────────────────────────────────────────────────────
+// ════════════════════════════════════════════════════════════════════════════
+// BLOCK 2 — AUTHENTIFIZIERUNG
+// Login, Logout, Registrierung, Session, JWT-Token
+// ════════════════════════════════════════════════════════════════════════════
+
+// [Elizat 8.2]
 
 // Erstellt den Authorization-Header mit dem gespeicherten JWT-Token
 // Wird jedem API-Request mitgegeben, der Authentifizierung benötigt
@@ -152,6 +178,12 @@ window.submitRegister = async function (e) {
   await initSession(loginResult.data.token, loginResult.data.role);
 };
 
+
+// ════════════════════════════════════════════════════════════════════════════
+// BLOCK 3 — ADMIN-PANEL
+// Panel-Steuerung, Sperrzonen verwalten, Zeichenmodus, Benutzerverwaltung
+// ════════════════════════════════════════════════════════════════════════════
+
 // ─── Panel-Steuerung ─────────────────────────────────────────────────────────
 
 // Wechselt zwischen Nutzer-Panel und Admin-Panel
@@ -174,7 +206,7 @@ window.setAdminTab = function (tab) {
   if (tab === 'users') loadAdminUserList();
 };
 
-// ─── Karte: Sperrzonen-Anzeige ───────────────────────────────────────────────
+// ─── Sperrzonen auf der Karte ────────────────────────────────────────────────
 
 // Lädt alle Zonen (PLANNED/ACTIVE/EXPIRED) von der API und zeichnet sie farbig auf die Karte
 window.loadZones = async function () {
@@ -240,9 +272,9 @@ window.toggleAdminZones = async function () {
   }
 };
 
-// [Elizat 8.4]
+// ─── Zeichenmodus für Sperrzonen ─────────────────────────────────────────────
 
-// ─── Admin: Zeichenmodus für Sperrzonen ──────────────────────────────────────
+// [Elizat 8.4]
 
 // Aktiviert den Zeichenmodus: Cursor wird zum Kreuz, Vertices-Array wird geleert
 window.startDrawing = function () {
@@ -301,7 +333,7 @@ function finishDrawing() {
   document.getElementById('zone-form-panel').style.display = '';
 }
 
-// ─── Admin: Zonenverwaltung ───────────────────────────────────────────────────
+// ─── Zonenverwaltung (CRUD) ───────────────────────────────────────────────────
 
 // Speichert eine neue Zone (POST) oder aktualisiert eine bestehende (PUT)
 // Konvertiert die gezeichneten Leaflet-Koordinaten in ein GeoJSON-Polygon
@@ -466,7 +498,7 @@ window.editZone = async function (id) {
   }
 };
 
-// ─── Admin: Benutzerverwaltung ───────────────────────────────────────────────
+// ─── Benutzerverwaltung ───────────────────────────────────────────────────────
 
 // Lädt alle Benutzer und zeigt sie im Admin-Panel an
 async function loadAdminUserList() {
@@ -572,9 +604,15 @@ window.submitUser = async function (e) {
   loadAdminUserList();
 };
 
+
+// ════════════════════════════════════════════════════════════════════════════
+// BLOCK 4 — NUTZER-PANEL
+// Geocoding, Routenberechnung, Adress-Autocomplete, Marker, Karten-Events
+// ════════════════════════════════════════════════════════════════════════════
+
 // [Elizat 8.3]
 
-// ─── Nutzer: Geocoding & Hilfsfunktionen ─────────────────────────────────────
+// ─── Geocoding ───────────────────────────────────────────────────────────────
 
 // Sucht eine Adresse über die Nominatim-API und gibt lat/lon zurück
 async function geocode(address) {
@@ -592,6 +630,48 @@ async function reverseGeocode(lat, lon) {
     return data.display_name || null;
   } catch { return null; }
 }
+
+// Sucht ab 3 Zeichen Vorschläge über Nominatim und zeigt max. 5 Ergebnisse
+window.searchAddress = async function (type) {
+  const query = document.getElementById(type).value;
+  if (query.length < 3) return;
+  const data = await (await fetch(`${window.NOMINATIM_URL}/search?q=${encodeURIComponent(query)}&format=json`)).json();
+  const list = document.getElementById(`suggestions-${type}`);
+  list.innerHTML = '';
+  data.slice(0, 5).forEach(place => {
+    const li = document.createElement('li');
+    li.innerText = place.display_name;
+    li.onclick = () => selectAddress(place, type);
+    list.appendChild(li);
+  });
+};
+
+// Übernimmt einen Vorschlag: setzt Koordinaten, Marker und Eingabefeld
+// Startet automatisch Routenberechnung wenn beide Felder gefüllt sind
+function selectAddress(place, type) {
+  const lat = parseFloat(place.lat);
+  const lon = parseFloat(place.lon);
+  setRouteMarker(lat, lon, type);
+  map.setView([lat, lon], 15);
+  if (type === 'start') { startCoords = { lat, lon }; document.getElementById('start').value = place.display_name; }
+  else { endCoords = { lat, lon }; document.getElementById('end').value = place.display_name; }
+  document.getElementById(`suggestions-${type}`).innerHTML = '';
+  if (document.getElementById(type === 'start' ? 'end' : 'start').value) window.calculateRoute();
+}
+
+// Tauscht Start und Ziel (Koordinaten, Felder und Marker), berechnet Route neu
+window.swapRoute = function () {
+  const s = document.getElementById('start');
+  const e = document.getElementById('end');
+  [s.value, e.value] = [e.value, s.value];
+  [startCoords, endCoords] = [endCoords, startCoords];
+  [startMarker, endMarker] = [endMarker, startMarker];
+  if (s.value && e.value) window.calculateRoute();
+};
+
+// ─── Routenberechnung ────────────────────────────────────────────────────────
+
+// [Gregor 7.1]
 
 // Formatiert Sekunden in lesbare Zeitangabe (z.B. "1 h 23 Min")
 function formatDuration(seconds) {
@@ -619,10 +699,6 @@ function showRouteInfo(distanceMeters, drivingSeconds) {
   document.getElementById('route-time-walk').textContent = formatDuration(walkSeconds);
   document.getElementById('route-info').style.display = '';
 }
-
-// ─── Nutzer: Routenberechnung ─────────────────────────────────────────────────
-
-// [Gregor 7.1]
 
 // Berechnet Route über OSRM, zeichnet sie auf der Karte und prüft Sperrzonen
 async function doRouting() {
@@ -733,47 +809,7 @@ window.requestAlternativeRoute = async function () {
   }
 };
 
-// ─── Nutzer: Adress-Autocomplete ─────────────────────────────────────────────
-
-// Sucht ab 3 Zeichen Vorschläge über Nominatim und zeigt max. 5 Ergebnisse
-window.searchAddress = async function (type) {
-  const query = document.getElementById(type).value;
-  if (query.length < 3) return;
-  const data = await (await fetch(`${window.NOMINATIM_URL}/search?q=${encodeURIComponent(query)}&format=json`)).json();
-  const list = document.getElementById(`suggestions-${type}`);
-  list.innerHTML = '';
-  data.slice(0, 5).forEach(place => {
-    const li = document.createElement('li');
-    li.innerText = place.display_name;
-    li.onclick = () => selectAddress(place, type);
-    list.appendChild(li);
-  });
-};
-
-// Übernimmt einen Vorschlag: setzt Koordinaten, Marker und Eingabefeld
-// Startet automatisch Routenberechnung wenn beide Felder gefüllt sind
-function selectAddress(place, type) {
-  const lat = parseFloat(place.lat);
-  const lon = parseFloat(place.lon);
-  setRouteMarker(lat, lon, type);
-  map.setView([lat, lon], 15);
-  if (type === 'start') { startCoords = { lat, lon }; document.getElementById('start').value = place.display_name; }
-  else { endCoords = { lat, lon }; document.getElementById('end').value = place.display_name; }
-  document.getElementById(`suggestions-${type}`).innerHTML = '';
-  if (document.getElementById(type === 'start' ? 'end' : 'start').value) window.calculateRoute();
-}
-
-// Tauscht Start und Ziel (Koordinaten, Felder und Marker), berechnet Route neu
-window.swapRoute = function () {
-  const s = document.getElementById('start');
-  const e = document.getElementById('end');
-  [s.value, e.value] = [e.value, s.value];
-  [startCoords, endCoords] = [endCoords, startCoords];
-  [startMarker, endMarker] = [endMarker, startMarker];
-  if (s.value && e.value) window.calculateRoute();
-};
-
-// ─── Karten-Marker ───────────────────────────────────────────────────────────
+// ─── Marker & Karten-Events ───────────────────────────────────────────────────
 
 // Setzt einen verschiebbaren Start- oder Ziel-Marker
 // Bei Drag-Ende: Koordinaten und Adressfeld aktualisieren, Route neu berechnen
@@ -800,8 +836,6 @@ function setRouteMarker(lat, lon, type) {
     });
   }
 }
-
-// ─── Karten-Events ───────────────────────────────────────────────────────────
 
 // Klick auf die Karte: im Zeichenmodus → Vertex hinzufügen
 // Im Nutzer-Panel → ersten Klick als Start, zweiten als Ziel setzen
@@ -842,27 +876,12 @@ map.on('dblclick', function () {
   }
 });
 
-// ─── Sidebar & Theme ─────────────────────────────────────────────────────────
 
-// Klappt die Sidebar ein oder aus, Karte passt Größe danach an
-window.toggleSidebar = function () {
-  const sidebar = document.getElementById('sidebar');
-  const btn = document.getElementById('sidebar-collapse-btn');
-  const collapsed = sidebar.classList.toggle('collapsed');
-  btn.classList.toggle('collapsed', collapsed);
-  btn.innerHTML = collapsed ? '&#8250;' : '&#8249;';
-  setTimeout(() => map.invalidateSize(), 310); // warten bis CSS-Animation fertig
-};
+// ════════════════════════════════════════════════════════════════════════════
+// BLOCK 5 — INITIALISIERUNG
+// Seite laden, Theme & Session wiederherstellen
+// ════════════════════════════════════════════════════════════════════════════
 
-// Wechselt zwischen Dark- und Light-Theme, speichert Auswahl im localStorage
-window.toggleTheme = function () {
-  const next = document.documentElement.getAttribute('data-theme') === 'dark' ? 'light' : 'dark';
-  document.documentElement.setAttribute('data-theme', next);
-  localStorage.setItem('theme', next);
-  applyTileLayer(next);
-};
-
-// ─── Initialisierung beim Laden der Seite ────────────────────────────────────
 document.addEventListener('DOMContentLoaded', function () {
   // Gespeichertes Theme wiederherstellen
   const saved = localStorage.getItem('theme');

@@ -121,6 +121,10 @@ window.submitRegister = async function (e) {
   });
   const loginResult = await loginRes.json();
 
+  if (loginResult.status !== 'success') {
+    error.textContent = loginResult.msg || 'Auto-Login fehlgeschlagen.';
+    return;
+  }
   await initSession(loginResult.data.token, loginResult.data.role);
 };
 

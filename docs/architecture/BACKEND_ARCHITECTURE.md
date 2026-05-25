@@ -35,7 +35,7 @@ graph TD
         RZ[RestrictedZone]
     end
 
-    DB[(H2 Database)]
+    DB[(PostgreSQL Database)]
 
     Client -->|HTTP Request| RI
     RI -->|Token & Rolle OK| UC

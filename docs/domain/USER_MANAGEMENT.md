@@ -31,7 +31,7 @@ erDiagram
     }
 
     USER ||--|| USER_CREDENTIAL : "hasOne"
-    USER ||--o{ AUTH_TOKEN : "has many"
+    USER ||--|| AUTH_TOKEN : "hasOne"
     USER ||--o{ RESTRICTED_ZONE : "createdBy"
 ```
 

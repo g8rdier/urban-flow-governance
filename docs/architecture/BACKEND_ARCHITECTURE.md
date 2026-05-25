@@ -58,6 +58,96 @@ graph TD
     RZ --> DB
 ```
 
+## Sequenzdiagramme
+
+### Route Check (`POST /api/route/check`)
+
+```mermaid
+sequenceDiagram
+    participant C as Client
+    participant RI as RoleCheckInterceptor
+    participant RC as RouteController
+    participant RCS as RouteCheckService
+    participant DB as PostgreSQL
+
+    C->>RI: POST /api/route/check
+    RI->>RI: Bearer-Token & Rolle prüfen
+    RI->>RC: check()
+    RC->>RCS: checkRoute(routeCoordinates)
+    RCS->>DB: findAllByStatus("ACTIVE")
+    DB-->>RCS: aktive Sperrzonen
+    RCS->>RCS: Routenschnitt mit jeder Zone prüfen
+    alt keine Kollision
+        RCS-->>RC: {status: "OK"}
+    else Kollision
+        RCS-->>RC: {status: "WARNING", zones: [...]}
+    end
+    RC-->>C: 200 ApiResponse
+```
+
+### Alternative Route (`POST /api/route/alternative`)
+
+```mermaid
+sequenceDiagram
+    participant C as Client
+    participant RI as RoleCheckInterceptor
+    participant RC as RouteController
+    participant RCS as RouteCheckService
+    participant OSRM as OSRM
+    participant DB as PostgreSQL
+
+    C->>RI: POST /api/route/alternative
+    RI->>RI: Bearer-Token & Rolle prüfen
+    RI->>RC: alternative()
+    RC->>RCS: findAlternativeRoute(start, end)
+
+    RCS->>OSRM: GET /route (alternatives=true)
+    OSRM-->>RCS: natürliche Alternativen
+    RCS->>DB: findAllByStatus("ACTIVE")
+    DB-->>RCS: aktive Sperrzonen
+
+    loop für jede OSRM-Route
+        RCS->>RCS: Zonenschnitt prüfen
+    end
+
+    alt zonenfreie Route gefunden
+        RCS-->>RC: {status: "OK", geometry, distance}
+    else alle Routen blockiert
+        RCS->>RCS: blockierende Zonen ermitteln
+
+        note over RCS,OSRM: Phase 1 – Boundary Sampling
+        loop Zonenpunkte × 6 Offsets (50–300 m)
+            RCS->>OSRM: GET /route (start → waypoint → end)
+            OSRM-->>RCS: Route
+            RCS->>RCS: Zonenschnitt prüfen
+        end
+
+        note over RCS,OSRM: Phase 2 – Angular Rings (15 Ringe × 24 Punkte)
+        loop bis zonenfreie Route gefunden
+            RCS->>OSRM: GET /route (start → waypoint → end)
+            OSRM-->>RCS: Route
+            RCS->>RCS: Zonenschnitt prüfen
+        end
+
+        opt Phase 1 & 2 erfolglos
+            note over RCS,OSRM: Phase 3 – Double Waypoint
+            loop 2 Wegpunkte pro Ring
+                RCS->>OSRM: GET /route (start → wp1 → wp2 → end)
+                OSRM-->>RCS: Route
+                RCS->>RCS: Zonenschnitt prüfen
+            end
+        end
+
+        alt zonenfreie Kandidaten vorhanden
+            RCS-->>RC: kürzeste Route {status: "OK", ...}
+        else
+            RCS-->>RC: {status: "NONE_FOUND"}
+        end
+    end
+
+    RC-->>C: 200 ApiResponse
+```
+
 ## Auth-Konzept
 
 Kein Spring Security — die Authentifizierung läuft über einen eigenen `AuthToken` (UUID). Der `RoleCheckInterceptor` prüft vor jedem Request den Bearer-Token und wertet die `@RequiredRoles`-Annotation auf der jeweiligen Controller-Methode aus.

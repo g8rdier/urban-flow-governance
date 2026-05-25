@@ -68,7 +68,7 @@ stateDiagram-v2
     Gueltig --> Widerrufen : DELETE /api/session (Logout)
     Gueltig --> Verwaist : User-Referenz fehlt (Orphaned)
     Gueltig --> Gueltig : GET /api/session (Validierung, TTL noch ok)
-    Gueltig --> [*] : Neuer Login desselben Users\n(Single-Session: alter Token geloescht)
+    Gueltig --> [*] : Neuer Login desselben Users (Single-Session: alter Token geloescht)
 
     Abgelaufen --> [*] : Token geloescht
     Widerrufen --> [*] : Token geloescht
@@ -79,13 +79,13 @@ stateDiagram-v2
 
 ```mermaid
 stateDiagram-v2
-    [*] --> NUTZER : POST /api/users\n(kein Token oder NUTZER-Token)
-    [*] --> ADMIN : POST /api/users\n(gueltiger ADMIN-Token)
+    [*] --> NUTZER : POST /api/users (kein Token oder NUTZER-Token)
+    [*] --> ADMIN : POST /api/users (gueltiger ADMIN-Token)
 
     NUTZER --> NUTZER : PUT/PATCH eigenes Konto\noder ADMIN aendert Daten
     ADMIN --> ADMIN : PUT/PATCH (durch ADMIN)
-    NUTZER --> ADMIN : PUT/PATCH role=ADMIN\n(ADMIN-Berechtigung erforderlich)
-    ADMIN --> NUTZER : PUT/PATCH role=NUTZER\n(ADMIN-Berechtigung erforderlich)
+    NUTZER --> ADMIN : PUT/PATCH role=ADMIN (ADMIN-Berechtigung erforderlich)
+    ADMIN --> NUTZER : PUT/PATCH role=NUTZER (ADMIN-Berechtigung erforderlich)
 
     NUTZER --> [*] : DELETE /api/users/{id} (ADMIN)
     ADMIN --> [*] : DELETE /api/users/{id} (ADMIN)

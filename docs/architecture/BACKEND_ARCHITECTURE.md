@@ -36,6 +36,7 @@ graph TD
     end
 
     DB[(PostgreSQL Database)]
+    OSRM["OSRM<br/>(osrm.servicecluster.de)"]
 
     Client -->|HTTP Request| RI
     RI -->|Token & Rolle OK| UC
@@ -50,6 +51,7 @@ graph TD
     UMS --> AT
     RZS --> RZ
     RCS --> RZ
+    RCS -->|HTTP: Routenberechnung & Alternativen| OSRM
     U --> DB
     UCRED --> DB
     AT --> DB

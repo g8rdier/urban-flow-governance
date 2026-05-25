@@ -2,7 +2,7 @@
 
 ## Technologie-Stack
 
-Grails 6 (Groovy / Spring Boot), H2-Datenbank, JTS für Geometrie-Operationen.
+Grails 6 (Groovy / Spring Boot), PostgreSQL-Datenbank, JTS für Geometrie-Operationen.
 
 ## Schichtendiagramm
 

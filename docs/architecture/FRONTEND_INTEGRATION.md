@@ -69,6 +69,17 @@ const validateRoute = async (coordinates) => {
 };
 ```
 
+```mermaid
+flowchart LR
+    U(["Nutzer"]) -->|Start & Ziel| FE["Frontend"]
+    FE -->|"GET /route/v1/driving/..."| OSRM["OSRM"]
+    OSRM -->|GeoJSON-Route| FE
+    FE -->|"L.geoJSON()"| MAP["Karte"]
+    FE -->|"POST /api/route/check"| BE["Backend"]
+    BE -->|"OK / WARNING"| FE
+    FE -->|Einfärbung grün / rot| MAP
+```
+
 ### 4. Adresssuche & Geocoding
 Um US-4.1 und US-4.2 zu erfüllen, bietet das Frontend zwei Einstiegspunkte:
 *   **Nominatim API:** Verwandelt Texteingaben (z.B. "Marktplatz 1") in Koordinaten.

@@ -79,7 +79,7 @@ let currentEditUserId = null; // ID des Benutzers der gerade bearbeitet wird
 
 // [Elizat 8.2]
 
-// Erstellt den Authorization-Header mit dem gespeicherten JWT-Token
+// Erstellt den Authorization-Header mit dem gespeicherten Token
 // Wird jedem API-Request mitgegeben, der Authentifizierung benötigt
 function authHeaders(extra = {}) {
   const token = localStorage.getItem('token');
@@ -609,8 +609,6 @@ window.submitUser = async function (e) {
 // BLOCK 4 — NUTZER-PANEL
 // Geocoding, Routenberechnung, Adress-Autocomplete, Marker, Karten-Events
 // ════════════════════════════════════════════════════════════════════════════
-
-// [Elizat 8.3]
 
 // ─── Geocoding ───────────────────────────────────────────────────────────────
 
